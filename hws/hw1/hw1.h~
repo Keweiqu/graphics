@@ -1,0 +1,12 @@
+int line_available(Shape* tail);
+int triangle_available(Shape* tail);
+void exec_cursor_line();
+void exec_cursor_triangle();
+void exec_mouse_down_triangle();
+void exec_mouse_down_line();
+void exec_mouse_down_point();
+void draw_point(Point* point);
+void draw_line(Line* line);
+void draw_triangle(Triangle* triangle);
+void draw_shape(Shape* shape);
+void draw_shapes(Shape* shapes);

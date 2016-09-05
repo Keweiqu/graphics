@@ -1,0 +1,128 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#ifdef __APPLE__
+#include <GLFW/glfw3.h>
+#else
+#include <GLFW/glfw3.h>
+#endif
+#include <string.h>
+#include "shapes.h"
+
+Point *make_point(GLfloat x, GLfloat y, GLfloat color[]) {
+  Point *p;
+  if( (p = (Point *) malloc(sizeof(Point))) != NULL) {
+    p->show = TRUE;
+    p->x = x;
+    p->y = y;
+    p->color = color;
+  } else {
+    printf("Out of memory\n");
+    exit(0);
+  }
+  return p;
+}
+
+Line *make_line(Point* v1, Point* v2, GLfloat color[], int dashed) {
+  Line * line;
+  if((line = (Line *) malloc(sizeof(Line))) != NULL) {
+    line->v1 = v1;
+    line->v2 = v2;
+    line->color = (GLfloat *) malloc(sizeof(GLfloat) * 3);
+    memcpy(line->color, color, sizeof(GLfloat) * 3);
+    line->dashed = dashed;
+  } else {
+    printf("Out of memory\n");
+    exit(0);
+  }
+  return line;
+}
+
+Triangle *make_triangle(Point* v1, Point* v2, Point* v3, GLfloat color[]) {
+  Triangle* tri;
+  if((tri = (Triangle *) malloc(sizeof(Triangle))) != NULL) {
+    if(v1->x < v2->x){
+      tri->v1 = v1;
+      tri->v2 = v2;
+    } else {
+      tri->v1 = v2;
+      tri->v2 = v1;
+    }
+    GLfloat slope = (tri->v1->y - tri->v2->y) / (tri->v1->x - tri->v2->x);
+    if(slope * (v3->x) <= v3->y){
+      tri->v3 = v3;
+    } else {
+      Point* temp = tri->v2;
+      tri->v2 = v3;
+      tri->v3 = temp;
+    }
+    tri->color = (GLfloat *) malloc(sizeof(GLfloat) * 3);
+    memcpy(tri->color, color, sizeof(GLfloat) * 3);
+    tri->dashed = TRUE;
+  } else {
+    printf("Out of memory\n");
+    exit(0);
+  }
+  return tri;
+}
+
+Shape *make_shape(int type, void *data) {
+  Shape* shape;
+  if((shape = (Shape *) malloc(sizeof(Shape))) != NULL) {
+    shape->type = type;
+    shape->data = data;
+  } else {
+    printf("Out of memory\n");
+    exit(0);
+  }
+  return shape;
+}
+
+void insert_shape(Shape* tail, Shape* new_shape){
+  new_shape->next = tail;
+  new_shape->prev = tail->prev;
+  tail->prev->next = new_shape;
+  tail->prev = new_shape;
+}
+
+void remove_prev(Shape* shape) {
+  Shape* target = shape->prev;
+  shape->prev = target->prev;
+  target->prev->next = shape;
+  free_one_shape(target);
+}
+
+void free_one_shape(Shape* shape) {
+  shape->prev = NULL;
+  shape->next = NULL;
+  switch(shape->type){
+  case POINT:
+    free_point((Point *) shape->data);
+    break;
+  case LINE:
+    free_line((Line *) shape->data);
+    break;
+  default:
+    break;
+  }
+  free(shape);
+}
+
+void free_point(Point* point) {
+  free(point);
+}
+
+void free_line(Line * line) {
+  free(line->color);
+  free(line);
+}
+
+void print_list(Shape* head) {
+  printf("%d\n", head->type);
+  Shape* current = head->next;
+  while(current->type != -1){
+    printf("%d\n", current->type);
+    current = current->next;
+  }
+  printf("%d\n", current->type);
+}

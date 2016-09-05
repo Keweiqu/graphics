@@ -1,0 +1,9 @@
+#include "lab0.h"
+
+Integer *make_int(int x) {
+  Integer *i;
+  if((c = (Integer *) malloc(sizeof(Integer))) != NULL) {
+    i->data = x;
+  }
+  return i;
+}
