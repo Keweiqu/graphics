@@ -409,6 +409,14 @@ void draw_circle(Circle* circle) {
 }
 
 
+void draw_shapes(Shape* shapes){
+  Shape* current = shapes->next;
+  while(current->type != -1) {
+    draw_shape(current);
+    current = current->next;
+  }
+}
+
 void draw_shape(Shape* shape) {
   switch(shape->type){
   case POINT:
@@ -430,14 +438,6 @@ void draw_shape(Shape* shape) {
     break;
   }
 }
-
-void draw_shapes(Shape* shapes){
-  Shape* current = shapes->next;
-  while(current->type != -1) {
-    draw_shape(current);
-    current = current->next;
-  }
-}
 void init() {
   // Set the clear color to white
   glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -457,18 +457,23 @@ void reshape(GLFWwindow *w, int width, int height){
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   if(action == GLFW_PRESS || action == GLFW_REPEAT) {
     switch(key) {
+    case 'f':
     case 'F':
       fill = (fill == TRUE) ? FALSE : TRUE;
     break;
+    case 'r':
     case 'R':
       toggle_color(color, RED);
       break;
+    case 'g':
     case 'G':
       toggle_color(color, GREEN);
       break;
+    case 'b':
     case 'B':
       toggle_color(color, BLUE);
       break;
+    case 'c':
     case 'C':
       free_all_shapes(head);
       break;
@@ -629,5 +634,7 @@ int main(int argc, char **argv) {
   }
 
   glfwTerminate();
+  free_one_shape(head);
+  free_one_shape(tail);
   exit(EXIT_SUCCESS);
 }
