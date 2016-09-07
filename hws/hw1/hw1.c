@@ -15,8 +15,6 @@ Two points removed during left mouse up
 
 #include "hw1.h"
 
-
-
 double mouseX, mouseY;
 int shape_mode = LINE;
 GLfloat color[] = {0.0, 0.0, 0.0};
@@ -91,6 +89,8 @@ void free_triangle(Triangle * triangle) {
 }
 
 void free_rect(Rect* rect) {
+  free(rect->v2);
+  free(rect->v4);
   if(rect->color != color) {
     free(rect->color);
   }
@@ -98,6 +98,7 @@ void free_rect(Rect* rect) {
 }
 
 void free_circle(Circle* circle) {
+  free(circle->center);
   if(circle->color != color) {
     free(circle->color);
   }
@@ -498,6 +499,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   case GLFW_KEY_ESCAPE :
   case 'q' :
   case 'Q':
+    free_all_shapes(head);
     glfwSetWindowShouldClose(w, GL_TRUE);
     break;
   default:
