@@ -6,6 +6,14 @@ GLfloat calc_radius(Point* center, Point * edge) {
   return sqrt(delta_x * delta_x + delta_y * delta_y);
 }
 
+void calc_circle_indices(Circle* circle) {
+  unsigned int i;
+  for(i = 0; i <= NUM_SLICE; i++) {
+    circle->x_cache[i] = circle->center->x + circle->radius * cos(i * DELTA);
+    circle->y_cache[i] = circle->center->y + circle->radius * sin(i * DELTA);
+  }
+}
+
 Point *make_point(GLfloat x, GLfloat y, GLfloat color[]) {
   Point *p;
   if( (p = (Point *) malloc(sizeof(Point))) != NULL) {
@@ -87,6 +95,9 @@ Circle * make_circle(Point* diag1, Point* diag2, GLfloat color[]) {
     circle->v2 = diag2;
     circle->center = make_point((diag1->x + diag2->x)/2, (diag1->y + diag2->y) /2, color);
     circle->radius = calc_radius(circle->center, circle->v1);
+    circle->x_cache = (GLfloat *) malloc(sizeof(GLfloat) * (NUM_SLICE + 1));
+    circle->y_cache = (GLfloat *) malloc(sizeof(GLfloat) * (NUM_SLICE + 1));
+    calc_circle_indices(circle);
     circle->color = color;
     circle->dashed = TRUE;
     circle->fill = FALSE;

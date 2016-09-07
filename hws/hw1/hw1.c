@@ -98,6 +98,8 @@ void free_rect(Rect* rect) {
 }
 
 void free_circle(Circle* circle) {
+  free(circle->x_cache);
+  free(circle->y_cache);
   free(circle->center);
   if(circle->color != color) {
     free(circle->color);
@@ -211,6 +213,7 @@ void exec_cursor_circle() {
       circle->center->x = (circle->v1->x + mouseX) / 2;
       circle->center->y = (circle->v1->y + mouseY) / 2;
       circle->radius = calc_radius(circle->center, circle->v1);
+      calc_circle_indices(circle);
     }
   }
 }
@@ -402,9 +405,7 @@ void draw_circle(Circle* circle) {
   }
   unsigned int i;
   for(i = 0; i <= NUM_SLICE; i++) {
-    GLfloat x = circle->center->x + circle->radius * cos(i * DELTA);
-    GLfloat y = circle->center->y + circle->radius * sin(i * DELTA);
-    glVertex2f(x, y);
+    glVertex2f(circle->x_cache[i], circle->y_cache[i]);
   }
   glEnd();
 }
