@@ -454,24 +454,71 @@ void draw_circle(Circle* circle) {
   glEnd();
 }
 
-void draw_polygon(Polygon* polygon) {
+void draw_polygon_not_finished(Polygon* polygon) {
   unsigned int i;
+  for(i = 0; i < polygon->size; i++) {
+    draw_point(polygon->cache[i]);
+  }
+  glBegin(GL_LINE_STRIP);
+  for(i = 0; i < polygon->size; i++) {
+    glVertex2f(polygon->cache[i]->x, polygon->cache[i]->y);
+  }
+  glEnd();
+}
+
+void draw_polygon_nofill(Polygon* polygon) {
+  unsigned int i;
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  glBegin(GL_LINE_LOOP);
+  for(i = 0; i < polygon->size; i++) {
+    glVertex2f(polygon->cache[i]->x, polygon->cache[i]->y);
+  }
+  glEnd();
+}
+
+void draw_polygon_fill(Polygon* polygon) {
+  unsigned int i;
+  glEnable(GL_STENCIL_TEST);
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  glStencilFunc(GL_ALWAYS, 0, 1);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
+  glStencilMask(1);
+  glBegin(GL_POLYGON);
+  for(i = 0; i < polygon->size; i++) {
+    glVertex2f(polygon->cache[i]->x, polygon->cache[i]->y);
+  }
+  glEnd();
+
+
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glStencilFunc(GL_EQUAL, 1, 1);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glBegin(GL_POLYGON);
+  for(i = 0; i < polygon->size; i++) {
+    glVertex2f(polygon->cache[i]->x, polygon->cache[i]->y);
+  }
+  glEnd();
+  glDisable(GL_STENCIL_TEST);
+}
+
+void draw_polygon(Polygon* polygon) {
   if(polygon->size == 1) {
     draw_point(polygon->cache[0]);
-  } else {
-    if(polygon->finished) {
-      glBegin(GL_LINE_LOOP);
-    } else {
-      for(i = 0; i < polygon->size; i++) {
-	draw_point(polygon->cache[i]);
-      }
-      glBegin(GL_LINE_STRIP);
-    }
-    for(i = 0; i < polygon->size; i++) {
-      glVertex2f(polygon->cache[i]->x, polygon->cache[i]->y);
-    }
-    glEnd();
+    return;
   }
+  
+  if(polygon->finished) {
+    if(polygon->fill){
+      draw_polygon_fill(polygon);
+    } else {
+      draw_polygon_nofill(polygon);
+    }
+  } else {
+    draw_polygon_not_finished(polygon);
+  }
+  
 }
 
 void draw_shapes(Shape* shapes){
@@ -703,7 +750,7 @@ int main(int argc, char **argv) {
   // Loop until the user closes the window 
   while (!glfwWindowShouldClose(window)) {
     // clear to background color
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
     draw_shapes(head);
     
