@@ -102,4 +102,7 @@ void cache_polygon_vertices(Polygon* polygon);
 void insert_shape(Shape* tail, Shape* new_shape);
 void print_list(Shape* head);
 
+void triangulate(Polygon* polygon);
+int is_ear(unsigned int index, unsigned int size, Polygon* polygon);
+
 #endif

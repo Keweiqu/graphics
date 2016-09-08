@@ -226,12 +226,12 @@ void exec_cursor_circle() {
 void exec_cursor_polygon() {
   if(pressed) {
     Polygon * polygon = (Polygon *) tail->prev->data;
-    if(polygon->tail->prev->prev == polygon->head){
+    if(count_polygon_sides(polygon) == 1){
       Point* new_point = make_point(mouseX, mouseY, color);
       insert_shape(polygon->tail, make_shape(POINT, new_point));
       cache_polygon_vertices(polygon);
     } else {
-      Point* last_point = (Point *)((Polygon *)tail->prev->data)->tail->prev;
+      Point * last_point = (Point *)polygon->tail->prev->data;
       last_point->x = mouseX;
       last_point->y = mouseY;
     }
@@ -244,12 +244,12 @@ void exec_right_mouse_down(){
     polygon->finished = TRUE;
     polygon->dashed = FALSE;
     polygon->fill = fill;
-    cache_polygon_vertices(polygon);   
   }
 }
 
 void exec_mouse_down_polygon() {
   if(!polygon_available(tail)) {
+    printf("create a new polygon\n");
     Point* init_point = make_point(mouseX, mouseY, color);
     Polygon * polygon = make_polygon(init_point, color);
     insert_shape(tail, make_shape(POLY, polygon));
@@ -456,19 +456,17 @@ void draw_circle(Circle* circle) {
 
 void draw_polygon(Polygon* polygon) {
   unsigned int i;
-  if(polygon->finished){
-    glBegin(GL_LINE_LOOP);
-    if(polygon->size == 1) {
-      draw_point(polygon->cache[0]);
-    }
+  if(polygon->size == 1) {
+    draw_point(polygon->cache[0]);
   } else {
-    for(i = 0; i < polygon->size; i++) {
-      draw_point(polygon->cache[i]);
+    if(polygon->finished) {
+      glBegin(GL_LINE_LOOP);
+    } else {
+      for(i = 0; i < polygon->size; i++) {
+	draw_point(polygon->cache[i]);
+      }
+      glBegin(GL_LINE_STRIP);
     }
-    glBegin(GL_LINE_STRIP);
-    }
-  if(polygon->size > 1) {
-    glBegin(GL_LINE_STRIP);
     for(i = 0; i < polygon->size; i++) {
       glVertex2f(polygon->cache[i]->x, polygon->cache[i]->y);
     }
@@ -500,6 +498,9 @@ void draw_shape(Shape* shape) {
     break;
   case CIRCLE:
     draw_circle((Circle *) shape->data);
+    break;
+  case POLY:
+    draw_polygon((Polygon *) shape->data);
     break;
   default:
     break;
@@ -556,6 +557,9 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case GLFW_KEY_F4:
       shape_mode = CIRCLE;
       break;
+    case GLFW_KEY_F5:
+      shape_mode = POLY;
+      break;
     default:
       break;
     }
@@ -596,6 +600,8 @@ void mouse(GLFWwindow* window, int button, int action, int mods) {
       case CIRCLE:
 	exec_mouse_down_circle();
 	break;
+      case POLY:
+	exec_mouse_down_polygon();
       default:
 	break;
       }
@@ -620,6 +626,11 @@ void mouse(GLFWwindow* window, int button, int action, int mods) {
       }
     }
     break;
+  case GLFW_MOUSE_BUTTON_RIGHT:
+    if(shape_mode == POLY) {
+      exec_right_mouse_down();
+    }
+    break;
   default :
     printf("none\n");
     break;
@@ -641,6 +652,9 @@ void cursor(GLFWwindow* window, double xpos, double ypos) {
     break;
   case CIRCLE:
     exec_cursor_circle();
+    break;
+  case POLY:
+    exec_cursor_polygon();
     break;
   default:
     break;
