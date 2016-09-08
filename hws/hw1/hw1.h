@@ -43,7 +43,6 @@ void draw_circle(Circle* circle);
 void draw_polygon(Polygon* polygon);
 void draw_shape(Shape* shape);
 void draw_shapes(Shape* shapes);
-void free_all_shapes(Shape* head);
 int has_circle(Shape* tail);
 void exec_cursor_line();
 void exec_cursor_triangle();
@@ -73,5 +72,6 @@ void free_line(Line* line);
 void free_triangle(Triangle* triangle);
 void free_rect(Rect* rect);
 void free_circle(Circle* circle);
+void free_polygon(Polygon * polygon);
 void remove_prev(Shape* shape);
 #endif

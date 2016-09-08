@@ -1,18 +1,3 @@
-// OpenGL Tutorial
-// events.c 
-/*************************************************************************
-This example shows how to accept and handle events.  The user should try 
-produce each of the following events: key press, mouse movement, mouse 
-button press, mouse button release, reshape window, and expose window.
-*************************************************************************/
-
-/*
-line is inserted in the order of point - point - line. 
-First point inserted during left mouse button down
-Second point and line inserted during dragging, or second press()
-Two points removed during left mouse up
- */
-
 #include "hw1.h"
 
 double mouseX, mouseY;
@@ -54,6 +39,9 @@ void free_one_shape(Shape* shape) {
     break;
   case CIRCLE:
     free_circle((Circle *) shape->data);
+    break;
+  case POLY:
+    free_polygon((Polygon *) shape->data);
     break;
   default:
     break;
@@ -105,6 +93,14 @@ void free_circle(Circle* circle) {
     free(circle->color);
   }
   free(circle);
+}
+
+void free_polygon(Polygon* polygon) {
+  free_all_shapes(polygon->head);
+  free_one_shape(polygon->head);
+  free_one_shape(polygon->tail);
+  free(polygon->cache);
+  free(polygon);
 }
 
 void toggle_color(GLfloat* target, const GLfloat* option){
@@ -301,6 +297,7 @@ void exec_mouse_down_triangle() {
     insert_shape(tail, make_shape(TRIANGLE, triangle));
   }
 }
+
 
 void exec_mouse_down_line() {
   exec_mouse_down_point();
@@ -624,6 +621,38 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   }
 }
 
+/********************************************************************
+All shapes creation design:
+
+Each shape are inserted into the linked list in the following way:
+
+Line: insert two points in mouse_down or cursor event, depending on
+how users draw the line.
+As soon as there are two new points at the tail of the linked list,
+i.e. a line can be draw in between the two points, draw the line.
+In mouse up event, hide the two points and make dashed line solid
+if in fill mode, or remain dashed if not.
+
+Triangle: while the number of points available is less than 3, behave 
+just like the line, execept always maintain in dashed mode. 
+As soon as there is a dashed line and one point available, draw the
+triangle.
+In mouse up event, hide all three points, change dashed line to solid,
+fill triangle if in fill mode, otherwise, do not fill.
+
+Rect: Insert two points in mouse_down or cursor events. 
+As soon as there are two new points available, draw the rect.
+In mouse up event, hide the two diagon vertices and make dashed line
+solid. Fill rect if in fill mode, otherwise, do not fill.
+
+Circle: ditto^
+
+Polygon: if not in fill mode, draw GL_LINE_STRIP if not finished, 
+or GL_LINE_LOOP if finished.
+If in fill mode, do stencil test, and only draw the areas that pass
+the stencil test odd number of times, i.e. can be seen.
+
+**********************************************************************/
 
 void mouse(GLFWwindow* window, int button, int action, int mods) {
   double xpos, ypos;
