@@ -78,9 +78,13 @@ typedef struct _circle {
 
 typedef struct _polygon {
   Shape* head;
-  Point* cache;
+  Shape* tail;
+  Point** cache;
+  GLfloat* color;
+  unsigned int size;
   int dashed;
   int fill;
+  int finished;
 } Polygon;
 
 GLfloat calc_radius(Point* center, Point* edge);
@@ -90,8 +94,11 @@ Line *make_line(Point* x, Point* y, GLfloat color[]);
 Triangle * make_triangle(Point* v1, Point* v2, Point* v3, GLfloat color[]);
 Rect * make_rect(Point* diag1, Point* diag2, GLfloat color[]);
 Circle * make_circle(Point* diag1, Point* diag2, GLfloat color[]);
-Polygon * make_polygon(Point* init);
+Polygon * make_polygon(Point* init, GLfloat color[]);
 Shape *make_shape(int type, void *data);
+Shape *init_linked_list();
+unsigned int count_polygon_sides(Polygon* polygon);
+void cache_polygon_vertices(Polygon* polygon);
 void insert_shape(Shape* tail, Shape* new_shape);
 void print_list(Shape* head);
 

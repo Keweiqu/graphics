@@ -139,6 +139,11 @@ int circle_available(Shape* tail) {
     ((Point *)(tail->prev->prev->data))->show;
 }
 
+int polygon_available(Shape* tail) {
+  return tail->prev->type == POLY &&
+    ((Polygon *)(tail->prev->data))->finished == FALSE;
+}
+
 int has_circle(Shape* tail) {
   return tail->prev->type == CIRCLE;
 }
@@ -215,6 +220,45 @@ void exec_cursor_circle() {
       circle->radius = calc_radius(circle->center, circle->v1);
       calc_circle_indices(circle);
     }
+  }
+}
+
+void exec_cursor_polygon() {
+  if(pressed) {
+    Polygon * polygon = (Polygon *) tail->prev->data;
+    if(polygon->tail->prev->prev == polygon->head){
+      Point* new_point = make_point(mouseX, mouseY, color);
+      insert_shape(polygon->tail, make_shape(POINT, new_point));
+      cache_polygon_vertices(polygon);
+    } else {
+      Point* last_point = (Point *)((Polygon *)tail->prev->data)->tail->prev;
+      last_point->x = mouseX;
+      last_point->y = mouseY;
+    }
+  }
+}
+
+void exec_right_mouse_down(){
+  if(polygon_available(tail)){
+    Polygon * polygon = (Polygon *)tail->prev->data;
+    polygon->finished = TRUE;
+    polygon->dashed = FALSE;
+    polygon->fill = fill;
+    cache_polygon_vertices(polygon);   
+  }
+}
+
+void exec_mouse_down_polygon() {
+  if(!polygon_available(tail)) {
+    Point* init_point = make_point(mouseX, mouseY, color);
+    Polygon * polygon = make_polygon(init_point, color);
+    insert_shape(tail, make_shape(POLY, polygon));
+    cache_polygon_vertices(polygon);
+  }else{
+    Polygon * polygon = (Polygon *)tail->prev->data;
+    Point* new_point = make_point(mouseX, mouseY, color);
+    insert_shape(polygon->tail, make_shape(POINT, new_point));
+    cache_polygon_vertices(polygon);
   }
 }
 
@@ -410,6 +454,27 @@ void draw_circle(Circle* circle) {
   glEnd();
 }
 
+void draw_polygon(Polygon* polygon) {
+  unsigned int i;
+  if(polygon->finished){
+    glBegin(GL_LINE_LOOP);
+    if(polygon->size == 1) {
+      draw_point(polygon->cache[0]);
+    }
+  } else {
+    for(i = 0; i < polygon->size; i++) {
+      draw_point(polygon->cache[i]);
+    }
+    glBegin(GL_LINE_STRIP);
+    }
+  if(polygon->size > 1) {
+    glBegin(GL_LINE_STRIP);
+    for(i = 0; i < polygon->size; i++) {
+      glVertex2f(polygon->cache[i]->x, polygon->cache[i]->y);
+    }
+    glEnd();
+  }
+}
 
 void draw_shapes(Shape* shapes){
   Shape* current = shapes->next;
@@ -584,10 +649,9 @@ void cursor(GLFWwindow* window, double xpos, double ypos) {
 
 int main(int argc, char **argv) {
 
-  head = make_shape(-1, 0);
-  tail = make_shape(-1, 0);
-  head->next = tail;
-  tail->prev = head;
+  head = init_linked_list();
+  tail = head->next;
+
   GLFWwindow* window;
   
   // Initialize the library 

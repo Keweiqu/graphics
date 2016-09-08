@@ -108,6 +108,23 @@ Circle * make_circle(Point* diag1, Point* diag2, GLfloat color[]) {
   return circle;
 }
 
+Polygon* make_polygon(Point * init, GLfloat color[]) {
+  Polygon* polygon;
+  if((polygon = (Polygon *) malloc(sizeof(Polygon))) != NULL) {
+    polygon->head = init_linked_list();
+    polygon->tail = polygon->head->next;
+    insert_shape(polygon->tail, make_shape(POINT, init));
+    polygon->color = color;
+    polygon->dashed = TRUE;
+    polygon->fill = FALSE;
+    polygon->finished = FALSE;
+  } else {
+    printf("Out of memory\n");
+    exit(0);
+  }
+  return polygon;
+}
+
 Shape *make_shape(int type, void *data) {
   Shape* shape;
   if((shape = (Shape *) malloc(sizeof(Shape))) != NULL) {
@@ -118,6 +135,38 @@ Shape *make_shape(int type, void *data) {
     exit(0);
   }
   return shape;
+}
+
+Shape* init_linked_list(){
+  Shape* head = make_shape(-1, 0);
+  Shape* tail = make_shape(-1, 0);
+  head->next = tail;
+  tail->prev = head;
+  return head;
+}
+
+unsigned int count_polygon_sides(Polygon * polygon) {
+  unsigned int counter = 0;
+  Shape* current = polygon->head->next;
+  while(current->type == POINT) {
+    counter++;
+    current = current->next;
+  } 
+  return counter;
+}
+
+void cache_polygon_vertices(Polygon* polygon) {
+  polygon->size = count_polygon_sides(polygon);
+  if(polygon->cache != NULL) {
+    free(polygon->cache);
+  }
+  polygon->cache = (Point **) malloc(sizeof(Point*) * polygon->size);
+  unsigned int i;
+  Shape* current = polygon->head->next;
+  for(i = 0; i < polygon->size; i++) {
+    polygon->cache[i] = (Point *)current->data;
+    current = current->next;
+  }
 }
 
 void insert_shape(Shape* tail, Shape* new_shape){
