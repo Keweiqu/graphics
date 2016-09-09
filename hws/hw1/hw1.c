@@ -4,13 +4,13 @@ double mouseX, mouseY;
 int shape_mode = LINE;
 GLfloat color[] = {0.0, 0.0, 0.0};
 int pressed;
-int moved;
+
 int fill = TRUE;
 Point *pressCoordinates;
 Point *releaseCoordinates;
 GLenum drawMode;
 Shape *head, *tail;
-
+int global_width = WIDTH, global_height = HEIGHT;
 const GLfloat RED[] = {1.0, 0.0, 0.0};
 const GLfloat GREEN[] = {0.0, 1.0, 0.0};
 const GLfloat BLUE[] = {0.0, 0.0, 1.0};
@@ -558,11 +558,20 @@ void init() {
   glLineStipple(1, 0x3F07);
 }
 
+
+
+
 void reshape(GLFWwindow *w, int width, int height){  
   printf("Got a Reshape Event");
   printf(":\t width = %d height = %d\n", width, height);
+  global_width = width;
+  global_height = height;
+}
 
+void framebuffer_size_callback(GLFWwindow *w, int width, int height) {
   // Set the new viewport size
+  global_width = width;
+  global_height= height;
   glViewport(0, 0, width, height);
 }
 
@@ -659,8 +668,8 @@ void mouse(GLFWwindow* window, int button, int action, int mods) {
   glfwGetCursorPos(window, &xpos, &ypos);
   switch (button) {
   case GLFW_MOUSE_BUTTON_LEFT:
-    mouseX = SCALE_X_AXIS(xpos);
-    mouseY = SCALE_Y_AXIS(ypos);
+    mouseX = SCALE_X_AXIS(xpos, global_width);
+    mouseY = SCALE_Y_AXIS(ypos, global_height);
     if(action == GLFW_PRESS) {
       pressed = TRUE;
       switch(shape_mode){
@@ -683,7 +692,6 @@ void mouse(GLFWwindow* window, int button, int action, int mods) {
       }
     } else {
       pressed = FALSE;
-      moved = FALSE;
       switch(shape_mode) {
       case LINE:
 	exec_mouse_up_line();
@@ -714,8 +722,8 @@ void mouse(GLFWwindow* window, int button, int action, int mods) {
 }
 
 void cursor(GLFWwindow* window, double xpos, double ypos) {
-  mouseX = SCALE_X_AXIS(xpos);
-  mouseY = SCALE_Y_AXIS(ypos);
+  mouseX = SCALE_X_AXIS(xpos, global_width);
+  mouseY = SCALE_Y_AXIS(ypos, global_height);
   switch(shape_mode){
   case LINE:
     exec_cursor_line();
@@ -771,6 +779,8 @@ int main(int argc, char **argv) {
   // a mouse button is pressed or released
   glfwSetMouseButtonCallback(window, mouse);
 
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  
   // Assign cursor() to be the function called whenever
   // a cursor moves
   glfwSetCursorPosCallback(window, cursor);

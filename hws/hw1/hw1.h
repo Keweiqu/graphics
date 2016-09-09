@@ -6,8 +6,8 @@
 #define POINT_SIZE 8.0
 #define WIDTH 500
 #define HEIGHT 500
-#define SCALE_X_AXIS(x) x / WIDTH * 2 - 1
-#define SCALE_Y_AXIS(y) (y / HEIGHT * 2 - 1) * -1
+#define SCALE_X_AXIS(x, width) x / width * 2 - 1
+#define SCALE_Y_AXIS(y, height) (y / height * 2 - 1) * -1
 
 void toggle_color(GLfloat* target, const GLfloat* option); 
 int line_available(Shape* tail);
