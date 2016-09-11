@@ -17,8 +17,8 @@
 #define FALSE 0
 #define N_ROW 5
 #define N_COL 11
-#define WIDTH 500
-#define HEIGHT 500
+#define WIDTH 700
+#define HEIGHT 700
 
 typedef struct _alien {
   int alive;

@@ -66,7 +66,7 @@ void draw_alien(Alien a) {
 Alien create_alien(int row, int col) {
   Alien a;
   a.alive = TRUE;
-  a.x_coord = (col - 5) * 0.15;
-  a.y_coord = -0.9 + row * 0.5;
+  a.x_coord = (col - 5) * 0.13;
+  a.y_coord = 0.9 - row * 0.13;
   return a;
 }
