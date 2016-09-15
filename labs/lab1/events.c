@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 
   glfwSetWindowPos(window, 100, 100);
   // Make the window's context current 
-  glfwMakeContextCurrent(Window);
+  glfwMakeContextCurrent(window);
 
   // Assign entry() to be the function called whenever
   // a window entry event occurs
