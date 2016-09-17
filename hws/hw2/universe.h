@@ -34,6 +34,9 @@ typedef struct _bullet {
   int direction;
   GLfloat x_coord;
   GLfloat y_coord;
+  GLfloat angle;
+  GLfloat x_trans;
+  GLfloat y_trans;
 } Bullet;
 
 typedef struct _alien {
@@ -70,7 +73,7 @@ typedef struct _self {
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods);
 Alien create_alien(int row, int col);
 void create_legion(Legion* legion);
-void draw_legion(Legion legion);
+void draw_legion(Legion* legion);
 void draw_alien(Alien a);
 void update_trans(Legion* legion);
 Self create_self();

@@ -3,6 +3,7 @@
 
 extern Self self;
 extern Legion legion;
+
 /*
 Alien is represented as a square, the coordinates that locate this square
 is the center of the square.
@@ -68,9 +69,10 @@ void update_trans(Legion * legion) {
 
 void move_self() {
   if(self.duration > 0) {
-    self.x_coord += self.direction * 0.02;
-    self.x_coord = self.x_coord > 1 - 0.07 ? 1 - 0.07 : self.x_coord;
-    self.x_coord = self.x_coord < -1 + 0.07 ? -1 + 0.07 : self.x_coord;
+    GLfloat temp = self.x_trans + self.direction * 0.02;
+    if( self.x_coord + temp > -1 + 0.07 && self.x_coord + temp < 1 - 0.07) {
+      self.x_trans = temp;
+    }
     self.duration--;
   }
 }
@@ -85,6 +87,8 @@ Bullet create_bullet(int direction) {
 void self_shoot_bullet() {
     self.b.x_coord = self.x_coord;
     self.b.y_coord = self.y_coord;
+    self.b.x_trans = self.x_trans;
+    self.b.y_trans = self.y_trans;
     self.shooting = TRUE;
 }
 
