@@ -11,6 +11,7 @@
 #endif
 #include <string.h>
 #include <math.h>
+#include <stdio.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -30,6 +31,8 @@
 #define BULLET_SPEED 0.01
 #define POINT_SIZE 15
 #define FIRE_LOAD 40
+#define LEFT_BOUND -0.90
+#define RIGHT_BOUND 0.90
 enum Status {DEAD, DYING, ALIVE};
 
 typedef struct _bullet {
@@ -44,6 +47,8 @@ typedef struct _bullet {
 
 typedef struct _alien {
   enum Status status;
+  int angle;
+  GLfloat scale;
   GLfloat x_coord;
   GLfloat y_coord;
 } Alien;
@@ -53,14 +58,15 @@ typedef struct _legion {
   int advanced;
   int direction;
   double march_interval;
-  GLfloat left_bound;
-  GLfloat right_bound;
+  int left_bound;
+  int right_bound;
   GLfloat x_trans;
   GLfloat y_trans;
 } Legion;
 
 typedef struct _self {
   int lives;
+  int move;
   GLfloat x_coord;
   GLfloat y_coord;
   GLfloat x_trans;
@@ -78,7 +84,8 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods);
 Alien create_alien(int row, int col);
 void create_legion(Legion* legion);
 void draw_legion(Legion* legion);
-void draw_alien(Alien a);
+void draw_alien(Alien *a, Legion *legion);
+void draw_alien_helper(Alien *a);
 void update_trans(Legion* legion);
 Self create_self();
 void draw_self(Self s);
@@ -90,5 +97,7 @@ void draw_self_bullets();
 Bullet create_bullet(int direction);
 void check_collision_self_bullet(Bullet *b, Legion *legion);
 void check_collision_self(Legion *legion);
+void update_bound(Legion *legion);
+int all_dead(Legion *legion, int col);
 
 #endif

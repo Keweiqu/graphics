@@ -5,8 +5,6 @@ double now, last = 0, delay = 0;
 extern Self self;
 extern Legion legion;
 
-int shot_alien_row = -1, shot_alien_col = -1;
-
 void init() {
   // Set the clear color to white
   glPointSize(POINT_SIZE);
@@ -20,12 +18,27 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       self_shoot_bullet();
     break;
   case GLFW_KEY_LEFT:
-    self.duration = INIT_DURATION;
-    self.direction = LEFT;
+    if(action == GLFW_PRESS) {
+      printf("left key pressed\n");
+      self.move = TRUE;
+      self.duration = INIT_DURATION;
+      self.direction = LEFT;
+    } else if(action == GLFW_RELEASE) {
+      printf("left key released\n");
+      self.move = FALSE;
+    }
+   
     break;
   case GLFW_KEY_RIGHT:
-    self.duration = INIT_DURATION;
-    self.direction = RIGHT;
+    if(action == GLFW_PRESS) {
+      printf("right key pressed\n");
+      self.move = TRUE;
+      self.duration = INIT_DURATION;
+      self.direction = RIGHT;
+    } else if(action == GLFW_RELEASE){
+      printf("right key released\n");
+      self.move = FALSE;
+    }
     break;
   case 'q':
   case 'Q':
@@ -75,8 +88,8 @@ void draw_legion(Legion* legion) {
   glTranslatef(legion->x_trans, legion->y_trans, 0);
   now = glfwGetTime();
   if(now - last > legion->march_interval) {
-    //check_collision_self_bullet(self.b, legion);
     update_trans(legion);
+    update_bound(legion);
     last = now;
     printf("translate x %f, y %f\n", legion->x_trans, legion->y_trans);
   }
@@ -84,21 +97,28 @@ void draw_legion(Legion* legion) {
   int i, j;
   for(i = 0; i < N_ROW; i++) {
     for(j = 0; j < N_COL; j++) {
-      draw_alien(legion->army[i][j]);
+      draw_alien(&legion->army[i][j], legion);
     }
   }
   glPopMatrix();
 }
 
-void draw_alien(Alien a) {
-  if(a.status == ALIVE) {
-    glColor3f(1.0, 1.0, 1.0);
-    glBegin(GL_QUADS);
-    glVertex2f(a.x_coord - HALF_WIDTH, a.y_coord - HALF_WIDTH);
-    glVertex2f(a.x_coord - HALF_WIDTH, a.y_coord + HALF_WIDTH);
-    glVertex2f(a.x_coord + HALF_WIDTH, a.y_coord + HALF_WIDTH);
-    glVertex2f(a.x_coord + HALF_WIDTH, a.y_coord - HALF_WIDTH);
-    glEnd();
+void draw_alien(Alien *a, Legion *legion) {
+  if(a->status == ALIVE) {
+    draw_alien_helper(a);
+  } else if(a->status == DYING) {
+    glPushMatrix();
+    glTranslatef(a->x_coord, a->y_coord, 0);
+    glScalef(a->scale, a->scale, a->scale);
+    glRotatef(a->angle, 0, 0, 1);
+    glTranslatef(-a->x_coord, -a->y_coord, 0);
+    draw_alien_helper(a);
+    glPopMatrix();
+    a->angle = (a->angle + 10) % 360;
+    a->scale *= 0.95;
+    if(a->scale < 0.05) {
+      a->status = DEAD;
+    }
   }
 }
 
@@ -145,3 +165,12 @@ void draw_self_bullets() {
   }
 }
 
+void draw_alien_helper(Alien* a) {
+  glColor3f(1.0, 1.0, 1.0);
+  glBegin(GL_QUADS);
+  glVertex2f(a->x_coord - HALF_WIDTH, a->y_coord - HALF_WIDTH);
+  glVertex2f(a->x_coord - HALF_WIDTH, a->y_coord + HALF_WIDTH);
+  glVertex2f(a->x_coord + HALF_WIDTH, a->y_coord + HALF_WIDTH);
+  glVertex2f(a->x_coord + HALF_WIDTH, a->y_coord - HALF_WIDTH);
+  glEnd(); 
+}

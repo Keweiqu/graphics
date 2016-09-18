@@ -11,6 +11,8 @@ extern Legion legion;
 Alien create_alien(int row, int col) {
   Alien a;
   a.status = ALIVE;
+  a.angle = 0;
+  a.scale = 1;
   a.x_coord = (col - 5) * SPACING;
   a.y_coord = 0.9 - row * SPACING;
   return a;
@@ -20,8 +22,12 @@ void create_legion(Legion* legion) {
   legion->advanced = FALSE;
   legion->direction = LEFT;
   legion->march_interval = TIMESTAMP;
+  legion->left_bound = 0;
+  legion->right_bound = N_COL - 1;
+  /*
   legion->left_bound = (1 - (5 * SPACING + HALF_WIDTH)) * -1 + 0.1;
   legion->right_bound = 1 - (5 * SPACING + HALF_WIDTH) - 0.1;
+  */
   legion->x_trans = 0;
   legion->y_trans = 0;
   int i, j;
@@ -40,6 +46,7 @@ void create_legion(Legion* legion) {
 Self create_self() {
   Self s;
   s.lives = 3;
+  s.move = FALSE;
   s.x_coord = 0.7;
   s.y_coord = -0.98;
   s.x_trans = 0;
@@ -56,8 +63,8 @@ Self create_self() {
 
 void update_trans(Legion * legion) {
   if(
-     (legion->x_trans <= legion->left_bound ||
-      legion->x_trans >= legion->right_bound) &&
+     (legion->x_trans + legion->army[0][legion->left_bound].x_coord <= LEFT_BOUND ||
+      legion->x_trans + legion->army[0][legion->right_bound].x_coord >= RIGHT_BOUND) &&
      !legion->advanced) {
     legion->direction = ~(legion->direction) + 1;
     legion->y_trans -= DELTA * 0.8;
@@ -77,7 +84,9 @@ void move_self() {
     if( self.x_coord + temp > -1 + 0.07 && self.x_coord + temp < 1 - 0.07) {
       self.x_trans = temp;
     }
-    self.duration--;
+    if(self.move == FALSE) {
+      self.duration--;
+    }
   }
 }
 
@@ -145,6 +154,32 @@ void check_collision_self(Legion* legion) {
   unsigned int i;
   for(i = 0; i < FIRE_LOAD; i++) {
     Bullet* this_b = &self.fire[i];
-    check_collision_self_bullet(this_b, legion);
+    if(this_b->fired) {
+      check_collision_self_bullet(this_b, legion);
+    }
   }
+}
+
+void update_bound(Legion* legion) {
+  int left_bound = legion->left_bound;
+  while(all_dead(legion, left_bound)) {
+    left_bound++;
+  }
+  legion->left_bound = left_bound;
+  int right_bound = legion->right_bound;
+  while(all_dead(legion, right_bound)) {
+    right_bound--;
+  }
+  legion->right_bound = right_bound;
+  printf("left bound %d, right bound %d\n", legion->left_bound, legion->right_bound);
+}
+
+int all_dead(Legion* legion, int col) {
+  unsigned int i;
+  for(i = 0; i < N_ROW; i++) {
+    if(legion->army[i][col].status == ALIVE) {
+      return FALSE;
+    }
+  }
+  return TRUE;
 }
