@@ -28,6 +28,7 @@
 #define SPACING 0.12
 #define HALF_WIDTH 0.04
 #define BULLET_SPEED 0.01
+#define POINT_SIZE 15
 enum Status {DEAD, DYING, ALIVE};
 
 typedef struct _bullet {

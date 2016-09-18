@@ -5,8 +5,8 @@ extern Self self;
 extern Legion legion;
 
 /*
-Alien is represented as a square, the coordinates that locate this square
-is the center of the square.
+ * Alien is represented as a square, the coordinates that locate this square
+ * is the center of the square.
  */
 Alien create_alien(int row, int col) {
   Alien a;
@@ -34,8 +34,8 @@ void create_legion(Legion* legion) {
 } 
 
 /*
- Self is represented as a triangle, the coordinates that locate this triangle,
-is the bottom center of the line.
+ * Self is represented as a triangle, the coordinates that locate this triangle,
+ * is the bottom center of the line.
  */
 Self create_self() {
   Self s;
@@ -92,14 +92,22 @@ void self_shoot_bullet() {
     self.shooting = TRUE;
 }
 
-//pass as param -- row col of the alien about to go die, secs in which this is about to happen.
 void check_collision_self_bullet(Bullet b, Legion* legion) {
-  printf("check collision\n");
   int col = 0, row = N_ROW;
-  GLfloat b_x_trans = b.x_coord - legion->x_trans;
-  GLfloat b_y_trans = b.y_coord - legion->y_trans;
+  GLfloat b_x = b.x_coord + b.x_trans;
+  GLfloat b_y = b.y_coord + b.y_trans;
+  GLfloat top = legion->army[0][0].y_coord + HALF_WIDTH + legion->y_trans;
+  GLfloat bottom = legion->army[N_ROW -1][0].y_coord - HALF_WIDTH + legion->y_trans;
+  GLfloat left = legion->army[0][0].x_coord - HALF_WIDTH + legion->x_trans;
+  GLfloat right = legion->army[0][N_COL - 1].x_coord + HALF_WIDTH + legion->x_trans;
+  if(b_x < left || b_x > right ||
+     b_y > top || b_y < bottom){
+    return;
+  }
+
   while(col < N_COL) {
-    if(fabs(b_x_trans - legion->army[0][col].x_coord) < 0.005 + HALF_WIDTH)
+    GLfloat x = legion->army[0][col].x_coord + legion->x_trans;
+    if(fabs(b_x - x) < HALF_WIDTH + 0.005)
       break;
     col++;
   }
@@ -109,15 +117,16 @@ void check_collision_self_bullet(Bullet b, Legion* legion) {
   }
 
   while(row >= 0) {
-    if(legion->army[row][0].y_coord - b_y_trans < 0.005 + HALF_WIDTH)
+    GLfloat y = legion->army[row][0].y_coord + legion->y_trans;
+    if(fabs(b_y - y) < HALF_WIDTH + 0.005)
       break;
     row--;
   }
 
-  //if at the start of alien_timestamp, self.b shoot something.
   if(row >= 0) {
     if(legion->army[row][col].status == ALIVE) {
       legion->army[row][col].status = DYING;
+      self.shooting = FALSE;
       printf("shot alien row %d col %d\n", row, col);
       return;
     }

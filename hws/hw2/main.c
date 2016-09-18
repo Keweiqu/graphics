@@ -9,6 +9,7 @@ int shot_alien_row = -1, shot_alien_col = -1;
 
 void init() {
   // Set the clear color to white
+  glPointSize(POINT_SIZE);
   glClearColor(0.0, 0.0, 0.0, 0.0);
 }
 
@@ -60,6 +61,7 @@ int main() {
     draw_self(self);
     draw_bullet(&self.b);
     draw_legion(&legion);
+    check_collision_self_bullet(self.b, &legion);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -74,8 +76,8 @@ void draw_legion(Legion* legion) {
   glTranslatef(legion->x_trans, legion->y_trans, 0);
   now = glfwGetTime();
   if(now - last > legion->march_interval) {
+    //check_collision_self_bullet(self.b, legion);
     update_trans(legion);
-    check_collision_self_bullet(self.b, legion);
     last = now;
     printf("translate x %f, y %f\n", legion->x_trans, legion->y_trans);
   }
@@ -90,13 +92,15 @@ void draw_legion(Legion* legion) {
 }
 
 void draw_alien(Alien a) {
-  glColor3f(1.0, 1.0, 1.0);
-  glBegin(GL_QUADS);
-  glVertex2f(a.x_coord - HALF_WIDTH, a.y_coord - HALF_WIDTH);
-  glVertex2f(a.x_coord - HALF_WIDTH, a.y_coord + HALF_WIDTH);
-  glVertex2f(a.x_coord + HALF_WIDTH, a.y_coord + HALF_WIDTH);
-  glVertex2f(a.x_coord + HALF_WIDTH, a.y_coord - HALF_WIDTH);
-  glEnd();
+  if(a.status == ALIVE) {
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_QUADS);
+    glVertex2f(a.x_coord - HALF_WIDTH, a.y_coord - HALF_WIDTH);
+    glVertex2f(a.x_coord - HALF_WIDTH, a.y_coord + HALF_WIDTH);
+    glVertex2f(a.x_coord + HALF_WIDTH, a.y_coord + HALF_WIDTH);
+    glVertex2f(a.x_coord + HALF_WIDTH, a.y_coord - HALF_WIDTH);
+    glEnd();
+  }
 }
 
 
@@ -118,12 +122,15 @@ void draw_self(Self s) {
 
 void draw_bullet(Bullet *b) {
   if(self.shooting) {
+    glPushMatrix();
+    glTranslatef(b->x_trans, b->y_trans, 0);
     glBegin(GL_QUADS);
-    glVertex2f(b->x_coord - 0.005, b->y_coord - 0.025 * b->direction);
-    glVertex2f(b->x_coord + 0.005, b->y_coord - 0.025 * b->direction);
-    glVertex2f(b->x_coord + 0.005, b->y_coord + 0.025 * b->direction);
-    glVertex2f(b->x_coord - 0.005, b->y_coord + 0.025 * b->direction);
+    glVertex2f(b->x_coord - 0.005, b->y_coord - 0.005);
+    glVertex2f(b->x_coord - 0.005, b->y_coord + 0.005);
+    glVertex2f(b->x_coord + 0.005, b->y_coord + 0.005);
+    glVertex2f(b->x_coord + 0.005, b->y_coord - 0.005);
     glEnd();
+    glPopMatrix();
     b->y_trans += BULLET_SPEED * b->direction;
   }
   if(b->y_coord + b->y_trans >= 1) {
