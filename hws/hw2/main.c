@@ -16,9 +16,8 @@ void init() {
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   switch(key){
   case GLFW_KEY_SPACE:
-    if(!self.shooting){
+    if(action == GLFW_PRESS)
       self_shoot_bullet();
-    }
     break;
   case GLFW_KEY_LEFT:
     self.duration = INIT_DURATION;
@@ -59,9 +58,9 @@ int main() {
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
     draw_self(self);
-    draw_bullet(&self.b);
+    draw_self_bullets();
     draw_legion(&legion);
-    check_collision_self_bullet(self.b, &legion);
+    check_collision_self(&legion);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -121,7 +120,7 @@ void draw_self(Self s) {
 
 
 void draw_bullet(Bullet *b) {
-  if(self.shooting) {
+  if(b->fired) {
     glPushMatrix();
     glTranslatef(b->x_trans, b->y_trans, 0);
     glBegin(GL_QUADS);
@@ -134,7 +133,15 @@ void draw_bullet(Bullet *b) {
     b->y_trans += BULLET_SPEED * b->direction;
   }
   if(b->y_coord + b->y_trans >= 1) {
-    self.shooting = FALSE;
+    b->fired = FALSE;
+  }
+}
+
+void draw_self_bullets() {
+  unsigned int i;
+  for(i = 0; i < FIRE_LOAD; i++) {
+    Bullet* this_b = &self.fire[i];
+    draw_bullet(this_b);
   }
 }
 

@@ -29,9 +29,11 @@
 #define HALF_WIDTH 0.04
 #define BULLET_SPEED 0.01
 #define POINT_SIZE 15
+#define FIRE_LOAD 40
 enum Status {DEAD, DYING, ALIVE};
 
 typedef struct _bullet {
+  int fired;
   int direction;
   GLfloat x_coord;
   GLfloat y_coord;
@@ -64,7 +66,8 @@ typedef struct _self {
   GLfloat x_trans;
   GLfloat y_trans;
   int shooting;
-  Bullet b;
+  Bullet fire[FIRE_LOAD];
+  int fire_pointer;
   int direction;
   int duration;
 } Self;
@@ -83,7 +86,9 @@ void move_self();
 void self_shoot_bullet();
 void alien_shoot_bullet();
 void draw_bullet(Bullet* b);
+void draw_self_bullets();
 Bullet create_bullet(int direction);
-void check_collision_self_bullet(Bullet b, Legion *legion);
+void check_collision_self_bullet(Bullet *b, Legion *legion);
+void check_collision_self(Legion *legion);
 
 #endif

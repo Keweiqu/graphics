@@ -45,7 +45,11 @@ Self create_self() {
   s.x_trans = 0;
   s.y_trans = 0;
   s.shooting = FALSE;
-  s.b = create_bullet(UP);
+  unsigned int i;
+  for(i = 0; i < FIRE_LOAD; i++) {
+    s.fire[i] = create_bullet(UP);
+  }
+  s.fire_pointer = 0;
   s.duration = 0;
   return s;
 }
@@ -80,22 +84,25 @@ void move_self() {
 Bullet create_bullet(int direction) {
   Bullet b;
   b.direction = direction;
+  b.fired = FALSE;
   return b;
 }
 
 
 void self_shoot_bullet() {
-    self.b.x_coord = self.x_coord;
-    self.b.y_coord = self.y_coord;
-    self.b.x_trans = self.x_trans;
-    self.b.y_trans = self.y_trans;
-    self.shooting = TRUE;
+  Bullet* this_b = &self.fire[self.fire_pointer];
+  this_b->fired = TRUE;
+  this_b->x_coord = self.x_coord;
+  this_b->y_coord = self.y_coord;
+  this_b->x_trans = self.x_trans;
+  this_b->y_trans = self.y_trans;
+  self.fire_pointer = (self.fire_pointer + 1) % FIRE_LOAD;
 }
 
-void check_collision_self_bullet(Bullet b, Legion* legion) {
+void check_collision_self_bullet(Bullet* b, Legion* legion) {
   int col = 0, row = N_ROW;
-  GLfloat b_x = b.x_coord + b.x_trans;
-  GLfloat b_y = b.y_coord + b.y_trans;
+  GLfloat b_x = b->x_coord + b->x_trans;
+  GLfloat b_y = b->y_coord + b->y_trans;
   GLfloat top = legion->army[0][0].y_coord + HALF_WIDTH + legion->y_trans;
   GLfloat bottom = legion->army[N_ROW -1][0].y_coord - HALF_WIDTH + legion->y_trans;
   GLfloat left = legion->army[0][0].x_coord - HALF_WIDTH + legion->x_trans;
@@ -126,9 +133,18 @@ void check_collision_self_bullet(Bullet b, Legion* legion) {
   if(row >= 0) {
     if(legion->army[row][col].status == ALIVE) {
       legion->army[row][col].status = DYING;
-      self.shooting = FALSE;
+      b->fired = FALSE;
       printf("shot alien row %d col %d\n", row, col);
       return;
     }
+  }
+}
+
+
+void check_collision_self(Legion* legion) {
+  unsigned int i;
+  for(i = 0; i < FIRE_LOAD; i++) {
+    Bullet* this_b = &self.fire[i];
+    check_collision_self_bullet(this_b, legion);
   }
 }
