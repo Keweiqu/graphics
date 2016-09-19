@@ -70,7 +70,7 @@ int main() {
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
-    draw_self(self);
+    draw_self(&self);
     draw_self_bullets();
     draw_legion(&legion);
     check_collision_self(&legion);
@@ -126,19 +126,28 @@ void draw_alien(Alien *a, Legion *legion) {
 }
 
 
-void draw_self(Self s) {
+void draw_self(Self *s) {
   glColor3f(0.0, 1.0, 0.0);
   move_self();
   glPushMatrix();
-  glTranslatef(self.x_trans, self.y_trans, 0);
-  draw_elements(self.elements, 9);
+  glTranslatef(s->x_trans, s->y_trans, 0);
+  if(s->dying) {
+    glTranslatef(s->x_coord, s->y_coord, 0);
+    glScalef(s->scale, s->scale, s->scale);
+    glTranslatef(-s->x_coord, -s->y_coord, 0);
+    s->scale *= 0.95;
+    if(s->scale < 0.05) {
+      s->dying = FALSE;
+      s->scale = 1;
+      s->x_trans = 0;
+      s->y_trans = 0;
+    }
+  }
+  draw_elements(s->elements, 9);
   glPopMatrix();
 }
 
-
-
-
-void draw_bullet(Bullet *b) {
+void draw_bullet(Bullet *b) { 
   if(b->fired) {
     glPushMatrix();
     glTranslatef(b->x_trans, b->y_trans, 0);

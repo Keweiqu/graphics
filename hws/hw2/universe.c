@@ -44,8 +44,9 @@ Self create_self() {
   Self s;
   s.lives = 3;
   s.move = FALSE;
+  s.dying = FALSE;
   s.x_coord = 0.7;
-  s.y_coord = -0.98;
+  s.y_coord = -0.92;
   s.x_trans = 0;
   s.y_trans = 0;
   s.shooting = FALSE;
@@ -58,7 +59,7 @@ Self create_self() {
     int row = i / 3;
     int col = i % 3;
     GLfloat x_coord = s.x_coord + (col - 1) * s.element_width;
-    GLfloat y_coord = s.y_coord + row * s.element_width + s.element_width / 2;
+    GLfloat y_coord = s.y_coord + (row - 1) * s.element_width;
     s.elements[i] = create_coord(x_coord, y_coord, 0, 0, s.element_width / 2);
   }
   int no_draw[] = {6, 7, 8, 3, 5};
@@ -208,8 +209,12 @@ void check_collision_legion_bullet(Bullet *b, Self *self) {
     int index = row * 3 + col;
     if(self->elements[index].draw) {
       self->lives--;
+      self->dying = TRUE;
+      self->scale = 1;
+      /*
       self->x_trans = 0;
       self->y_trans = 0;
+      */
       return;
     }
   }

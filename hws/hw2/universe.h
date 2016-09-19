@@ -79,6 +79,8 @@ typedef struct _legion {
 typedef struct _self {
   int lives;
   int move;
+  int dying;
+  GLfloat scale;
   GLfloat x_coord;
   GLfloat y_coord;
   GLfloat x_trans;
@@ -103,7 +105,7 @@ void draw_alien(Alien *a, Legion *legion);
 void draw_alien_helper(Alien *a);
 void update_trans(Legion* legion);
 Self create_self();
-void draw_self(Self s);
+void draw_self(Self *s);
 void move_self();
 void self_shoot_bullet();
 void alien_shoot_bullet();
