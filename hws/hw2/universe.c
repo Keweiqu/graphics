@@ -3,6 +3,7 @@
 
 extern Self self;
 extern Legion legion;
+extern time_t t;
 
 /*
  * Alien is represented as a square, the coordinates that locate this square
@@ -11,6 +12,7 @@ extern Legion legion;
 Alien create_alien(int row, int col) {
   Alien a;
   a.status = ALIVE;
+  a.b = create_bullet(DOWN);
   a.angle = 0;
   a.scale = 1;
   a.x_coord = (col - 5) * SPACING;
@@ -24,10 +26,6 @@ void create_legion(Legion* legion) {
   legion->march_interval = TIMESTAMP;
   legion->left_bound = 0;
   legion->right_bound = N_COL - 1;
-  /*
-  legion->left_bound = (1 - (5 * SPACING + HALF_WIDTH)) * -1 + 0.1;
-  legion->right_bound = 1 - (5 * SPACING + HALF_WIDTH) - 0.1;
-  */
   legion->x_trans = 0;
   legion->y_trans = 0;
   int i, j;
@@ -36,7 +34,6 @@ void create_legion(Legion* legion) {
       legion->army[i][j] = create_alien(i, j);
     }
   }
-
 } 
 
 /*
@@ -52,9 +49,22 @@ Self create_self() {
   s.x_trans = 0;
   s.y_trans = 0;
   s.shooting = FALSE;
+  s.element_width = 0.04;
   unsigned int i;
   for(i = 0; i < FIRE_LOAD; i++) {
     s.fire[i] = create_bullet(UP);
+  }
+  for(i = 0; i < 9; i++) {
+    int row = i / 3;
+    int col = i % 3;
+    GLfloat x_coord = s.x_coord + (col - 1) * s.element_width;
+    GLfloat y_coord = s.y_coord + row * s.element_width + s.element_width / 2;
+    s.elements[i] = create_coord(x_coord, y_coord, 0, 0, s.element_width / 2);
+  }
+  int no_draw[] = {6, 7, 8, 3, 5};
+  for(i = 0; i < 5; i++) {
+    int index = no_draw[i];
+    s.elements[index].draw = FALSE;
   }
   s.fire_pointer = 0;
   s.duration = 0;
@@ -149,6 +159,62 @@ void check_collision_self_bullet(Bullet* b, Legion* legion) {
   }
 }
 
+void check_collision_legion(Legion *legion, Self *self) {
+  unsigned int i, j;
+  for(i = 0; i < N_ROW; i++) {
+    for(j = 0; j < N_COL; j++) {
+      Bullet *b = &legion->army[i][j].b;
+      if(b->fired) {
+	check_collision_legion_bullet(b, self);
+      }
+    }
+  }
+}
+
+void check_collision_legion_bullet(Bullet *b, Self *self) {
+  int n_col = 3, n_row = 3;
+  int col = 0, row = n_row;
+  GLfloat b_x = b->x_coord + b->x_trans;
+  GLfloat b_y = b->y_coord + b->y_trans;
+  GLfloat half_width = self->elements[0].width;
+  GLfloat top = self->elements[8].y_coord + half_width + self->y_trans;
+  GLfloat bottom = self->elements[0].y_coord - half_width +self->y_trans;
+  GLfloat left = self->elements[0].x_coord - half_width + self->x_trans; 
+  GLfloat right = self->elements[8].x_coord + half_width + self->x_trans;
+  if(b_x < left || b_x > right ||
+     b_y > top || b_y < bottom){
+     return;
+  }
+  
+  while(col < n_col) {
+    GLfloat x = self->elements[col].x_coord + self->x_trans;
+    if(fabs(b_x - x) < half_width + 0.005)
+      break;
+    col++;
+  }
+  
+  if (col == n_col){
+    return;
+  }
+  
+  while(row >= 0) {
+    GLfloat y = self->elements[row * 3].y_coord + self->y_trans;
+    if(fabs(b_y - y) < half_width + 0.005)
+      break;
+    row--;
+  }
+  
+  if(row >= 0) {
+    int index = row * 3 + col;
+    if(self->elements[index].draw) {
+      self->lives--;
+      self->x_trans = 0;
+      self->y_trans = 0;
+      return;
+    }
+  }
+}
+
 
 void check_collision_self(Legion* legion) {
   unsigned int i;
@@ -182,4 +248,51 @@ int all_dead(Legion* legion, int col) {
     }
   }
   return TRUE;
+}
+
+void legion_fire(Legion *legion) {
+  unsigned int i, j;
+  srand((unsigned) time(&t));
+  for(i = 0; i < N_ROW; i++) {
+    for(j = 0; j < N_COL; j++) {
+      Alien *this_a = &legion->army[i][j];
+      if(this_a->status == ALIVE && this_a->b.fired == FALSE) {
+	int lottery = rand() % 100;
+	if(lottery > 97) {
+	  this_a->b.fired = TRUE;
+	  this_a->b.x_coord = this_a->x_coord;
+	  this_a->b.y_coord = this_a->y_coord;
+	  this_a->b.x_trans = legion->x_trans;
+	  this_a->b.y_trans = legion->y_trans;
+	}
+      }
+    }
+  }
+}
+
+void draw_legion_bullets(Legion *legion) {
+  unsigned int i, j;
+  for(i = 0; i < N_ROW; i++) {
+    for(j = 0; j < N_COL; j++) {
+      Bullet *this_b = &legion->army[i][j].b;
+      glPushMatrix();
+      glLoadIdentity();
+      if(this_b->fired == TRUE) {
+	draw_bullet(this_b);
+      }
+      glPopMatrix();
+    }
+  }
+}
+
+
+Coord create_coord(GLfloat x_coord, GLfloat y_coord, GLfloat x_trans, GLfloat y_trans, GLfloat width) {
+  Coord c;
+  c.x_coord = x_coord;
+  c.y_coord = y_coord;
+  c.x_trans = x_trans;
+  c.y_trans = y_trans;
+  c.width = width;
+  c.draw = TRUE;
+  return c;
 }

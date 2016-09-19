@@ -90,6 +90,7 @@ void draw_legion(Legion* legion) {
   if(now - last > legion->march_interval) {
     update_trans(legion);
     update_bound(legion);
+    legion_fire(legion);
     last = now;
     printf("translate x %f, y %f\n", legion->x_trans, legion->y_trans);
   }
@@ -100,6 +101,8 @@ void draw_legion(Legion* legion) {
       draw_alien(&legion->army[i][j], legion);
     }
   }
+  draw_legion_bullets(legion);
+  check_collision_legion(legion, &self);
   glPopMatrix();
 }
 
@@ -128,11 +131,7 @@ void draw_self(Self s) {
   move_self();
   glPushMatrix();
   glTranslatef(self.x_trans, self.y_trans, 0);
-  glBegin(GL_TRIANGLES);
-  glVertex2f(s.x_coord - 0.07, s.y_coord);
-  glVertex2f(s.x_coord + 0.07, s.y_coord);
-  glVertex2f(s.x_coord, s.y_coord + 0.06);
-  glEnd();
+  draw_elements(self.elements, 9);
   glPopMatrix();
 }
 
@@ -152,7 +151,7 @@ void draw_bullet(Bullet *b) {
     glPopMatrix();
     b->y_trans += BULLET_SPEED * b->direction;
   }
-  if(b->y_coord + b->y_trans >= 1) {
+  if(fabs(b->y_coord + b->y_trans) >= 1) {
     b->fired = FALSE;
   }
 }
@@ -173,4 +172,19 @@ void draw_alien_helper(Alien* a) {
   glVertex2f(a->x_coord + HALF_WIDTH, a->y_coord + HALF_WIDTH);
   glVertex2f(a->x_coord + HALF_WIDTH, a->y_coord - HALF_WIDTH);
   glEnd(); 
+}
+
+void draw_elements(Coord *elements, unsigned int size){
+  unsigned int i;
+  for(i = 0; i < size; i++) {
+    Coord c = elements[i];
+    if(c.draw) {
+      glBegin(GL_QUADS);
+      glVertex2f(c.x_coord - c.width, c.y_coord - c.width);
+      glVertex2f(c.x_coord - c.width, c.y_coord + c.width);
+      glVertex2f(c.x_coord + c.width, c.y_coord + c.width);
+      glVertex2f(c.x_coord + c.width, c.y_coord - c.width);
+      glEnd();
+    }
+  }
 }

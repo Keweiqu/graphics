@@ -12,6 +12,8 @@
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -45,10 +47,20 @@ typedef struct _bullet {
   GLfloat y_trans;
 } Bullet;
 
+typedef struct _coord {
+  GLfloat x_coord;
+  GLfloat y_coord;
+  GLfloat x_trans;
+  GLfloat y_trans;
+  GLfloat width;
+  int draw;
+} Coord;
+
 typedef struct _alien {
   enum Status status;
   int angle;
   GLfloat scale;
+  Bullet b;
   GLfloat x_coord;
   GLfloat y_coord;
 } Alien;
@@ -71,12 +83,15 @@ typedef struct _self {
   GLfloat y_coord;
   GLfloat x_trans;
   GLfloat y_trans;
+  GLfloat element_width;
+  Coord elements[9];
   int shooting;
   Bullet fire[FIRE_LOAD];
   int fire_pointer;
   int direction;
   int duration;
 } Self;
+
 
 
 
@@ -96,8 +111,13 @@ void draw_bullet(Bullet* b);
 void draw_self_bullets();
 Bullet create_bullet(int direction);
 void check_collision_self_bullet(Bullet *b, Legion *legion);
+void check_collision_legion_bullet(Bullet *b, Self *self);
 void check_collision_self(Legion *legion);
+void check_collision_legion(Legion *legion, Self *self);
 void update_bound(Legion *legion);
 int all_dead(Legion *legion, int col);
-
+void legion_fire(Legion *legion);
+void draw_legion_bullets(Legion *legion);
+Coord create_coord(GLfloat x_coord, GLfloat y_coord, GLfloat x_trans, GLfloat y_trans, GLfloat width);
+void draw_elements(Coord *elements, unsigned int size);
 #endif
