@@ -35,6 +35,8 @@
 #define FIRE_LOAD 40
 #define LEFT_BOUND -0.90
 #define RIGHT_BOUND 0.90
+#define FRAME_RATE 60
+#define RADIUS_FACTOR 3.14159265 / 180
 enum Status {DEAD, DYING, ALIVE};
 
 typedef struct _bullet {
@@ -42,7 +44,8 @@ typedef struct _bullet {
   int direction;
   GLfloat x_coord;
   GLfloat y_coord;
-  GLfloat angle;
+  GLfloat sin;
+  GLfloat cos;
   GLfloat x_trans;
   GLfloat y_trans;
 } Bullet;
@@ -59,6 +62,7 @@ typedef struct _coord {
 typedef struct _alien {
   enum Status status;
   int angle;
+  int flip_base;
   GLfloat scale;
   Bullet b;
   GLfloat x_coord;
@@ -74,6 +78,7 @@ typedef struct _legion {
   int right_bound;
   GLfloat x_trans;
   GLfloat y_trans;
+  double flip_angle;
 } Legion;
 
 typedef struct _self {
@@ -92,25 +97,31 @@ typedef struct _self {
   int fire_pointer;
   int direction;
   int duration;
+  int angle;
+  double sin;
+  double cos;
 } Self;
 
 
 
 
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods);
-Alien create_alien(int row, int col);
+Alien create_alien(int row, int col, int base);
 void create_legion(Legion* legion);
 void draw_legion(Legion* legion);
-void draw_alien(Alien *a, Legion *legion);
+void draw_alien(Alien *a);
+void draw_alien_update_data(Alien *a);
 void draw_alien_helper(Alien *a);
 void update_trans(Legion* legion);
 Self create_self();
 void draw_self(Self *s);
-void move_self();
-void self_shoot_bullet();
+void draw_self_update_data(Self *s);
+void move_self(Self *s);
+void self_shoot_bullet(double sin, double cos);
 void alien_shoot_bullet();
 void draw_bullet(Bullet* b);
-void draw_self_bullets();
+void draw_self_bullets(Self *s);
+void draw_self_bullets_update_data(Self *s);
 Bullet create_bullet(int direction);
 void check_collision_self_bullet(Bullet *b, Legion *legion);
 void check_collision_legion_bullet(Bullet *b, Self *self);
@@ -120,6 +131,15 @@ void update_bound(Legion *legion);
 int all_dead(Legion *legion, int col);
 void legion_fire(Legion *legion);
 void draw_legion_bullets(Legion *legion);
+void draw_legion_bullets_update_data(Legion *legion);
 Coord create_coord(GLfloat x_coord, GLfloat y_coord, GLfloat x_trans, GLfloat y_trans, GLfloat width);
 void draw_elements(Coord *elements, unsigned int size);
+void bullet_update(Bullet *b);
+void draw_legion_update_data(Legion *legion);
+void legion_timestamp_update(Legion *legion);
+void update_universe(Self *self, Legion *legion);
+void advance_universe(Self *self, Legion *legion);
+void print_self_bullets_msg(Self *self);
+void print_msg(Self *self, Legion *legion);
+void print_legion_bullets_msg(Legion *legion);
 #endif

@@ -4,17 +4,20 @@
 extern Self self;
 extern Legion legion;
 extern time_t t;
+extern double now, last;
+extern int breakpoint;
 
 /*
  * Alien is represented as a square, the coordinates that locate this square
  * is the center of the square.
  */
-Alien create_alien(int row, int col) {
+Alien create_alien(int row, int col, int base) {
   Alien a;
   a.status = ALIVE;
   a.b = create_bullet(DOWN);
   a.angle = 0;
   a.scale = 1;
+  a.flip_base = base;
   a.x_coord = (col - 5) * SPACING;
   a.y_coord = 0.9 - row * SPACING;
   return a;
@@ -28,10 +31,13 @@ void create_legion(Legion* legion) {
   legion->right_bound = N_COL - 1;
   legion->x_trans = 0;
   legion->y_trans = 0;
+  legion->flip_angle = 10;
   int i, j;
+  int base_incrementer = 5;
   for(i = 0; i < N_ROW; i++) {
     for(j = 0; j < N_COL; j++) {
-      legion->army[i][j] = create_alien(i, j);
+      legion->army[i][j] = create_alien(i, j, base_incrementer);
+      base_incrementer += 5;
     }
   }
 } 
@@ -43,6 +49,9 @@ void create_legion(Legion* legion) {
 Self create_self() {
   Self s;
   s.lives = 3;
+  s.angle = 0;
+  s.sin = sin(s.angle * RADIUS_FACTOR);
+  s.cos = cos(s.angle * RADIUS_FACTOR);
   s.move = FALSE;
   s.dying = FALSE;
   s.x_coord = 0.7;
@@ -89,14 +98,14 @@ void update_trans(Legion * legion) {
 
 
 
-void move_self() {
-  if(self.duration > 0) {
-    GLfloat temp = self.x_trans + self.direction * 0.02;
-    if( self.x_coord + temp > -1 + 0.07 && self.x_coord + temp < 1 - 0.07) {
-      self.x_trans = temp;
+void move_self(Self *self) {
+  if(self->duration > 0) {
+    GLfloat temp = self->x_trans + self->direction * 0.02;
+    if( self->x_coord + temp > -1 + 0.07 && self->x_coord + temp < 1 - 0.07) {
+      self->x_trans = temp;
     }
-    if(self.move == FALSE) {
-      self.duration--;
+    if(self->move == FALSE) {
+      self->duration--;
     }
   }
 }
@@ -105,17 +114,21 @@ Bullet create_bullet(int direction) {
   Bullet b;
   b.direction = direction;
   b.fired = FALSE;
+  b.sin = 0;
+  b.cos = 1;
   return b;
 }
 
 
-void self_shoot_bullet() {
+void self_shoot_bullet(double sin, double cos) {
   Bullet* this_b = &self.fire[self.fire_pointer];
   this_b->fired = TRUE;
-  this_b->x_coord = self.x_coord;
-  this_b->y_coord = self.y_coord;
+  this_b->x_coord = self.x_coord + self.sin * self.element_width * 2;
+  this_b->y_coord = self.y_coord + self.cos * self.element_width * 2;
   this_b->x_trans = self.x_trans;
   this_b->y_trans = self.y_trans;
+  this_b->sin = sin;
+  this_b->cos = cos;
   self.fire_pointer = (self.fire_pointer + 1) % FIRE_LOAD;
 }
 
@@ -153,8 +166,8 @@ void check_collision_self_bullet(Bullet* b, Legion* legion) {
   if(row >= 0) {
     if(legion->army[row][col].status == ALIVE) {
       legion->army[row][col].status = DYING;
+      legion->army[row][col].angle = 0;
       b->fired = FALSE;
-      printf("shot alien row %d col %d\n", row, col);
       return;
     }
   }
@@ -211,10 +224,6 @@ void check_collision_legion_bullet(Bullet *b, Self *self) {
       self->lives--;
       self->dying = TRUE;
       self->scale = 1;
-      /*
-      self->x_trans = 0;
-      self->y_trans = 0;
-      */
       return;
     }
   }
@@ -242,7 +251,6 @@ void update_bound(Legion* legion) {
     right_bound--;
   }
   legion->right_bound = right_bound;
-  printf("left bound %d, right bound %d\n", legion->left_bound, legion->right_bound);
 }
 
 int all_dead(Legion* legion, int col) {
@@ -301,3 +309,121 @@ Coord create_coord(GLfloat x_coord, GLfloat y_coord, GLfloat x_trans, GLfloat y_
   c.draw = TRUE;
   return c;
 }
+
+void draw_self_update_data(Self *s) {
+  if(s->dying) {
+    s->scale *= 0.95;
+    if(s->scale < 0.05) {
+      s->dying = FALSE;
+      s->scale = 1;
+      s->x_trans = 0;
+      s->y_trans = 0;
+    }
+  }
+}
+
+void bullet_update(Bullet *b) {
+  b->y_trans += BULLET_SPEED * b->direction * b->cos;
+  b->x_trans += BULLET_SPEED * b->direction * b->sin;
+  if(fabs(b->y_coord + b->y_trans) >= 1) {
+    b->fired = FALSE;
+  }
+}
+void draw_self_bullets_update_data(Self *s) {
+  unsigned int i;
+  for(i = 0; i < FIRE_LOAD; i++) {
+    Bullet* this_b = &s->fire[i];
+    bullet_update(this_b);
+  }
+}
+
+
+void draw_alien_update_data(Alien *a) {
+  if(a->status == DYING) {
+    a->angle = (int)(a->angle + 10) % 360;
+    a->scale *= 0.95;
+    if(a->scale < 0.05) {
+      a->status = DEAD;
+    }
+  }
+}
+
+void draw_legion_update_data(Legion *legion) {
+  int i, j;
+  for(i = 0; i < N_ROW; i++) {
+    for(j = 0; j < N_COL; j++) {
+      Alien *a = &legion->army[i][j];
+      draw_alien_update_data(a);
+      Bullet *b = &a->b;
+      bullet_update(b);
+    }
+  }
+}
+
+void legion_timestamp_update(Legion *legion) {
+  now = glfwGetTime();
+  if(now - last > legion->march_interval) {
+    update_trans(legion);
+    update_bound(legion);
+    legion_fire(legion);
+    last = now;
+  }
+}
+
+
+void update_universe(Self *self, Legion *legion) {
+  move_self(self);
+  draw_self_update_data(self);
+  draw_self_bullets_update_data(self);
+  draw_legion_update_data(legion);
+  if(!breakpoint) {
+    legion_timestamp_update(legion);
+  }
+}
+
+void advance_universe(Self *self, Legion *legion) {
+  int i, count = legion->march_interval * FRAME_RATE;
+  for(i = 0; i < count; i++) {
+    update_universe(self, legion);
+  }
+  update_trans(legion);
+  update_bound(legion);
+  legion_fire(legion);
+  print_msg(self, legion);
+}
+
+void print_msg(Self *self, Legion *legion) {
+  GLfloat self_x = self->x_coord + self->x_trans;
+  GLfloat self_y = self->y_coord + self->y_trans;
+  GLfloat legion_x = 0 + legion->x_trans;
+  GLfloat legion_y = 0.9 + legion->y_trans;
+  
+  
+  printf("Ship @ x: %f y: %f\n Legion @ x: %f y: %f\n", self_x, self_y, legion_x, legion_y);
+  print_self_bullets_msg(self);
+  print_legion_bullets_msg(legion);
+  
+}
+
+void print_self_bullets_msg(Self *self) {
+  unsigned int i;
+  for(i = 0; i < FIRE_LOAD; i++) {
+    Bullet b = self->fire[i];
+    if(b.fired) {
+      printf("Ship bullet No.%d, @ x: %f y: %f\n", i, b.x_coord + b.x_trans, b.y_coord + b.y_trans);
+    }
+  }
+}
+
+void print_legion_bullets_msg(Legion *legion) {
+  unsigned int i, j;
+  for(i = 0; i < N_ROW; i++) {
+    for( j = 0; j < N_COL; j++) {
+      Bullet b = legion->army[i][j].b;
+      if(b.fired) {
+	printf("Alien No.%d fired bullet, @ x: %f y: %f\n", i * 3 + j, b.x_coord + b.x_trans, b.y_coord + b.y_trans);
+      }
+    }
+  }
+}
+

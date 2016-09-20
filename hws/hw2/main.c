@@ -1,44 +1,75 @@
 #include "universe.h"
 #include "global.h"
 
-double now, last = 0, delay = 0;
+extern double now, last;
 extern Self self;
 extern Legion legion;
+int breakpoint = FALSE;
+double foo = 20;
+double flag = 1.1;
 
 void init() {
-  // Set the clear color to white
   glPointSize(POINT_SIZE);
   glClearColor(0.0, 0.0, 0.0, 0.0);
+  glEnable(GL_LINE_SMOOTH);
+  glLineWidth(10);
 }
 
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   switch(key){
   case GLFW_KEY_SPACE:
     if(action == GLFW_PRESS)
-      self_shoot_bullet();
+      self_shoot_bullet(self.sin, self.cos);
     break;
   case GLFW_KEY_LEFT:
     if(action == GLFW_PRESS) {
-      printf("left key pressed\n");
       self.move = TRUE;
       self.duration = INIT_DURATION;
       self.direction = LEFT;
     } else if(action == GLFW_RELEASE) {
-      printf("left key released\n");
-      self.move = FALSE;
+      if(self.direction == LEFT) {
+	self.move = FALSE;
+      }
     }
    
     break;
   case GLFW_KEY_RIGHT:
     if(action == GLFW_PRESS) {
-      printf("right key pressed\n");
       self.move = TRUE;
       self.duration = INIT_DURATION;
       self.direction = RIGHT;
     } else if(action == GLFW_RELEASE){
-      printf("right key released\n");
-      self.move = FALSE;
+      if(self.direction == RIGHT) {
+	self.move = FALSE;
+      }
     }
+    break;
+  case GLFW_KEY_COMMA:
+    if(action == GLFW_PRESS || action == GLFW_REPEAT) {
+      self.angle -= 5;
+      self.sin = sin(self.angle * RADIUS_FACTOR);
+      self.cos = cos(self.angle * RADIUS_FACTOR);
+    }
+    break;
+  case GLFW_KEY_PERIOD:
+    if(action == GLFW_PRESS || action == GLFW_REPEAT) {
+      self.angle += 5;
+      self.sin = sin(self.angle * RADIUS_FACTOR);
+      self.cos = cos(self.angle * RADIUS_FACTOR);
+    }
+    break;
+  case 'd':
+  case 'D':
+    if(!breakpoint) {
+      breakpoint = TRUE;
+    }else {
+      advance_universe(&self, &legion);
+    }
+    
+    break;
+  case 'r':
+  case 'R':
+    breakpoint = FALSE;
     break;
   case 'q':
   case 'Q':
@@ -51,6 +82,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 int main() {
   create_legion(&legion);
   self = create_self();
+  last = 0;
   GLFWwindow* window;
   if (!glfwInit())
     exit(EXIT_FAILURE);
@@ -71,9 +103,13 @@ int main() {
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
     draw_self(&self);
-    draw_self_bullets();
+    draw_self_bullets(&self);
     draw_legion(&legion);
     check_collision_self(&legion);
+    if(breakpoint) {
+    }else{ 
+      update_universe(&self, &legion);
+    }
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -86,19 +122,12 @@ int main() {
 void draw_legion(Legion* legion) {
   glPushMatrix();
   glTranslatef(legion->x_trans, legion->y_trans, 0);
-  now = glfwGetTime();
-  if(now - last > legion->march_interval) {
-    update_trans(legion);
-    update_bound(legion);
-    legion_fire(legion);
-    last = now;
-    printf("translate x %f, y %f\n", legion->x_trans, legion->y_trans);
-  }
+ 
 
   int i, j;
   for(i = 0; i < N_ROW; i++) {
     for(j = 0; j < N_COL; j++) {
-      draw_alien(&legion->army[i][j], legion);
+      draw_alien(&legion->army[i][j]);
     }
   }
   draw_legion_bullets(legion);
@@ -106,9 +135,15 @@ void draw_legion(Legion* legion) {
   glPopMatrix();
 }
 
-void draw_alien(Alien *a, Legion *legion) {
+void draw_alien(Alien *a) {
   if(a->status == ALIVE) {
+    glPushMatrix();
+    glTranslatef(a->x_coord, a->y_coord, 0);
+    glRotatef(a->flip_base+a->angle, 0, 1, 0);
+    glTranslatef(-a->x_coord, -a->y_coord, 0);
     draw_alien_helper(a);
+    a->angle = (a->angle + 2) % 360;
+    glPopMatrix();
   } else if(a->status == DYING) {
     glPushMatrix();
     glTranslatef(a->x_coord, a->y_coord, 0);
@@ -117,33 +152,24 @@ void draw_alien(Alien *a, Legion *legion) {
     glTranslatef(-a->x_coord, -a->y_coord, 0);
     draw_alien_helper(a);
     glPopMatrix();
-    a->angle = (a->angle + 10) % 360;
-    a->scale *= 0.95;
-    if(a->scale < 0.05) {
-      a->status = DEAD;
-    }
   }
 }
 
 
 void draw_self(Self *s) {
   glColor3f(0.0, 1.0, 0.0);
-  move_self();
   glPushMatrix();
   glTranslatef(s->x_trans, s->y_trans, 0);
   if(s->dying) {
     glTranslatef(s->x_coord, s->y_coord, 0);
     glScalef(s->scale, s->scale, s->scale);
     glTranslatef(-s->x_coord, -s->y_coord, 0);
-    s->scale *= 0.95;
-    if(s->scale < 0.05) {
-      s->dying = FALSE;
-      s->scale = 1;
-      s->x_trans = 0;
-      s->y_trans = 0;
-    }
   }
   draw_elements(s->elements, 9);
+  glBegin(GL_LINES);
+  glVertex2f(s->x_coord, s->y_coord);
+  glVertex2f(s->x_coord + s->sin * s->element_width * 2, s->y_coord + s->cos* s->element_width * 2);
+  glEnd();
   glPopMatrix();
 }
 
@@ -158,17 +184,13 @@ void draw_bullet(Bullet *b) {
     glVertex2f(b->x_coord + 0.005, b->y_coord - 0.005);
     glEnd();
     glPopMatrix();
-    b->y_trans += BULLET_SPEED * b->direction;
-  }
-  if(fabs(b->y_coord + b->y_trans) >= 1) {
-    b->fired = FALSE;
   }
 }
 
-void draw_self_bullets() {
+void draw_self_bullets(Self *self) {
   unsigned int i;
   for(i = 0; i < FIRE_LOAD; i++) {
-    Bullet* this_b = &self.fire[i];
+    Bullet* this_b = &self->fire[i];
     draw_bullet(this_b);
   }
 }
