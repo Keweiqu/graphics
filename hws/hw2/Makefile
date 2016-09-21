@@ -11,7 +11,7 @@ LDFLAGS=-lX11 -lGL -lGLU -lglfw -lGLEW -lm
 endif
 CC=gcc
 CFLAGS=-g -Wall -I/opt/ports/include
-SOURCES= universe.c main.c
+SOURCES= universe.c main.c alphanum.c
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=run
 

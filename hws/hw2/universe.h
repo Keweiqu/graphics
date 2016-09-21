@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -37,8 +38,12 @@
 #define RIGHT_BOUND 0.90
 #define FRAME_RATE 60
 #define RADIUS_FACTOR 3.14159265 / 180
-enum Status {DEAD, DYING, ALIVE};
+#define LETTER_SIZE 25
+#define FORT_SIZE 49
+#define NUM_FORT 4
 
+enum Status {DEAD, DYING, ALIVE};
+enum Game_status {WIN, LOSE, UNDEFINED};
 typedef struct _bullet {
   int fired;
   int direction;
@@ -53,8 +58,6 @@ typedef struct _bullet {
 typedef struct _coord {
   GLfloat x_coord;
   GLfloat y_coord;
-  GLfloat x_trans;
-  GLfloat y_trans;
   GLfloat width;
   int draw;
 } Coord;
@@ -85,6 +88,7 @@ typedef struct _self {
   int lives;
   int move;
   int dying;
+  int score;
   GLfloat scale;
   GLfloat x_coord;
   GLfloat y_coord;
@@ -102,6 +106,16 @@ typedef struct _self {
   double cos;
 } Self;
 
+typedef struct _fort {
+  GLfloat x_trans;
+  GLfloat y_trans;
+  Coord elements[FORT_SIZE];
+} Fort;
+
+typedef struct _ascii {
+  uint8_t *instruction;
+  Coord elements[LETTER_SIZE];
+} Ascii;
 
 
 
@@ -125,14 +139,15 @@ void draw_self_bullets_update_data(Self *s);
 Bullet create_bullet(int direction);
 void check_collision_self_bullet(Bullet *b, Legion *legion);
 void check_collision_legion_bullet(Bullet *b, Self *self);
+void check_collision_legion_bullet2(Bullet *b, Fort *forts);
 void check_collision_self(Legion *legion);
-void check_collision_legion(Legion *legion, Self *self);
+void check_collision_legion(Legion *legion, Self *self, Fort *forts);
 void update_bound(Legion *legion);
 int all_dead(Legion *legion, int col);
 void legion_fire(Legion *legion);
 void draw_legion_bullets(Legion *legion);
 void draw_legion_bullets_update_data(Legion *legion);
-Coord create_coord(GLfloat x_coord, GLfloat y_coord, GLfloat x_trans, GLfloat y_trans, GLfloat width);
+Coord create_coord(GLfloat x_coord, GLfloat y_coord, GLfloat width);
 void draw_elements(Coord *elements, unsigned int size);
 void bullet_update(Bullet *b);
 void draw_legion_update_data(Legion *legion);
@@ -142,4 +157,15 @@ void advance_universe(Self *self, Legion *legion);
 void print_self_bullets_msg(Self *self);
 void print_msg(Self *self, Legion *legion);
 void print_legion_bullets_msg(Legion *legion);
+Ascii create_ascii(uint8_t *letter, GLfloat ele_width);
+void draw_ascii(Ascii letter);
+void draw_lose();
+void draw_win();
+void draw_word(Ascii *word, int length);
+void draw_life(Self *s);
+void draw_score(Self *s);
+Fort create_fort();
+void draw_fort(Fort t);
+void create_forts(Fort* forts);
+void draw_forts(Fort* forts);
 #endif

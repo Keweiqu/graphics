@@ -1,5 +1,26 @@
+#include "universe.h"
 Legion legion;
 Self self;
-int win;
+int win, lose;
 time_t t;
 double now, last;
+Fort forts[NUM_FORT];
+enum Game_status game_status;
+extern uint8_t l[];
+extern uint8_t o[];
+extern uint8_t s[];
+extern uint8_t e[];
+extern uint8_t w[];
+extern uint8_t i[];
+extern uint8_t n[];
+extern uint8_t num_0[];
+extern uint8_t num_1[];
+extern uint8_t num_2[];
+extern uint8_t num_3[];
+extern uint8_t num_4[];
+extern uint8_t num_5[];
+extern uint8_t num_6[];
+extern uint8_t num_7[];
+extern uint8_t num_8[];
+extern uint8_t num_9[];
+extern uint8_t* num_dict[];

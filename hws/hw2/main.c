@@ -2,11 +2,11 @@
 #include "global.h"
 
 extern double now, last;
+extern enum Game_status game_status;
 extern Self self;
 extern Legion legion;
+extern Fort forts[NUM_FORT];
 int breakpoint = FALSE;
-double foo = 20;
-double flag = 1.1;
 
 void init() {
   glPointSize(POINT_SIZE);
@@ -83,6 +83,9 @@ int main() {
   create_legion(&legion);
   self = create_self();
   last = 0;
+  game_status = UNDEFINED;
+  create_forts(forts);
+
   GLFWwindow* window;
   if (!glfwInit())
     exit(EXIT_FAILURE);
@@ -102,13 +105,23 @@ int main() {
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
-    draw_self(&self);
-    draw_self_bullets(&self);
-    draw_legion(&legion);
-    check_collision_self(&legion);
-    if(breakpoint) {
-    }else{ 
-      update_universe(&self, &legion);
+    if(game_status == WIN) {
+      draw_win();
+    }else if(game_status == LOSE) {
+      draw_lose();
+    }else{
+      glClear(GL_COLOR_BUFFER_BIT);
+      draw_self(&self);
+      draw_life(&self);
+      draw_score(&self);
+      draw_forts(forts);
+      draw_self_bullets(&self);
+      draw_legion(&legion);
+      check_collision_self(&legion);
+      if(breakpoint) {
+      }else{ 
+	update_universe(&self, &legion);
+      }
     }
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -131,7 +144,7 @@ void draw_legion(Legion* legion) {
     }
   }
   draw_legion_bullets(legion);
-  check_collision_legion(legion, &self);
+  check_collision_legion(legion, &self, forts);
   glPopMatrix();
 }
 
