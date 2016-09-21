@@ -1,0 +1,37 @@
+Kewei Qu
+HW2
+CS312
+
+Design:
+1.left and right arrow for moving Ship/Self arounf
+2. space key for shooting
+3. ',' and '.' key for changing angles.
+4. 'd' for pause and 'r' for resume
+
+NOTE:
+During pause the legion still flips each alien, this is by design, not a bug. I really like the way it looks.
+
+
+Extra Credit Features:
+1. shooting with angles
+2. Forts/ Shields
+3. Mutiple lives and the number of lives left are indicated on the top left corner.
+4. Win / Lose screen, when winning "WIN" in green show up with black background, where as when losing, "LOSE" shows up
+in red.
+5. score system. Score is recorded and shows up on the top right corner.
+
+
+What could be done better:
+
+1. During half way, I started to realize that the way to render legion can be generalized -- a 5 * 11 matrix, so I created a more sophisticated
+version of self, which is compose of a 3* 3 matrix. Then I render letters and numbers in the same way. However, as the
+design was not abstract enough, some collision checking functions are actually duplicated. I would like to refactor and 
+abstract them if time permits
+
+2. #define all integers. I know that there are a few integers scattered in the code, that I havent create macro for. Again
+if time permitting, I would like to refactor this aspect as well.
+
+3. extern variables
+
+4. The scenario for losing game because aliens reach the bottom of the screen -- currently it is hard coded in respect to the center of 
+legion. It would be better to consider the last visible row see if it touches the base line.
