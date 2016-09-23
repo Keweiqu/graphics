@@ -8,4 +8,9 @@ Collaboration: Kewei Qu and Rachel Xu
     - alignment
     - cohesion
 - linkedlist.c
-    
+    implementation with head and tail; doubly linked 
+- Boids.c
+  - create_boid 
+- view
+  - gluLookAt, gluFrustum 
+  
