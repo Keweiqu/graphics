@@ -9,6 +9,7 @@
 #else
 #include <GLFW/glfw3.h>
 #endif
+#include <GL/glu.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>

@@ -1,10 +1,20 @@
 #include "common.h"
+#include "vector/gsl_vector.h"
+
+#define SIDES 1
 
 typedef struct _boid {
-  GLfloat x_coord;
-  GLfloat y_coord;
-  GLfloat z_coord;
-  GLfloat x_trans;
-  GLfloat y_trans;
-  GLfloat z_trans;
+  gsl_vector *coords;
+  gsl_vector *velocity;
 } Boid;
+
+GLfloat angle;
+GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
+GLubyte board_indices[SIDES*SIDES*4];
+GLubyte board_colors[(SIDES+1)*(SIDES+1)][3];
+
+void init();
+void draw_checkerboard();
+void calc_checkerboard_vertices(int n, GLfloat len);
+void calc_checkerboard_indices(int n);
+void calc_checkerboard_colors(int n);

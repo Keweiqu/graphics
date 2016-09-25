@@ -11,7 +11,7 @@ LDFLAGS=-lX11 -lGL -lGLU -lglfw -lGLEW -lm
 endif
 CC=gcc
 CFLAGS=-g -Wall -I/opt/ports/include
-SOURCES= linkedlist.c
+SOURCES= linkedlist.c main.c boid.c
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=run
 
