@@ -29,5 +29,5 @@ void free_linkedlist(Node* head) {
     head->next = head->next->next;
     free_node(current);
   }
-  free(head);
+  free_node(head);
 }
