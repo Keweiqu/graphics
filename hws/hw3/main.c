@@ -36,19 +36,24 @@ void init() {
     printf("%d\n", board_indices[i]);
   }
   
-  //calc_checkerboard_colors(SIDES);
+  
+  calc_checkerboard_colors(SIDES);
+  for(i = 0; i < pow(SIDES+1, 2); i++) {
+    printf("checker board color No.%d\n", i);
+    printf("color r %f, g %f, b %f\n", board_colors[i][0], board_colors[i][1], board_colors[i][2]);
+  }
 }
 
 void draw_checkerboard() {
   glColor3f(1.0, 1.0, 1.0);
-  //glEnableClientState(GL_COLOR_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, board_vertices);
-  //glColorPointer(3, GL_FLOAT, 0, board_colors);
+  glColorPointer(3, GL_FLOAT, 0, board_colors);
   glDrawElements(GL_QUADS, SIDES*SIDES*4, GL_UNSIGNED_BYTE, board_indices);
   glDrawElements(GL_POINTS, SIDES * SIDES * 4, GL_UNSIGNED_BYTE, board_indices);
   glDisableClientState(GL_VERTEX_ARRAY);
-  // glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 }
 
 /*
