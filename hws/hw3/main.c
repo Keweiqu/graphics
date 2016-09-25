@@ -57,8 +57,8 @@ void calc_checkerboard_indices(int n) {
   for (int i = 0; i < pow(n, 2); i++) {
     board_indices[i] = (i / n) * (n + 1) + i % n + 1;    
     board_indices[i+1] = (i / n) * (n + 1) + i % n;
-    board_indices[i+2] = (i / n) * (n + 1) + i % n + n;
-    board_indices[i+3] = (i / n) * (n + 1) + i % n + n + 1;
+    board_indices[i+2] = (i / n) * (n + 1) + i % n + n + 1;
+    board_indices[i+3] = (i / n) * (n + 1) + i % n + n + 2;
     printf("%f, %f, %f, %f\n", i, i + n + 1, i + n + 2, i + 1);
   }
 }
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 		draw_checkerboard();
 		glLoadIdentity();
 		gluLookAt(1.5 * cos(angle), 1.5 * sin(angle), 1, 0, 0, 0, 0, 0, 1);
-		angle += M_PI / 200;
+		//angle += M_PI / 200;
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

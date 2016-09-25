@@ -1,7 +1,7 @@
 #include "common.h"
 #include "vector/gsl_vector.h"
 
-#define SIDES 1
+#define SIDES 2
 
 typedef struct _boid {
   gsl_vector *coords;
