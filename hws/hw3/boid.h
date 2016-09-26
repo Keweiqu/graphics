@@ -44,3 +44,4 @@ void attemp(Node *head, Node *item);
 GLfloat** cache_vertices(Node *head);
 Boid* init_boid();
 void init_boids();
+GLfloat get_dist(Boid* a, Boid *b);
