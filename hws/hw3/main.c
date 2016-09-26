@@ -1,19 +1,5 @@
 #include "boid.h"
 
-/* GLfloat board_vertices[][3] = { */
-/*   {0.5, 0.5, 0}, */
-/*   {-0.5, 0.5, 0}, */
-/*   {-0.5, -0.5, 0}, */
-/*   {0.5, -0.5, 0} */
-/* }; */
-
-/* int board_indices[16] = { */
-/*   0, 3, 4, 1, */
-/*   1, 4, 5, 2, */
-/*   4, 3, 6, 7, */
-/*   5, 4, 7, 8 */
-/* }; */
-
 void init() {
   glPointSize(10);
   glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -27,21 +13,7 @@ void init() {
   angle = 0;
   calc_checkerboard_vertices(SIDES, 1);
   calc_checkerboard_indices(SIDES);
-  int i;
-  for(i = 0; i < pow(SIDES+1, 2); i++){
-    printf("checker board No.%d\n", i);
-    printf("vertices x %f y %f z %f\n", board_vertices[i][0], board_vertices[i][1], board_vertices[i][2]);
-  }
-  for(i = 0; i < pow(SIDES, 2) * 4; i++){
-    printf("%d\n", board_indices[i]);
-  }
-  
-  
   calc_checkerboard_colors(SIDES);
-  for(i = 0; i < pow(SIDES+1, 2); i++) {
-    printf("checker board color No.%d\n", i);
-    printf("color r %f, g %f, b %f\n", board_colors[i][0], board_colors[i][1], board_colors[i][2]);
-  }
 }
 
 void draw_checkerboard() {

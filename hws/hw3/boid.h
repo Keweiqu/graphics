@@ -10,8 +10,9 @@ typedef struct _boid {
 
 GLfloat angle;
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
+GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
 GLubyte board_indices[SIDES*SIDES*4];
-GLubyte board_colors[(SIDES+1)*(SIDES+1)][3];
+
 
 void init();
 void draw_checkerboard();
