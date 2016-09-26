@@ -5,13 +5,17 @@ void init() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(-1, 1, -1, 1, 0.1, 60);
+  gluPerspective(60, 1, 0.1, 10);
   glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
 
   angle = 0;
-  calc_checkerboard_vertices(SIDES, 1);
+  calc_checkerboard_vertices(SIDES, 2);
+  int i;
+  for(i = 0; i < pow(SIDES + 1, 2); i++) {
+    printf("vertex No.%d, x %f y %f z %f\n", i, board_vertices[i][0],board_vertices[i][1],board_vertices[i][2] );
+  }
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
 }
@@ -23,7 +27,6 @@ void draw_checkerboard() {
   glVertexPointer(3, GL_FLOAT, 0, board_vertices);
   glColorPointer(3, GL_FLOAT, 0, board_colors);
   glDrawElements(GL_QUADS, SIDES*SIDES*4, GL_UNSIGNED_BYTE, board_indices);
-  glDrawElements(GL_POINTS, SIDES * SIDES * 4, GL_UNSIGNED_BYTE, board_indices);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
 }
@@ -63,13 +66,13 @@ void calc_checkerboard_indices(int n) {
 void calc_checkerboard_colors(int n) {
   for (int i = 0; i < (n+1)*(n+1); i++) {
     if (i % 2) {
-      board_colors[i][0] = 0.0;
-      board_colors[i][1] = 0.0;
-      board_colors[i][2] = 0.0;
-    } else {
       board_colors[i][0] = 1.0;
       board_colors[i][1] = 1.0;
       board_colors[i][2] = 1.0;
+    } else {
+      board_colors[i][0] = 0.0;
+      board_colors[i][1] = 0.0;
+      board_colors[i][2] = 0.0;
     }
   }
 }

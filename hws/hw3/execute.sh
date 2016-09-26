@@ -1,0 +1,1 @@
+rm run; make; ./run
