@@ -40,6 +40,11 @@ void draw_checkerboard() {
   // glDisableClientState(GL_COLOR_ARRAY);
 }
 
+/*
+ * calculate all vertices coordinates for checkerboard.
+ * @param n n * n checkerboard
+ * @param len side-length of the checkboard
+ */
 void calc_checkerboard_vertices(int n, GLfloat len) {
   GLfloat lx = -len / 2, ly = len / 2;
   GLfloat num_of_points = pow(n + 1, 2); 
@@ -48,11 +53,14 @@ void calc_checkerboard_vertices(int n, GLfloat len) {
     GLfloat ypos = ly - (i / (n + 1)) * (len / n);
     board_vertices[i][0] = xpos;
     board_vertices[i][1] = ypos;
-    board_vertices[i][2] = 0;
+    board_vertices[i][2] = 0; //z
     printf("%f, %f, 0\n", xpos, ypos);
   }
 }
 
+/*
+ * Calculate the indices for each square.
+ */
 void calc_checkerboard_indices(int n) {
   for (int i = 0; i < pow(n, 2); i++) {
     board_indices[i] = (i / n) * (n + 1) + i % n + 1;    
