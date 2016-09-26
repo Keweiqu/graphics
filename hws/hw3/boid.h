@@ -1,7 +1,7 @@
 #include "common.h"
 #include "vector/gsl_vector.h"
 
-#define SIDES 16
+#define SIDES 50
 
 typedef struct _boid {
   gsl_vector *coords;
@@ -11,7 +11,7 @@ typedef struct _boid {
 GLfloat angle;
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
-GLubyte board_indices[SIDES*SIDES*4];
+GLshort board_indices[SIDES*SIDES*4];
 
 
 void init();

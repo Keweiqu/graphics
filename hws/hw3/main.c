@@ -12,12 +12,16 @@ void init() {
 
   angle = 0;
   calc_checkerboard_vertices(SIDES, 2);
-  int i;
-  for(i = 0; i < pow(SIDES + 1, 2); i++) {
-    printf("vertex No.%d, x %f y %f z %f\n", i, board_vertices[i][0],board_vertices[i][1],board_vertices[i][2] );
-  }
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
+   int i;
+  for(i = 0; i < pow(SIDES + 1, 2); i++) {
+    printf("vertex No.%d, x %f y %f z %f\n", i, board_vertices[i][0],board_vertices[i][1],board_vertices[i][2] );
+    printf("r %f, g %f, b %f\n", board_colors[i][0], board_colors[i][1], board_colors[i][2]);
+  }
+  for(i = 0; i < pow(SIDES, 2) * 4; i++ ) {
+    printf("index No.%d, value %d\n",i,  board_indices[i]);
+  }
 }
 
 void draw_checkerboard() {
@@ -26,7 +30,7 @@ void draw_checkerboard() {
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, board_vertices);
   glColorPointer(3, GL_FLOAT, 0, board_colors);
-  glDrawElements(GL_QUADS, SIDES*SIDES*4, GL_UNSIGNED_BYTE, board_indices);
+  glDrawElements(GL_QUADS, SIDES*SIDES*4, GL_UNSIGNED_SHORT, board_indices);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
 }
@@ -84,7 +88,7 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 
-	window = glfwCreateWindow(500, 500, "Flocking Boids", NULL, NULL);
+	window = glfwCreateWindow(1000, 1000, "Flocking Boids", NULL, NULL);
 	if (!window) {
 		glfwTerminate();
 		exit(EXIT_FAILURE);
