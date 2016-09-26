@@ -15,10 +15,11 @@
 /* }; */
 
 void init() {
+  glPointSize(10);
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, 1, 0.1, 10);
+  glOrtho(-1, 1, -1, 1, 0.1, 60);
   glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
@@ -26,6 +27,15 @@ void init() {
   angle = 0;
   calc_checkerboard_vertices(SIDES, 1);
   calc_checkerboard_indices(SIDES);
+  int i;
+  for(i = 0; i < pow(SIDES+1, 2); i++){
+    printf("checker board No.%d\n", i);
+    printf("vertices x %f y %f z %f\n", board_vertices[i][0], board_vertices[i][1], board_vertices[i][2]);
+  }
+  for(i = 0; i < pow(SIDES, 2) * 4; i++){
+    printf("%d\n", board_indices[i]);
+  }
+  
   //calc_checkerboard_colors(SIDES);
 }
 
@@ -36,6 +46,7 @@ void draw_checkerboard() {
   glVertexPointer(3, GL_FLOAT, 0, board_vertices);
   //glColorPointer(3, GL_FLOAT, 0, board_colors);
   glDrawElements(GL_QUADS, SIDES*SIDES*4, GL_UNSIGNED_BYTE, board_indices);
+  glDrawElements(GL_POINTS, SIDES * SIDES * 4, GL_UNSIGNED_BYTE, board_indices);
   glDisableClientState(GL_VERTEX_ARRAY);
   // glDisableClientState(GL_COLOR_ARRAY);
 }
@@ -46,6 +57,7 @@ void draw_checkerboard() {
  * @param len side-length of the checkboard
  */
 void calc_checkerboard_vertices(int n, GLfloat len) {
+  printf("calculate vertices\n");
   GLfloat lx = -len / 2, ly = len / 2;
   GLfloat num_of_points = pow(n + 1, 2); 
   for (int i = 0; i < num_of_points; i++) {
@@ -62,12 +74,14 @@ void calc_checkerboard_vertices(int n, GLfloat len) {
  * Calculate the indices for each square.
  */
 void calc_checkerboard_indices(int n) {
-  for (int i = 0; i < pow(n, 2); i++) {
-    board_indices[i] = (i / n) * (n + 1) + i % n + 1;    
-    board_indices[i+1] = (i / n) * (n + 1) + i % n;
-    board_indices[i+2] = (i / n) * (n + 1) + i % n + n + 1;
-    board_indices[i+3] = (i / n) * (n + 1) + i % n + n + 2;
-    printf("%f, %f, %f, %f\n", i, i + n + 1, i + n + 2, i + 1);
+  printf("calclulate indices\n");
+  int i;
+  for (i = 0; i < pow(n, 2); i++) {
+    board_indices[4 * i] = (i / n) * (n + 1) + i % n + 1;    
+    board_indices[4 * i + 1] = (i / n) * (n + 1) + i % n;
+    board_indices[4 * i + 2] = (i / n) * (n + 1) + i % n + n + 1;
+    board_indices[4 * i + 3] = (i / n) * (n + 1) + i % n + n + 2;
+    printf("board No.%d: %d, %d, %d, %d\n", i, board_indices[i], board_indices[i + 1], board_indices[i+2], board_indices[i+3]);
   }
 }
 
