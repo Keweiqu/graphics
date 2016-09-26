@@ -20,6 +20,7 @@ Boid* init_boid() {
   gsl_vector_set(b->velocity, 1, vy);
   gsl_vector_set(b->velocity, 2, vz);
   b->angle = rand() % 360;
+  return b;
 }
 
 Goal init_goal() {

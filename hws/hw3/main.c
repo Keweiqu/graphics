@@ -28,30 +28,9 @@ void init() {
 void init_boids(Node* head, Node* tail) {
   for (int i = 0; i < 10; i++) {
     Boid *b = init_boid();
-    Node *new_node;
-    if (i != 0) {
-      new_node = create_node(b, VAL);
-      Node* temp = tail->prev;
-      temp->next = new_node;
-      new_node->prev = temp;
-      new_node->next = tail;
-      tail->prev = new_node;
-    } else if (i == 0) {
-      new_node = create_node(b, HEAD_TAIL);
-      head = new_node;
-      head->prev = NULL;
-      head->next = tail;
-      tail->prev = head;
-      tail->next = NULL;            
-    } else if (i == 9) {
-      new_node = create_node(b, HEAD_TAIL);
-      Node* temp = tail->prev;
-      temp->next = new_node;
-      new_node->prev = temp;
-      tail = new_node;
-    }
+    Node *new_node = create_node(b, VAL);
+    append(new_node, tail);    
   }
-
 }
 
 

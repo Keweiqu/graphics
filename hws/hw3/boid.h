@@ -1,4 +1,5 @@
 #include "common.h"
+#include "linkedlist.h"
 #include "vector/gsl_vector.h"
 
 #define SIDES 4
