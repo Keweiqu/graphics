@@ -49,3 +49,19 @@ void append(Node *n, Node *tail) {
   n->next = tail;
   tail->prev = n;
 }
+
+void insert_before(Node *item, Node *pos) {
+  Node* prev = pos->prev;
+  item->prev = prev;
+  item->next = pos;
+  prev->next = item;
+  pos->prev = item;
+}
+
+void insert_after(Node *item, Node *pos) {
+  Node* next = pos->next;
+  item->prev = pos;
+  item->next = next;
+  pos->next = item;
+  next->prev = item;
+}
