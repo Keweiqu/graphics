@@ -16,11 +16,10 @@ void init() {
   calc_checkerboard_colors(SIDES);
    int i;
   for(i = 0; i < pow(SIDES + 1, 2); i++) {
-    printf("vertex No.%d, x %f y %f z %f\n", i, board_vertices[i][0],board_vertices[i][1],board_vertices[i][2] );
-    printf("r %f, g %f, b %f\n", board_colors[i][0], board_colors[i][1], board_colors[i][2]);
+    printf("No.%d: r %f, g %f, b %f\n",i, board_colors[i][0], board_colors[i][1], board_colors[i][2]);
   }
-  for(i = 0; i < pow(SIDES, 2) * 4; i++ ) {
-    printf("index No.%d, value %d\n",i,  board_indices[i]);
+  for(i = 0; i < pow(SIDES, 2); i++ ) {
+    printf("index No.%d, value %d\n",i,  board_indices[i *4 ]);
   }
 }
 
