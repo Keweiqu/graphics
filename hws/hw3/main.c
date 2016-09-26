@@ -66,7 +66,6 @@ void calc_checkerboard_vertices(int n, GLfloat len) {
     board_vertices[i][0] = xpos;
     board_vertices[i][1] = ypos;
     board_vertices[i][2] = 0; //z
-    printf("%f, %f, 0\n", xpos, ypos);
   }
 }
 
@@ -81,7 +80,6 @@ void calc_checkerboard_indices(int n) {
     board_indices[4 * i + 1] = (i / n) * (n + 1) + i % n;
     board_indices[4 * i + 2] = (i / n) * (n + 1) + i % n + n + 1;
     board_indices[4 * i + 3] = (i / n) * (n + 1) + i % n + n + 2;
-    printf("board No.%d: %d, %d, %d, %d\n", i, board_indices[i], board_indices[i + 1], board_indices[i+2], board_indices[i+3]);
   }
 }
 
