@@ -41,3 +41,11 @@ int get_ll_size(Node *head) {
   }
   return i;
 }
+
+void append(Node *n, Node *tail) {
+  Node* temp = tail->prev;
+  temp->next = n;
+  n->prev = temp;
+  n->next = tail;
+  tail->prev = n;
+}

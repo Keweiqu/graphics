@@ -1,4 +1,5 @@
 #include "boid.h"
+#include "linkedlist.h"
 
 void init() {
   glPointSize(10);
@@ -11,6 +12,7 @@ void init() {
   glShadeModel(GL_FLAT);
 
   angle = 0;
+  count = BOID_COUNT;
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
@@ -22,6 +24,37 @@ void init() {
     printf("index No.%d, value %d\n",i,  board_indices[i *4 ]);
   }
 }
+
+void init_boids(Node* head, Node* tail) {
+  for (int i = 0; i < 10; i++) {
+    Boid *b = init_boid();
+    Node *new_node;
+    if (i != 0) {
+      new_node = create_node(b, VAL);
+      Node* temp = tail->prev;
+      temp->next = new_node;
+      new_node->prev = temp;
+      new_node->next = tail;
+      tail->prev = new_node;
+    } else if (i == 0) {
+      new_node = create_node(b, HEAD_TAIL);
+      head = new_node;
+      head->prev = NULL;
+      head->next = tail;
+      tail->prev = head;
+      tail->next = NULL;            
+    } else if (i == 9) {
+      new_node = create_node(b, HEAD_TAIL);
+      Node* temp = tail->prev;
+      temp->next = new_node;
+      new_node->prev = temp;
+      tail = new_node;
+    }
+  }
+
+}
+
+
 void draw_boid() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -111,6 +144,8 @@ void calc_checkerboard_colors(int n) {
 
 int main(int argc, char **argv) {
   Goal g = init_goal();
+  Node* head = create_linkedlist();
+  Node* tail = head->next;
   GLFWwindow *window;
   
   if (!glfwInit()) {

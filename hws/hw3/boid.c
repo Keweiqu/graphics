@@ -1,7 +1,25 @@
 #include "boid.h"
-Boid init_boid() {
-  Boid b;
+Boid* init_boid() {
+  Boid* b;
+  GLfloat lx, ly, lz;
+  GLfloat vx, vy, vz;
   
+  b->id = count + 1;
+  
+  b->location = gsl_vector_alloc(3);
+  lx = 2375 + rand() % 51;
+  ly = 125 + rand() % 51;
+  lz = 1175 + rand() % 51;
+  gsl_vector_set(b->location, 0, lx);
+  gsl_vector_set(b->location, 1, ly);
+  gsl_vector_set(b->location, 2, lz);
+  
+  b->velocity = gsl_vector_alloc(3);
+  vx = vy = vz = rand() % 41;
+  gsl_vector_set(b->velocity, 0, vx);
+  gsl_vector_set(b->velocity, 1, vy);
+  gsl_vector_set(b->velocity, 2, vz);
+  b->angle = rand() % 360;
 }
 
 Goal init_goal() {

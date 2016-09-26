@@ -3,6 +3,7 @@
 
 #define SIDES 4
 #define NUM_BOID_INDICES 6
+#define BOID_COUNT 10
 extern GLfloat boid_vertices[][3];
 extern GLfloat boid_colors[][3];
 extern GLubyte boid_indices[];
@@ -16,6 +17,7 @@ typedef struct _boid {
 } Boid;
 
 GLfloat angle;
+GLshort count;
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
 GLshort board_indices[SIDES*SIDES*4];
@@ -34,9 +36,10 @@ void calc_checkerboard_colors(int n);
 Goal init_goal();
 void draw_goal();
 void update_goal();
-Boid init_boid();
 Node* n_neighbours(Node *target, Node *list, int n);
 void insert(Node *head, Node *item);
 void attemp(Node *head, Node *item);
 
 GLfloat** cache_vertices(Node *head);
+Boid* init_boid();
+void init_boids();
