@@ -10,6 +10,7 @@
 *.dSYM
 *~
 run
+Makefile
 
 # Packages #
 ############
