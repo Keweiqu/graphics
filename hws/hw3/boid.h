@@ -23,6 +23,7 @@ GLshort count;
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
 GLshort board_indices[SIDES*SIDES*4];
+Node* head, *tail;
 
 typedef struct _goal {
   GLfloat angle;
@@ -32,7 +33,7 @@ typedef struct _goal {
 void init();
 void draw_checkerboard();
 void draw_boid(Boid* b);
-void draw_boids(Node* head, Node* tail);
+void draw_boids();
 void calc_checkerboard_vertices(int n, GLfloat len);
 void calc_checkerboard_indices(int n);
 void calc_checkerboard_colors(int n);
@@ -45,7 +46,10 @@ void init_boids();
 Boid** cache_linkedlist(Node* head);
 int cmp(const void* a, const void* b);
 GLfloat get_dist(Boid* a, Boid *b);
+void add_boid();
 
 void print_boid(Boid* b);
 void print_boids(Node* head);
 void print_vector(gsl_vector *v);
+
+void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods);

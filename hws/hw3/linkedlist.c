@@ -50,6 +50,15 @@ void append(Node *n, Node *tail) {
   tail->prev = n;
 }
 
+void delete_last(Node *tail) {
+  if (tail->prev->type != HEAD_TAIL) {   
+    Node* temp = tail->prev->prev;
+    free(temp->next);
+    temp->next = tail;
+    tail->prev = temp;
+  }
+}
+
 void insert_before(Node *item, Node *pos) {
   Node* prev = pos->prev;
   item->prev = prev;

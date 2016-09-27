@@ -22,11 +22,13 @@ void init() {
   }
   for(i = 0; i < pow(SIDES, 2); i++ ) {
     printf("index No.%d, value %d\n",i,  board_indices[i *4 ]);
-  }
+  }  
 }
 
-void init_boids(Node* head, Node* tail) {
-  for (int i = 0; i < 10; i++) {
+void init_boids() {
+  head = create_linkedlist();
+  tail = head->next;
+  for (int i = 0; i < 11; i++) {
     Boid *b = init_boid(i+1);
     Node *new_node = create_node(b, VAL);
     append(new_node, tail);    
@@ -42,7 +44,7 @@ void draw_boid(Boid* b) {
   glVertexPointer(3, GL_FLOAT, 0, boid_vertices);
   glColorPointer(3, GL_FLOAT, 0, boid_colors);
   glPushMatrix();
-  glTranslate(gsl_vector_get(location, 0), gsl_vector_get->(location, 1), gsl_vector_get->(location, 3);
+  glTranslatef(gsl_vector_get(location, 0)/200, gsl_vector_get(location, 1)/200, gsl_vector_get(location, 2)/200);  
   glScalef(0.005, 0.005, 1);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
   glPopMatrix();
@@ -50,7 +52,7 @@ void draw_boid(Boid* b) {
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
-void draw_boids(Node *head, Node *tail) {
+void draw_boids() {
   Node* current;
   current = head->next;
   while (current->next->type != HEAD_TAIL) {
@@ -134,11 +136,36 @@ void calc_checkerboard_colors(int n) {
   }
 }
 
+void add_boid() {
+  Boid *b = init_boid(count+1);
+  Node *new_node = create_node(b, VAL);
+  append(new_node, tail);
+  count++;
+}
+
+void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
+  if (action == GLFW_PRESS) {
+    switch(key) {
+      case GLFW_KEY_EQUAL:
+        add_boid();
+        break;
+      case GLFW_KEY_BACKSPACE:
+	if (count > 10) {
+	  delete_last(tail);
+	}       
+	count--;
+        break;
+      case GLFW_KEY_Q:
+        glfwSetWindowShouldClose(w, TRUE);
+        break;
+    }
+  }
+  
+}
+
 int main(int argc, char **argv) {
   Goal g = init_goal();
-  Node* head = create_linkedlist();
-  Node* tail = head->next;
-  init_boids(head, tail);
+  init_boids();
   GLFWwindow *window;
   print_boids(head);
   GLfloat dist = get_dist((Boid *)head->next->data, (Boid *)head->next->next->data);
@@ -157,7 +184,7 @@ int main(int argc, char **argv) {
   glfwMakeContextCurrent(window);
   /* glfwSetWindowSizeCallback(window, reshape); */
   /* glfwSetFramebufferSizeCallback(window, framebuffer_resize); */
-  /* glfwSetKeyCallback(window, keyboard); */
+  glfwSetKeyCallback(window, keyboard);
   /* glfwSetMouseButtonCallback(window, mouse); */
   /* glfwSetCursorPosCallback(window, cursor); */
 
@@ -165,7 +192,7 @@ int main(int argc, char **argv) {
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.0);
-    draw_boid();
+    draw_boids();
     draw_checkerboard();
     draw_goal(g);
     update_goal(&g);
