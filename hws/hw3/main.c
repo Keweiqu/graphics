@@ -174,10 +174,11 @@ int main(int argc, char **argv) {
   init_boids();
   GLFWwindow *window;
   print_boids(head);
-  cache_linkedlist(head);
-  GLfloat dist = get_dist((Boid *)head->next->data, (Boid *)head->next->next->data);
-  printf("Dist is %f\n", dist);
-  
+  Boid** bs= cache_linkedlist(head);
+  print_boids_array(bs, 10);
+  Boid** sorted = n_neighbours(bs[0], bs, 10, 5);
+
+  print_boids_array(sorted, 5);
   if (!glfwInit()) {
     exit(EXIT_FAILURE);
   }
@@ -205,7 +206,7 @@ int main(int argc, char **argv) {
     update_goal(&g);
     glLoadIdentity();
     gluLookAt(
-	      0.2, 0.01, 0.7,
+	      0.2, 0.01, 0.8,
 	      0.2, 0.01, 0,
 	      0, 1, 0
 	      );

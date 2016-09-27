@@ -20,9 +20,9 @@ GLubyte boid_indices[] = {
 };
 
 GLfloat goal_vertices[][3] = {
-  {0.0, 0.0, 1.0},
+  {0.0, 0.0, 0.0},
 };
 
-GLfloat gola_colors[][3] = {
-  {1.0, 1.0, 0},
+GLfloat goal_colors[][3] = {
+  {0.0, 0.0, 1.0},
 };

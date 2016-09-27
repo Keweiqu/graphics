@@ -26,7 +26,9 @@ Boid* init_boid(int count) {
 Goal init_goal() {
   Goal g;
   g.angle = 0;
-  g.radius = 8000;
+  g.radius = 2000;
+  g.x_trans = g.radius * sin(g.angle);
+  g.y_trans = g.radius * cos(g.angle);
   return g;
 }
 
@@ -35,10 +37,10 @@ void draw_goal(Goal g) {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, goal_vertices);
-  glColorPointer(3, GL_FLOAT, 0, goal_vertices);
+  glColorPointer(3, GL_FLOAT, 0, goal_colors);
   glPushMatrix();
-  glScalef(0.0001, 0.0001, 0.0001);
-  glTranslatef(sin(g.angle) * g.radius, cos(g.angle) * g.radius, 0);
+  glScalef(0.0001, 0.0001, 0.0005);
+  glTranslatef(sin(g.angle) * g.radius, cos(g.angle) * g.radius, 1000);
   glDrawArrays(GL_POINTS, 0, 1);
   glPopMatrix();
   glDisableClientState(GL_VERTEX_ARRAY);
@@ -47,10 +49,11 @@ void draw_goal(Goal g) {
 
 void update_goal(Goal *g) {
   g->angle += 0.005;
+  g->x_trans = g->radius * sin(g->angle);
+  g->y_trans = g->radius * cos(g->angle);
 }
 
-Boid** n_neighbours(Boid *target, Boid** list, int n) {
-  int size = sizeof(list) / sizeof(list[0]);
+Boid** n_neighbours(Boid *target, Boid** list, int size,  int n) {
   int i;
   for( i = 0; i < size; i++) {
     if(list[i]->id == target->id){
@@ -67,12 +70,11 @@ Boid** n_neighbours(Boid *target, Boid** list, int n) {
 
 Boid** cache_linkedlist(Node *head){
   int size = get_ll_size(head);
-  printf("size is %d\n", size);
-  Boid** output = (Boid**) calloc(size, sizeof(Boid*));
+  Boid** output = (Boid**) malloc(sizeof(Boid*) * size);
   Node *current = head->next;
   int i = 0;
   while(current->type == VAL) {
-    memcpy(output + i, current->data, sizeof(Boid*));
+    memcpy(output + i, &current->data, sizeof(Boid*));
     current = current->next;
     i++;
   }
@@ -80,8 +82,8 @@ Boid** cache_linkedlist(Node *head){
 }
 
 int cmp(const void *aa, const void *bb) {
-  Boid * a = (Boid *)aa;
-  Boid * b = (Boid *)bb;
+  Boid * a = *(Boid * const *)aa;
+  Boid * b = *(Boid * const *)bb;
   if(a->dist > b->dist) {
     return 1;
   }else if(a->dist < b->dist) {
@@ -99,7 +101,6 @@ GLfloat get_dist(Boid* a, Boid* b) {
   gsl_vector_free(copy);
   return dist;
 }
-
 void print_boid(Boid *b) {
   printf("printing boid No.%d\n", b->id);
   printf("location x %f, y %f, z %f\n", gsl_vector_get(b->location,0), gsl_vector_get(b->location, 1), gsl_vector_get(b->location, 2));
@@ -116,4 +117,14 @@ void print_boids(Node* head) {
 
 void print_vector(gsl_vector * v){
   printf("x %f, y %f, z %f\n", gsl_vector_get(v, 0),gsl_vector_get(v, 1),gsl_vector_get(v, 2));
+}
+
+
+void print_boids_array(Boid** bs, int size) {
+  int i;
+  for(i = 0; i < size; i++) {
+    Boid* b = bs[i];
+    printf("Array Boid No.%d\n", b->id);
+    print_vector(b->location);
+  }
 }
