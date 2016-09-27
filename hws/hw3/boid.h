@@ -31,7 +31,8 @@ typedef struct _goal {
 
 void init();
 void draw_checkerboard();
-void draw_boid();
+void draw_boid(Boid* b);
+void draw_boids(Node* head, Node* tail);
 void calc_checkerboard_vertices(int n, GLfloat len);
 void calc_checkerboard_indices(int n);
 void calc_checkerboard_colors(int n);
@@ -39,7 +40,7 @@ Goal init_goal();
 void draw_goal();
 void update_goal();
 Boid** n_neighbours(Boid *target, Boid** list, int n);
-Boid* init_boid();
+Boid* init_boid(int count);
 void init_boids();
 Boid** cache_linkedlist(Node* head);
 int cmp(const void* a, const void* b);
