@@ -5,13 +5,13 @@ void init() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, 1, 0.1, 10);
+  gluPerspective(60, 1, 0.1, 20);
   glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
 
   angle = 0;
-  calc_checkerboard_vertices(SIDES, 1);
+  calc_checkerboard_vertices(SIDES, 2);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
    int i;
@@ -128,10 +128,14 @@ int main(int argc, char **argv) {
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearDepth(1.0);
-		draw_checkerboard();
 		draw_boid();
+		draw_checkerboard();
 		glLoadIdentity();
-		gluLookAt(1.5 * cos(angle), 1.5 * sin(angle), 1, 0, 0, 0, 0, 0, 1);
+		gluLookAt(
+			  1.5 * sin(angle), -1.5 * cos(angle), 2,
+			  0, 0, 0,
+			  0, 0, 1
+			  );
 		//angle += M_PI / 200;
 		glfwSwapBuffers(window);
 		glfwPollEvents();
