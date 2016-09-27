@@ -27,25 +27,38 @@ void init() {
 
 void init_boids(Node* head, Node* tail) {
   for (int i = 0; i < 10; i++) {
-    Boid *b = init_boid();
+    Boid *b = init_boid(i+1);
     Node *new_node = create_node(b, VAL);
     append(new_node, tail);    
   }
 }
 
 
-void draw_boid() {
+void draw_boid(Boid* b) {
+  gsl_vector *location = b->location;
+  gsl_vector *velocity = b->velocity;
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, boid_vertices);
   glColorPointer(3, GL_FLOAT, 0, boid_colors);
   glPushMatrix();
+  glTranslate(gsl_vector_get(location, 0), gsl_vector_get->(location, 1), gsl_vector_get->(location, 3);
   glScalef(0.005, 0.005, 1);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
   glPopMatrix();
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
 }
+
+void draw_boids(Node *head, Node *tail) {
+  Node* current;
+  current = head->next;
+  while (current->next->type != HEAD_TAIL) {
+    draw_boid(current->data);
+    current = current->next;
+  }
+}
+
 void draw_checkerboard() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);

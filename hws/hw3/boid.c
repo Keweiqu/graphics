@@ -1,5 +1,5 @@
 #include "boid.h"
-Boid* init_boid() {
+Boid* init_boid(int count) {
   Boid *b = (Boid*) malloc(sizeof(Boid));
   GLfloat lx, ly, lz;
   GLfloat vx, vy, vz;
