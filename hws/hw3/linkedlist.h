@@ -10,4 +10,10 @@ typedef struct _node {
 struct _node *next;
 } Node;
 
+Node* create_node(void *data, enum LL_Type t);
+void free_node(Node *n);
+Node* create_linkedlist();
+void free_linkedlist(Node* head);
+int get_ll_size(Node *head);
+
 #endif

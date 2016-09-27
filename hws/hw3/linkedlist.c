@@ -31,3 +31,13 @@ void free_linkedlist(Node* head) {
   }
   free_node(head);
 }
+
+int get_ll_size(Node *head) {
+  int i = 0;
+  Node * current = head;
+  while(current->next->type != HEAD_TAIL) {
+    i++;
+    current->next = current->next->next;
+  }
+  return i;
+}

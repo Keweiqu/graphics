@@ -12,6 +12,7 @@ typedef struct _boid {
   gsl_vector *location;//center
   gsl_vector *velocity;
   GLfloat angle;
+  GLfloat dist; //neighbour dist
 } Boid;
 
 GLfloat angle;
@@ -34,3 +35,8 @@ Goal init_goal();
 void draw_goal();
 void update_goal();
 Boid init_boid();
+Node* n_neighbours(Node *target, Node *list, int n);
+void insert(Node *head, Node *item);
+void attemp(Node *head, Node *item);
+
+GLfloat** cache_vertices(Node *head);

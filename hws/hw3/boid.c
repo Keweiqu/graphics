@@ -29,3 +29,38 @@ void draw_goal(Goal g) {
 void update_goal(Goal *g) {
   g->angle += 0.005;
 }
+
+Node* n_neighbours(Node *target, Node* list, int n) {
+  Node* output = create_linkedlist();
+  int size = 0, i;
+  Node *current = list->next;
+  while(current->type == VAL){
+    if(current->id == target->id){
+      current = current->next;
+      continue;
+    }
+    
+    gsl_vector dist_vct = gsl_vector_sub(target->location, current->location);
+    GLfloat dist = gsl_vector_mul(dist_vct, dist_vct);
+    current->dist = dist;
+    
+    if(size < n) {
+      insert(output, current);
+    }else {
+      attemp_swap(output, current);
+    }
+    current = current->next;
+  }
+  return output;
+}
+
+void insert(Node *head, Node *item) {
+  Node * current = head->next;
+  while(current->type == VAL && item->dist < current->dist) {
+    current = current->next;
+  }
+  if(current->type == HEAD_TAIL) {
+    
+  }
+}
+
