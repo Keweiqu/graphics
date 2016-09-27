@@ -7,11 +7,7 @@
 #define NUM_BOID_INDICES 6
 #define BOID_COUNT 10
 #define NUM_NEIGHBORS 5
-extern GLfloat boid_vertices[][3];
-extern GLfloat boid_colors[][3];
-extern GLubyte boid_indices[];
-extern GLfloat goal_vertices[3];
-extern GLfloat goal_colors[3];
+
 typedef struct _boid {
   int id;
   gsl_vector *location;//center
@@ -20,14 +16,6 @@ typedef struct _boid {
   GLfloat dist; //neighbour dist
 } Boid;
 
-GLfloat angle;
-GLshort count;
-double x_pos, y_pos;
-GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
-GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
-GLshort board_indices[SIDES*SIDES*4];
-Node* head, *tail;
-
 typedef struct _goal {
   GLfloat angle;
   GLfloat radius;
@@ -35,6 +23,21 @@ typedef struct _goal {
   GLfloat y_trans;
 } Goal;
 
+extern GLfloat boid_vertices[][3];
+extern GLfloat boid_colors[][3];
+extern GLubyte boid_indices[];
+extern GLfloat goal_vertices[3];
+extern GLfloat goal_colors[3];
+
+GLfloat angle;
+GLshort count;
+double x_pos, y_pos;
+GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
+GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
+GLshort board_indices[SIDES*SIDES*4];
+Node* head, *tail;
+Goal g;
+Boid** cache;
 void init();
 void draw_checkerboard();
 void draw_boid(Boid* b);

@@ -65,7 +65,7 @@ Boid** n_neighbours(Boid *target, Boid** list, int size,  int n) {
   qsort(list, size, sizeof(Boid*), cmp);
   Boid **output = (Boid**) calloc(n, sizeof(Boid*));
   
-  memcpy(output, list, sizeof(Boid*) * n);
+  memcpy(output, list+1, sizeof(Boid*) * n);
   return output;
 }
 
@@ -127,7 +127,7 @@ void print_boids_array(Boid** bs, int size) {
     printf("Array Boid No.%d\n", b->id);
     print_vector(b->location);
   }
-
+}
 gsl_vector* separation(Boid* b, Boid** neighbors) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
