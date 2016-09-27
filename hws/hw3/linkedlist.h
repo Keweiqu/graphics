@@ -15,5 +15,5 @@ void free_node(Node *n);
 Node* create_linkedlist();
 void free_linkedlist(Node* head);
 int get_ll_size(Node *head);
-
+void append(Node *n, Node *tail);
 #endif
