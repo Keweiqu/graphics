@@ -77,7 +77,6 @@ Boid** cache_linkedlist(Node *head){
   return output;
 }
 
-
 int cmp(Boid *a, Boid *b) {
   if(a->dist > b->dist) {
     return 1;
@@ -86,3 +85,12 @@ int cmp(Boid *a, Boid *b) {
   }
   return 0;
 }
+
+GLfloat get_dist(Boid* a, Boid* b) {
+  gsl_vector* copy;
+  gsl_vector_memcpy(copy, a->location);
+  gsl_vector_mul(copy, b->location);
+  GLfloat dist = gsl_vector_get(copy, 0) + gsl_vector_get(copy, 1) + gsl_vector_get(copy, 2);
+  return dist;
+}
+

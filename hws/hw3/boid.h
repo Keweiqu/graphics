@@ -43,3 +43,5 @@ Boid* init_boid();
 void init_boids();
 Boid* cache_linkedlist(Node* head);
 int cmp(Boid* a, Boid* b);
+GLfloat get_dist(Boid* a, Boid *b);
+
