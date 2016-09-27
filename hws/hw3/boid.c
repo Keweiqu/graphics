@@ -1,6 +1,6 @@
 #include "boid.h"
 Boid* init_boid() {
-  Boid* b;
+  Boid *b = (Boid*) malloc(sizeof(Boid));
   GLfloat lx, ly, lz;
   GLfloat vx, vy, vz;
   
@@ -58,39 +58,43 @@ Boid** n_neighbours(Boid *target, Boid** list, int n) {
     }
     list[i]->dist = get_dist(target, list[i]);
   }
-  qsort(list, size, cmp);
-  Boid **output = (Boid**) calloc(sizeof(Boid*) * n);
+  qsort(list, size, sizeof(Boid*), cmp);
+  Boid **output = (Boid**) calloc(n, sizeof(Boid*));
   
   memcpy(output, list, sizeof(Boid*) * n);
+  return output;
 }
 
 Boid** cache_linkedlist(Node *head){
   int size = get_ll_size(head);
-  Boid* output = (Boid**) calloc(sizeof(Boid*) * size);
+  Boid** output = (Boid**) calloc(size, sizeof(Boid*));
   Node *current = head->next;
   int i = 0;
   while(current->type == VAL) {
-    memcpy(output[i], current->data, sizeof(Boid*));
+    memcpy(output + i * sizeof(Boid*), current->data, sizeof(Boid*));
     current = current->next;
     i++;
   }
   return output;
 }
 
-int cmp(Boid *a, Boid *b) {
+int cmp(const void *aa, const void *bb) {
+  Boid * a = (Boid *)aa;
+  Boid * b = (Boid *)bb;
   if(a->dist > b->dist) {
     return 1;
   }else if(a->dist < b->dist) {
-    return -1
+    return -1;
   }
   return 0;
 }
 
 GLfloat get_dist(Boid* a, Boid* b) {
-  gsl_vector* copy;
+  gsl_vector* copy = (gsl_vector*) malloc(sizeof(gsl_vector));
   gsl_vector_memcpy(copy, a->location);
   gsl_vector_mul(copy, b->location);
   GLfloat dist = gsl_vector_get(copy, 0) + gsl_vector_get(copy, 1) + gsl_vector_get(copy, 2);
+  gsl_vector_free(copy);
   return dist;
 }
 

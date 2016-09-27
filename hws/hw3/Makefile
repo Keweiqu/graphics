@@ -5,20 +5,20 @@
 # accordingly
 
 ifeq ($(shell uname -s), Darwin)
-LDFLAGS=-L/opt/ports/lib -framework OpenGL -lglfw -lGLEW -lm
+LDFLAGS=-L/opt/ports/lib -framework OpenGL -lglfw -lGLEW -lm -L/home/kqu/lib -lgsl -lgslcblas -lm 
 else
-LDFLAGS=-lX11 -lGL -lGLU -lglfw -lGLEW -lm
+LDFLAGS=-lX11 -lGL -lGLU -lglfw -lGLEW -lm -L/home/kqu/lib -lgsl -lgslcblas -lm
 endif
 CC=gcc
 CFLAGS=-g -Wall -I/opt/ports/include
-SOURCES= linkedlist.c main.c boid.c externs.c
+SOURCES= linkedlist.c main.c boid.c externs.c 
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=run
 
 all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS) 
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJECTS) -o $@ 
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

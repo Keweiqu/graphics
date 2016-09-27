@@ -1,7 +1,7 @@
 #include <float.h>
 #include "common.h"
 #include "linkedlist.h"
-#include "vector/gsl_vector.h"
+#include <gsl/gsl_vector.h>
 
 #define SIDES 4
 #define NUM_BOID_INDICES 6
@@ -41,7 +41,7 @@ void update_goal();
 Boid** n_neighbours(Boid *target, Boid** list, int n);
 Boid* init_boid();
 void init_boids();
-Boid* cache_linkedlist(Node* head);
-int cmp(Boid* a, Boid* b);
+Boid** cache_linkedlist(Node* head);
+int cmp(const void* a, const void* b);
 GLfloat get_dist(Boid* a, Boid *b);
 
