@@ -1,3 +1,4 @@
+#include <float.h>
 #include "common.h"
 #include "linkedlist.h"
 #include "vector/gsl_vector.h"
@@ -37,10 +38,8 @@ void calc_checkerboard_colors(int n);
 Goal init_goal();
 void draw_goal();
 void update_goal();
-Node* n_neighbours(Node *target, Node *list, int n);
-void insert(Node *head, Node *item);
-void attemp(Node *head, Node *item);
-
-GLfloat** cache_vertices(Node *head);
+Boid** n_neighbours(Boid *target, Boid** list, int n);
 Boid* init_boid();
 void init_boids();
+Boid* cache_linkedlist(Node* head);
+int cmp(Boid* a, Boid* b);

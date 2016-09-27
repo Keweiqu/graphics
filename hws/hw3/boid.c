@@ -49,39 +49,40 @@ void update_goal(Goal *g) {
   g->angle += 0.005;
 }
 
-Node* n_neighbours(Node *target, Node* list, int n) {
-  Node* output = create_linkedlist();
-  int size = 0, i;
-  Node *current = list->next;
-  while(current->type == VAL){
-    if(current->id == target->id){
-      current = current->next;
-      continue;
+Boid** n_neighbours(Boid *target, Boid** list, int n) {
+  int size = sizeof(list) / sizeof(list[0]);
+  int i;
+  for( i = 0; i < size; i++) {
+    if(list[i]->id == target->id){
+      list[i]->dist = FLT_MAX;
     }
-    
-    gsl_vector dist_vct = gsl_vector_sub(target->location, current->location);
-    GLfloat dist = gsl_vector_mul(dist_vct, dist_vct);
-    current->dist = dist;
-    
-    if(size < n) {
-      insert(output, current);
-    }else {
-      attemp_swap(output, current);
-    }
+    list[i]->dist = get_dist(target, list[i]);
+  }
+  qsort(list, size, cmp);
+  Boid **output = (Boid**) calloc(sizeof(Boid*) * n);
+  
+  memcpy(output, list, sizeof(Boid*) * n);
+}
+
+Boid** cache_linkedlist(Node *head){
+  int size = get_ll_size(head);
+  Boid* output = (Boid**) calloc(sizeof(Boid*) * size);
+  Node *current = head->next;
+  int i = 0;
+  while(current->type == VAL) {
+    memcpy(output[i], current->data, sizeof(Boid*));
     current = current->next;
+    i++;
   }
   return output;
 }
 
-void insert(Node *head, Node *item) {
-  Node * current = head->next;
-  while(current->type == VAL && item->dist < current->dist) {
-    current = current->next;
-  }
-  if(current->type == HEAD_TAIL) {
-    append(item, current);
-  }else {
-    insert_before(item, current);
-  }
-}
 
+int cmp(Boid *a, Boid *b) {
+  if(a->dist > b->dist) {
+    return 1;
+  }else if(a->dist < b->dist) {
+    return -1
+  }
+  return 0;
+}
