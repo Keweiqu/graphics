@@ -11,7 +11,7 @@ void init() {
   glShadeModel(GL_FLAT);
 
   angle = 0;
-  calc_checkerboard_vertices(SIDES, 2);
+  calc_checkerboard_vertices(SIDES, 1);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
    int i;
@@ -74,15 +74,31 @@ void calc_checkerboard_indices(int n) {
 }
 
 void calc_checkerboard_colors(int n) {
-  for (int i = 0; i < (n+1)*(n+1); i++) {
-    if (i % 2) {
-      board_colors[i][0] = 1.0;
-      board_colors[i][1] = 1.0;
-      board_colors[i][2] = 1.0;
-    } else {
-      board_colors[i][0] = 0.0;
-      board_colors[i][1] = 0.0;
-      board_colors[i][2] = 0.0;
+  if (n % 2 == 0) {
+    for (int i = 0; i < (n+1)*(n+1); i++) {
+      if (i % 2) {
+	board_colors[i][0] = 1.0;
+	board_colors[i][1] = 1.0;
+	board_colors[i][2] = 1.0;
+      } else {
+	board_colors[i][0] = 0.0;
+	board_colors[i][1] = 0.0;
+	board_colors[i][2] = 0.0;
+      }
+    }
+  } else {
+    printf("yay");
+    for (int i = 0; i < (n+1)*(n+1); i++) {
+      if ((i % 2 == 1 && (i / (n+1)) % 2 == 1) || (i % 2 == 0 && (i / (n+1)) % 2 == 0)) {
+	printf("white vertex: %d\n", i);
+	board_colors[i][0] = 1.0;
+	board_colors[i][1] = 1.0;
+	board_colors[i][2] = 1.0;
+      } else {
+	board_colors[i][0] = 0.0;
+	board_colors[i][1] = 0.0;
+	board_colors[i][2] = 0.0;
+      }
     }
   }
 }

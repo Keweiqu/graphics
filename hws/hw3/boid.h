@@ -1,7 +1,7 @@
 #include "common.h"
 #include "vector/gsl_vector.h"
 
-#define SIDES 3
+#define SIDES 4
 #define NUM_BOID_INDICES 6
 GLfloat boid_vertices[][3] = {
   {0.0, 0.0 ,0.0},
