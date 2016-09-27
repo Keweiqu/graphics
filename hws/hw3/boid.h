@@ -45,3 +45,6 @@ Boid** cache_linkedlist(Node* head);
 int cmp(const void* a, const void* b);
 GLfloat get_dist(Boid* a, Boid *b);
 
+void print_boid(Boid* b);
+void print_boids(Node* head);
+void print_vector(gsl_vector *v);

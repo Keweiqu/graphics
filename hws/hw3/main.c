@@ -125,7 +125,11 @@ int main(int argc, char **argv) {
   Goal g = init_goal();
   Node* head = create_linkedlist();
   Node* tail = head->next;
+  init_boids(head, tail);
   GLFWwindow *window;
+  print_boids(head);
+  GLfloat dist = get_dist((Boid *)head->next->data, (Boid *)head->next->next->data);
+  printf("Dist is %f\n", dist);
   
   if (!glfwInit()) {
     exit(EXIT_FAILURE);
@@ -143,10 +147,8 @@ int main(int argc, char **argv) {
   /* glfwSetKeyCallback(window, keyboard); */
   /* glfwSetMouseButtonCallback(window, mouse); */
   /* glfwSetCursorPosCallback(window, cursor); */
-  
+
   init();
-  init_boids(head, tail);
-  
   while (!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.0);

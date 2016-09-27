@@ -90,11 +90,29 @@ int cmp(const void *aa, const void *bb) {
 }
 
 GLfloat get_dist(Boid* a, Boid* b) {
-  gsl_vector* copy = (gsl_vector*) malloc(sizeof(gsl_vector));
+  gsl_vector* copy = gsl_vector_alloc(3);
   gsl_vector_memcpy(copy, a->location);
-  gsl_vector_mul(copy, b->location);
+  gsl_vector_sub(copy, b->location);
+  gsl_vector_mul(copy, copy);
   GLfloat dist = gsl_vector_get(copy, 0) + gsl_vector_get(copy, 1) + gsl_vector_get(copy, 2);
   gsl_vector_free(copy);
   return dist;
 }
 
+void print_boid(Boid *b) {
+  printf("printing boid No.%d\n", b->id);
+  printf("location x %f, y %f, z %f\n", gsl_vector_get(b->location,0), gsl_vector_get(b->location, 1), gsl_vector_get(b->location, 2));
+}
+
+void print_boids(Node* head) {
+  Node* current = head->next;
+  while(current->type == VAL) {
+    print_boid((Boid*) current->data);
+    current = current->next;
+  }
+}
+
+
+void print_vector(gsl_vector * v){
+  printf("x %f, y %f, z %f\n", gsl_vector_get(v, 0),gsl_vector_get(v, 1),gsl_vector_get(v, 2));
+}
