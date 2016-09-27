@@ -1,12 +1,5 @@
 #include "common.h"
-/*
-GLfloat boid_vertices[][3] = {
-  {0.0, 0.0 ,1},
-  {0.05, .05, 1},
-  {-.05, -.02, 1},
-  {.05, -.02, 1}
-};
-*/
+
 GLfloat boid_vertices[][3] = {
   {0.0, 0.0 ,1},
   {0.0, 10, 1},
@@ -24,4 +17,12 @@ GLfloat boid_colors[][3] = {
 GLubyte boid_indices[] = {
   0, 1, 2,
   3, 1, 0
+};
+
+GLfloat goal_vertices[][3] = {
+  {0.0, 0.0, 1.0},
+};
+
+GLfloat gola_colors[][3] = {
+  {1.0, 1.0, 0},
 };

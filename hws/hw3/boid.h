@@ -6,7 +6,7 @@
 extern GLfloat boid_vertices[][3];
 extern GLfloat boid_colors[][3];
 extern GLubyte boid_indices[];
-
+extern GLfloat goal_vertices[3];
 typedef struct _boid {
   int id;
   gsl_vector *location;//center
@@ -20,7 +20,7 @@ GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
 GLshort board_indices[SIDES*SIDES*4];
 
 typedef struct _goal {
-  GLint angle;
+  GLfloat angle;
   GLfloat radius;
 } Goal;
 
@@ -30,5 +30,7 @@ void draw_boid();
 void calc_checkerboard_vertices(int n, GLfloat len);
 void calc_checkerboard_indices(int n);
 void calc_checkerboard_colors(int n);
-
+Goal init_goal();
+void draw_goal();
+void update_goal();
 Boid init_boid();

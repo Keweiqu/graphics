@@ -110,43 +110,46 @@ void calc_checkerboard_colors(int n) {
 }
 
 int main(int argc, char **argv) {
-	GLFWwindow *window;
-
-	if (!glfwInit()) {
-		exit(EXIT_FAILURE);
-	}
-
-	window = glfwCreateWindow(1000, 1000, "Flocking Boids", NULL, NULL);
-	if (!window) {
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
-
-	glfwMakeContextCurrent(window);
-	/* glfwSetWindowSizeCallback(window, reshape); */
-	/* glfwSetFramebufferSizeCallback(window, framebuffer_resize); */
-	/* glfwSetKeyCallback(window, keyboard); */
-	/* glfwSetMouseButtonCallback(window, mouse); */
-	/* glfwSetCursorPosCallback(window, cursor); */
-
-	init();
-
-	while (!glfwWindowShouldClose(window)) {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearDepth(1.0);
-		draw_boid();
-		draw_checkerboard();
-		glLoadIdentity();
-		gluLookAt(
-			  1.5 * sin(angle), -1.5 * cos(angle), 2,
-			  0, 0, 0,
-			  0, 0, 1
-			  );
-		//angle += M_PI / 200;
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	glfwTerminate();
-	exit(EXIT_SUCCESS);
+  Goal g = init_goal();
+  GLFWwindow *window;
+  
+  if (!glfwInit()) {
+    exit(EXIT_FAILURE);
+  }
+  
+  window = glfwCreateWindow(1000, 1000, "Flocking Boids", NULL, NULL);
+  if (!window) {
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+  }
+  
+  glfwMakeContextCurrent(window);
+  /* glfwSetWindowSizeCallback(window, reshape); */
+  /* glfwSetFramebufferSizeCallback(window, framebuffer_resize); */
+  /* glfwSetKeyCallback(window, keyboard); */
+  /* glfwSetMouseButtonCallback(window, mouse); */
+  /* glfwSetCursorPosCallback(window, cursor); */
+  
+  init();
+  
+  while (!glfwWindowShouldClose(window)) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearDepth(1.0);
+    draw_boid();
+    draw_checkerboard();
+    draw_goal(g);
+    update_goal(&g);
+    glLoadIdentity();
+    gluLookAt(
+	      1.5 * sin(angle), -1.5 * cos(angle), 2,
+	      0, 0, 0,
+	      0, 0, 1
+	      );
+    //angle += M_PI / 200;
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+  }
+  
+  glfwTerminate();
+  exit(EXIT_SUCCESS);
 }
