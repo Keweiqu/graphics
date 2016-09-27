@@ -169,6 +169,11 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
   
 }
 
+void cursor(GLFWwindow* w, double xpos, double ypos) {
+  x_pos = xpos;
+  y_pos = ypos;
+}
+
 int main(int argc, char **argv) {
   Goal g = init_goal();
   init_boids();
@@ -194,7 +199,7 @@ int main(int argc, char **argv) {
   /* glfwSetFramebufferSizeCallback(window, framebuffer_resize); */
   glfwSetKeyCallback(window, keyboard);
   /* glfwSetMouseButtonCallback(window, mouse); */
-  /* glfwSetCursorPosCallback(window, cursor); */
+  glfwSetCursorPosCallback(window, cursor);
 
   init();
   while (!glfwWindowShouldClose(window)) {
