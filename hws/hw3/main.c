@@ -30,8 +30,8 @@ void init() {
 void init_boids() {
   head = create_linkedlist();
   tail = head->next;
-  for (int i = 0; i < 11; i++) {
-    Boid *b = init_boid(i+1);
+  for (int i = 0; i < 10; i++) {
+    Boid *b = init_boid(i);
     Node *new_node = create_node(b, VAL);
     append(new_node, tail);    
   }
@@ -59,7 +59,7 @@ void draw_boids() {
   glColorPointer(3, GL_FLOAT, 0, boid_colors);
   Node* current;
   current = head->next;
-  while (current->next->type != HEAD_TAIL) {
+  while (current->type != HEAD_TAIL) {
     draw_boid(current->data);
     current = current->next;
   }
@@ -174,6 +174,7 @@ int main(int argc, char **argv) {
   init_boids();
   GLFWwindow *window;
   print_boids(head);
+  cache_linkedlist(head);
   GLfloat dist = get_dist((Boid *)head->next->data, (Boid *)head->next->next->data);
   printf("Dist is %f\n", dist);
   
@@ -204,8 +205,8 @@ int main(int argc, char **argv) {
     update_goal(&g);
     glLoadIdentity();
     gluLookAt(
-	      0.2, 0.2, 1.00001,
-	      0.2, 0.2, 1,
+	      0.2, 0.01, 0.7,
+	      0.2, 0.01, 0,
 	      0, 1, 0
 	      );
     //angle += M_PI / 200;

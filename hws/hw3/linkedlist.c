@@ -34,10 +34,10 @@ void free_linkedlist(Node* head) {
 
 int get_ll_size(Node *head) {
   int i = 0;
-  Node * current = head;
-  while(current->next->type != HEAD_TAIL) {
+  Node * current = head->next;
+  while(current->type != HEAD_TAIL) {
     i++;
-    current->next = current->next->next;
+    current = current->next;
   }
   return i;
 }
