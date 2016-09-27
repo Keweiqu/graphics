@@ -6,7 +6,7 @@ void init() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, 1, 0.1, 20);
+  gluPerspective(60, 1, 0.000001, 10);
   glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
@@ -16,13 +16,15 @@ void init() {
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
-   int i;
+  /*print checkerboard data
+  int i;
   for(i = 0; i < pow(SIDES + 1, 2); i++) {
     printf("No.%d: r %f, g %f, b %f\n",i, board_colors[i][0], board_colors[i][1], board_colors[i][2]);
   }
   for(i = 0; i < pow(SIDES, 2); i++ ) {
     printf("index No.%d, value %d\n",i,  board_indices[i *4 ]);
-  }  
+  }
+  */
 }
 
 void init_boids() {
@@ -39,26 +41,30 @@ void init_boids() {
 void draw_boid(Boid* b) {
   gsl_vector *location = b->location;
   gsl_vector *velocity = b->velocity;
+  
+  glPushMatrix();
+  
+  glScalef(0.0001, 0.0001, 0.0005);
+  glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));  
+
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
+  glPopMatrix();
+ 
+}
+
+void draw_boids() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, boid_vertices);
   glColorPointer(3, GL_FLOAT, 0, boid_colors);
-  glPushMatrix();
-  glTranslatef(gsl_vector_get(location, 0)/200, gsl_vector_get(location, 1)/200, gsl_vector_get(location, 2)/200);  
-  glScalef(0.005, 0.005, 1);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
-  glPopMatrix();
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_COLOR_ARRAY);
-}
-
-void draw_boids() {
   Node* current;
   current = head->next;
   while (current->next->type != HEAD_TAIL) {
     draw_boid(current->data);
     current = current->next;
   }
+   glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void draw_checkerboard() {
@@ -198,9 +204,9 @@ int main(int argc, char **argv) {
     update_goal(&g);
     glLoadIdentity();
     gluLookAt(
-	      1.5 * sin(angle), -1.5 * cos(angle), 2,
-	      0, 0, 0,
-	      0, 0, 1
+	      0.2, 0.2, 1.00001,
+	      0.2, 0.2, 1,
+	      0, 1, 0
 	      );
     //angle += M_PI / 200;
     glfwSwapBuffers(window);

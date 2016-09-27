@@ -7,9 +7,9 @@ Boid* init_boid(int count) {
   b->id = count + 1;
   
   b->location = gsl_vector_alloc(3);
-  lx = 75 + rand() % 51;
-  ly = 75 + rand() % 51;
-  lz = 1;
+  lx = 2375 + rand() % 51;
+  ly = 125 + rand() % 51;
+  lz = 1; //1175 + rand() % 51;
   gsl_vector_set(b->location, 0, lx);
   gsl_vector_set(b->location, 1, ly);
   gsl_vector_set(b->location, 2, lz);
