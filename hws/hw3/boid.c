@@ -132,8 +132,8 @@ gsl_vector* separation(Boid* b, Boid** neighbors) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
   for (int i = 0; i < NUM_NEIGHBORS; i++) {
-    gsl_vector_add(res, neighbors[i]->location);
-    gsl_vector_sub(res, b->location);
+    gsl_vector_add(res, (const gsl_vector*)neighbors[i]->location);
+    gsl_vector_sub(res, (const gsl_vector*)b->location);
   }
   gsl_vector_scale(res, -1);
   return res;
@@ -143,10 +143,10 @@ gsl_vector* cohesion(Boid* b, Boid** neighbors) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
   for (int i = 0; i < NUM_NEIGHBORS; i++) {
-    gsl_vector_add(res, neighbors[i]->location);
+    gsl_vector_add(res, (const gsl_vector*)neighbors[i]->location);
   }
   gsl_vector_scale(res, NUM_NEIGHBORS);
-  gsl_vector_sub(res, b->location);
+  gsl_vector_sub(res, (const gsl_vector*)b->location);
   return res;
 }
 
@@ -154,16 +154,14 @@ gsl_vector* alignment(Boid*b, Boid** neighbors) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
   for (int i = 0; i < NUM_NEIGHBORS; i++) {
-    gsl_vector_add(res, neighbors[i]->velocity);
+    gsl_vector_add(res, (const gsl_vector*)neighbors[i]->velocity);
   }
   gsl_vector_scale(res, NUM_NEIGHBORS);
   return res;
 }
 
-gl_vector* goal_seeking(Boid* target, Boid* b) {
+gsl_vector* goal_seeking(Goal g, Boid* b) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
-  gsl_vector_add(res, target);
-  gsl_vector_sub(res, b);
   return res;
 }

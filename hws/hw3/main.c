@@ -67,6 +67,20 @@ void draw_boids() {
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
+void update_boids() {
+  Node* current = head->next;
+  while (current->type != HEAD_TAIL) {
+    //update_boid(current->data);
+  }
+}
+
+void update_boid(Boid* b, Boid** neighbors, Goal g) {
+  gsl_vector* s = separation(b, neighbors);
+  gsl_vector* c = cohesion(b, neighbors);
+  gsl_vector* a = alignment(b, neighbors);
+  gsl_vector* g_s = goal_seeking(g, b);
+}
+
 void draw_checkerboard() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);

@@ -52,6 +52,8 @@ Boid** cache_linkedlist(Node* head);
 int cmp(const void* a, const void* b);
 GLfloat get_dist(Boid* a, Boid *b);
 void add_boid();
+void update_boids();
+void update_boid(Boid* b, Boid** neighbors, Goal g);
 
 void print_boid(Boid* b);
 void print_boids(Node* head);
@@ -61,7 +63,8 @@ void print_boids_array(Boid** bs, int size);
 gsl_vector* separation(Boid* b, Boid** neighbors);
 gsl_vector* cohesion(Boid* b, Boid** neighbors);
 gsl_vector* alignment(Boid* b, Boid** neighbors);
-gsl_vector* goal_seeking(Boid* target, Boid* b);
+gsl_vector* goal_seeking(Goal g, Boid* b);
 
 void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods);
 void cursor(GLFWwindow* w, double xpos, double ypos);
+
