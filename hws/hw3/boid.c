@@ -78,7 +78,9 @@ void insert(Node *head, Node *item) {
     current = current->next;
   }
   if(current->type == HEAD_TAIL) {
-    
+    append(item, current);
+  }else {
+    insert_before(item, current);
   }
 }
 
