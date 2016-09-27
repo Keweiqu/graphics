@@ -22,9 +22,16 @@ void init() {
     printf("index No.%d, value %d\n",i,  board_indices[i *4 ]);
   }
 }
-
+void draw_boid() {
+  glEnableClientState(GL_COLOR_ARRAY);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, boid_vertices);
+  glColorPointer(3, GL_FLOAT, 0, boid_colors);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
+}
 void draw_checkerboard() {
-  glColor3f(1.0, 1.0, 1.0);
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, board_vertices);
@@ -106,6 +113,7 @@ int main(int argc, char **argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearDepth(1.0);
 		draw_checkerboard();
+		draw_boid();
 		glLoadIdentity();
 		gluLookAt(1.5 * cos(angle), 1.5 * sin(angle), 1, 0, 0, 0, 0, 0, 1);
 		//angle += M_PI / 200;
