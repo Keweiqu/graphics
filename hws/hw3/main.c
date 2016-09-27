@@ -11,7 +11,7 @@ void init() {
   glShadeModel(GL_FLAT);
 
   angle = 0;
-  calc_checkerboard_vertices(SIDES, 2);
+  calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
    int i;
@@ -27,16 +27,22 @@ void draw_boid() {
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, boid_vertices);
   glColorPointer(3, GL_FLOAT, 0, boid_colors);
+  glPushMatrix();
+  glScalef(0.005, 0.005, 1);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
+  glPopMatrix();
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
 }
 void draw_checkerboard() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
+  glPushMatrix();
+  glScalef(0.0001,0.0001,1);
   glVertexPointer(3, GL_FLOAT, 0, board_vertices);
   glColorPointer(3, GL_FLOAT, 0, board_colors);
   glDrawElements(GL_QUADS, SIDES*SIDES*4, GL_UNSIGNED_SHORT, board_indices);
+  glPopMatrix();
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
 }
