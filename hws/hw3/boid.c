@@ -128,6 +128,7 @@ void print_boids_array(Boid** bs, int size) {
     print_vector(b->location);
   }
 }
+
 gsl_vector* separation(Boid* b, Boid** neighbors) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
@@ -163,5 +164,7 @@ gsl_vector* alignment(Boid*b, Boid** neighbors) {
 gsl_vector* goal_seeking(Goal g, Boid* b) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
+  gsl_vector_set(res, x_trans/10000, y_trans/10000, 1);
+  gsl_vector_sub(res, b->velocity);
   return res;
 }
