@@ -6,7 +6,7 @@ void init() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, 1, 0.1, 20);
+  gluPerspective(60, 1, 0.000001, 10);
   glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
@@ -16,20 +16,22 @@ void init() {
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
-   int i;
+  /*print checkerboard data
+  int i;
   for(i = 0; i < pow(SIDES + 1, 2); i++) {
     printf("No.%d: r %f, g %f, b %f\n",i, board_colors[i][0], board_colors[i][1], board_colors[i][2]);
   }
   for(i = 0; i < pow(SIDES, 2); i++ ) {
     printf("index No.%d, value %d\n",i,  board_indices[i *4 ]);
-  }  
+  }
+  */
 }
 
 void init_boids() {
   head = create_linkedlist();
   tail = head->next;
-  for (int i = 0; i < 11; i++) {
-    Boid *b = init_boid(i+1);
+  for (int i = 0; i < 10; i++) {
+    Boid *b = init_boid(i);
     Node *new_node = create_node(b, VAL);
     append(new_node, tail);    
   }
@@ -39,26 +41,30 @@ void init_boids() {
 void draw_boid(Boid* b) {
   gsl_vector *location = b->location;
   gsl_vector *velocity = b->velocity;
+  
+  glPushMatrix();
+  
+  glScalef(0.0001, 0.0001, 0.0005);
+  glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));  
+
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
+  glPopMatrix();
+ 
+}
+
+void draw_boids() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, boid_vertices);
   glColorPointer(3, GL_FLOAT, 0, boid_colors);
-  glPushMatrix();
-  glTranslatef(gsl_vector_get(location, 0)/200, gsl_vector_get(location, 1)/200, gsl_vector_get(location, 2)/200);  
-  glScalef(0.005, 0.005, 1);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
-  glPopMatrix();
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_COLOR_ARRAY);
-}
-
-void draw_boids() {
   Node* current;
   current = head->next;
-  while (current->next->type != HEAD_TAIL) {
+  while (current->type != HEAD_TAIL) {
     draw_boid(current->data);
     current = current->next;
   }
+   glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void draw_checkerboard() {
@@ -173,6 +179,7 @@ int main(int argc, char **argv) {
   init_boids();
   GLFWwindow *window;
   print_boids(head);
+  cache_linkedlist(head);
   GLfloat dist = get_dist((Boid *)head->next->data, (Boid *)head->next->next->data);
   printf("Dist is %f\n", dist);
   
@@ -203,8 +210,8 @@ int main(int argc, char **argv) {
     update_goal(&g);
     glLoadIdentity();
     gluLookAt(
-	      0, 0, 5,
-	      0, 0, 0,
+	      0.2, 0.01, 0.7,
+	      0.2, 0.01, 0,
 	      0, 1, 0
 	      );
     //angle += M_PI / 200;

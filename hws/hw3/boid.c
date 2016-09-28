@@ -8,9 +8,9 @@ Boid* init_boid(int count) {
   b->id = count + 1;
   
   b->location = gsl_vector_alloc(3);
-  lx = 75 + rand() % 51;
-  ly = 75 + rand() % 51;
-  lz = 1;
+  lx = 2375 + rand() % 51;
+  ly = 125 + rand() % 51;
+  lz = 1175 + rand() % 51;
   gsl_vector_set(b->location, 0, lx);
   gsl_vector_set(b->location, 1, ly);
   gsl_vector_set(b->location, 2, lz);
@@ -68,11 +68,12 @@ Boid** n_neighbours(Boid *target, Boid** list, int n) {
 
 Boid** cache_linkedlist(Node *head){
   int size = get_ll_size(head);
+  printf("size is %d\n", size);
   Boid** output = (Boid**) calloc(size, sizeof(Boid*));
   Node *current = head->next;
   int i = 0;
   while(current->type == VAL) {
-    memcpy(output + i * sizeof(Boid*), current->data, sizeof(Boid*));
+    memcpy(output + i, current->data, sizeof(Boid*));
     current = current->next;
     i++;
   }
