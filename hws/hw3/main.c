@@ -75,12 +75,18 @@ void update_boids() {
 }
 
 void update_boid(Boid* b, Boid** neighbors, Goal g) {
-  // gsl_vector* s = separation(b, neighbors);
-  //gsl_vector* c = cohesion(b, neighbors);
-  //gsl_vector* a = alignment(b, neighbors);
-  gsl_vector* g_s = goal_seeking(g, b);
-  gsl_vector_add(b->velocity, g_s);
   gsl_vector_add(b->location, b->velocity);
+  
+  gsl_vector* s = separation(b, neighbors);
+  gsl_vector* c = cohesion(b, neighbors);
+  gsl_vector* a = alignment(b, neighbors);
+  gsl_vector* g_s = goal_seeking(g, b);
+  gsl_vector_add(g_s, s);
+  gsl_vector_add(g_s, c);
+  gsl_vector_add(g_s, a);
+  gsl_vector_scale(b->velocity, 0.99);
+  gsl_vector_scale(g_s, 4);
+  gsl_vector_add(b->velocity, g_s);
 }
 
 void draw_checkerboard() {
@@ -198,7 +204,7 @@ int main(int argc, char **argv) {
   init_boids();
   cache = cache_linkedlist(head);
   g = init_goal();
-
+  ave_multiplier = 0.2;
 
   GLFWwindow *window;
   print_boids(head);
@@ -235,7 +241,7 @@ int main(int argc, char **argv) {
     update_goal(&g);
     glLoadIdentity();
     gluLookAt(
-	      0.2, 0.01, 0.8,
+	      0.2, 0.01, 1.5,
 	      0.2, 0.01, 0,
 	      0, 1, 0
 	      );

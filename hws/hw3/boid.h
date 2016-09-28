@@ -21,6 +21,7 @@ typedef struct _goal {
   GLfloat radius;
   GLfloat x_trans;
   GLfloat y_trans;
+  GLfloat z_trans;
 } Goal;
 
 extern GLfloat boid_vertices[][3];
@@ -28,7 +29,7 @@ extern GLfloat boid_colors[][3];
 extern GLubyte boid_indices[];
 extern GLfloat goal_vertices[3];
 extern GLfloat goal_colors[3];
-
+double ave_multiplier;
 GLfloat angle;
 GLshort count;
 double x_pos, y_pos;

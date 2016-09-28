@@ -3,7 +3,7 @@
 Boid* init_boid(int count) {
   Boid *b = (Boid*) malloc(sizeof(Boid));
   GLfloat lx, ly, lz;
-  GLfloat vx, vy, vz;
+  GLfloat vx = 0, vy = 0, vz = 0;
   
   b->id = count + 1;
   
@@ -16,7 +16,6 @@ Boid* init_boid(int count) {
   gsl_vector_set(b->location, 2, lz);
   
   b->velocity = gsl_vector_alloc(3);
-  vx = vy = vz = rand() % 41;
   gsl_vector_set(b->velocity, 0, vx);
   gsl_vector_set(b->velocity, 1, vy);
   gsl_vector_set(b->velocity, 2, vz);
@@ -30,6 +29,7 @@ Goal init_goal() {
   g.radius = 2000;
   g.x_trans = g.radius * sin(g.angle);
   g.y_trans = g.radius * cos(g.angle);
+  g.z_trans = 1000;
   return g;
 }
 
@@ -41,7 +41,7 @@ void draw_goal(Goal g) {
   glColorPointer(3, GL_FLOAT, 0, goal_colors);
   glPushMatrix();
   glScalef(0.0001, 0.0001, 0.0005);
-  glTranslatef(sin(g.angle) * g.radius, cos(g.angle) * g.radius, 1000);
+  glTranslatef(g.x_trans, g.y_trans, g.z_trans);
   glDrawArrays(GL_POINTS, 0, 1);
   glPopMatrix();
   glDisableClientState(GL_VERTEX_ARRAY);
@@ -133,9 +133,18 @@ gsl_vector* separation(Boid* b, Boid** neighbors) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
   for (int i = 0; i < NUM_NEIGHBORS; i++) {
-    gsl_vector_add(res, (const gsl_vector*)neighbors[i]->location);
-    gsl_vector_sub(res, (const gsl_vector*)b->location);
+    gsl_vector* diff1 = gsl_vector_alloc(3);
+    gsl_vector* diff2 = gsl_vector_alloc(3);
+    gsl_vector_set_zero(diff1);
+    gsl_vector_add(diff1, (const gsl_vector*)neighbors[i]->location);
+    gsl_vector_sub(diff1, (const gsl_vector*)b->location);
+    gsl_vector_memcpy(diff2, diff1);
+    gsl_vector_mul(diff1, diff1);
+    double sum = gsl_vector_get(diff1, 0) + gsl_vector_get(diff1, 1) + gsl_vector_get(diff1, 2);
+    gsl_vector_scale(diff2, 1.0 / sum);
+    gsl_vector_add(res, diff2);
   }
+  
   gsl_vector_scale(res, -1);
   return res;
 }
@@ -146,8 +155,9 @@ gsl_vector* cohesion(Boid* b, Boid** neighbors) {
   for (int i = 0; i < NUM_NEIGHBORS; i++) {
     gsl_vector_add(res, (const gsl_vector*)neighbors[i]->location);
   }
-  gsl_vector_scale(res, NUM_NEIGHBORS);
+  gsl_vector_scale(res, ave_multiplier);
   gsl_vector_sub(res, (const gsl_vector*)b->location);
+  gsl_vector_scale(res, 0.0001);
   return res;
 }
 
@@ -157,16 +167,17 @@ gsl_vector* alignment(Boid*b, Boid** neighbors) {
   for (int i = 0; i < NUM_NEIGHBORS; i++) {
     gsl_vector_add(res, (const gsl_vector*)neighbors[i]->velocity);
   }
-  gsl_vector_scale(res, NUM_NEIGHBORS);
+  gsl_vector_scale(res, ave_multiplier * 0.001);
   return res;
 }
 
 gsl_vector* goal_seeking(Goal g, Boid* b) {
   gsl_vector* res = gsl_vector_alloc(3);
   gsl_vector_set_zero(res);
-  gsl_vector_set(res, 0, g.x_trans/10000);
-  gsl_vector_set(res, 1, g.y_trans/10000);
-  gsl_vector_set(res, 2, 1);
+  gsl_vector_set(res, 0, g.x_trans);
+  gsl_vector_set(res, 1, g.y_trans);
+  gsl_vector_set(res, 2, g.z_trans);
   gsl_vector_sub(res, b->location);
+  gsl_vector_scale(res, 0.00003);
   return res;
 }
