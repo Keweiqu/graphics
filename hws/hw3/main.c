@@ -16,6 +16,7 @@ void init() {
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
+ 
   /*print checkerboard data
   int i;
   for(i = 0; i < pow(SIDES + 1, 2); i++) {
@@ -70,15 +71,19 @@ void draw_boids() {
 void update_boids() {
   Node* current = head->next;
   while (current->type != HEAD_TAIL) {
-    //update_boid(current->data);
+    Boid* this_b = (Boid *)current->data;
+    Boid ** knn = n_neighbours(this_b, cache, count, 5);
+    update_boid(this_b, knn, g);
+    current = current->next;
   }
 }
 
 void update_boid(Boid* b, Boid** neighbors, Goal g) {
-  gsl_vector* s = separation(b, neighbors);
-  gsl_vector* c = cohesion(b, neighbors);
-  gsl_vector* a = alignment(b, neighbors);
+  // gsl_vector* s = separation(b, neighbors);
+  //gsl_vector* c = cohesion(b, neighbors);
+  //gsl_vector* a = alignment(b, neighbors);
   gsl_vector* g_s = goal_seeking(g, b);
+  gsl_vector_add(b->location, g_s);
 }
 
 void draw_checkerboard() {
@@ -168,10 +173,14 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
     switch(key) {
       case GLFW_KEY_EQUAL:
         add_boid();
+	free(cache);
+	cache = cache_linkedlist(head);
         break;
       case GLFW_KEY_BACKSPACE:
 	if (count > 10) {
 	  delete_last(tail);
+	  free(cache);
+	  cache = cache_linkedlist(head);
 	}       
 	count--;
         break;
@@ -189,8 +198,11 @@ void cursor(GLFWwindow* w, double xpos, double ypos) {
 }
 
 int main(int argc, char **argv) {
-  Goal g = init_goal();
   init_boids();
+  cache = cache_linkedlist(head);
+  g = init_goal();
+
+
   GLFWwindow *window;
   print_boids(head);
   Boid** bs= cache_linkedlist(head);
@@ -220,6 +232,7 @@ int main(int argc, char **argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.0);
     draw_boids();
+    update_boids();
     draw_checkerboard();
     draw_goal(g);
     update_goal(&g);

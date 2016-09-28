@@ -65,7 +65,7 @@ Boid** n_neighbours(Boid *target, Boid** list, int size,  int n) {
   qsort(list, size, sizeof(Boid*), cmp);
   Boid **output = (Boid**) calloc(n, sizeof(Boid*));
   
-  memcpy(output, list, sizeof(Boid*) * n);
+  memcpy(output, list+1, sizeof(Boid*) * n);
   return output;
 }
 
