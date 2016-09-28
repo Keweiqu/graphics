@@ -65,6 +65,13 @@ void draw_boids() {
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
+void draw_speed(Boid *b) {
+  glBegin(GL_LINES);
+  glVertex3f(0,0,0);
+  glVertex3fv((GLfloat *)b->velocity->data);
+  glEnd();
+}
+
 void update_boids() {
   Node* current = head->next;
   while (current->type != HEAD_TAIL) {
@@ -77,14 +84,14 @@ void update_boids() {
 
 void update_boid(Boid* b, Boid** neighbors, Goal g) {
   gsl_vector_add(b->location, b->velocity);
-  b->angle = get_angle(b->velocity);
-  //gsl_vector* s = separation(b, neighbors);
-  //gsl_vector* c = cohesion(b, neighbors);
-  //gsl_vector* a = alignment(b, neighbors);
+  b->angle = get_angle(b);
+  gsl_vector* s = separation(b, neighbors);
+  gsl_vector* c = cohesion(b, neighbors);
+  gsl_vector* a = alignment(b, neighbors);
   gsl_vector* g_s = goal_seeking(g, b);
-  //gsl_vector_add(g_s, s);
-  //gsl_vector_add(g_s, c);
-  //gsl_vector_add(g_s, a);
+  gsl_vector_add(g_s, s);
+  gsl_vector_add(g_s, c);
+  gsl_vector_add(g_s, a);
   gsl_vector_scale(b->velocity, 0.99);
   gsl_vector_scale(g_s, 4);
   gsl_vector_add(b->velocity, g_s);
@@ -240,6 +247,7 @@ int main(int argc, char **argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.0);
     draw_boids();
+    //draw_speed((Boid *)head->next->data);
     update_boids();
     draw_checkerboard();
     draw_goal(g);

@@ -20,6 +20,9 @@ Boid* init_boid(int count) {
   gsl_vector_set(b->velocity, 1, vy);
   gsl_vector_set(b->velocity, 2, vz);
   b->angle = rand() % 360;
+
+  b->normal = gsl_vector_alloc(3);
+  gsl_vector_set_basis(b->normal, 1);
   return b;
 }
 
@@ -184,15 +187,23 @@ gsl_vector* goal_seeking(Goal g, Boid* b) {
 
 
 double projection_cos(gsl_vector* v, gsl_vector* w) {
+  gsl_vector * v_copy = gsl_vector_alloc(3);
+  gsl_vector * w_copy = gsl_vector_alloc(3);
   gsl_vector * temp = gsl_vector_alloc(3);
+
   gsl_vector_memcpy(temp, v);
-  gsl_vector_mul(temp, w);
-  gsl_vector_mul(v, v);
-  gsl_vector_mul(w, w);
+  gsl_vector_memcpy(v_copy, v);
+  gsl_vector_memcpy(w_copy, w);
+
+  gsl_vector_mul(temp, w_copy);
+  gsl_vector_mul(v_copy, v_copy);
+  gsl_vector_mul(w_copy, w_copy);
   double denominator = sum_vector(temp, 3);
-  double nominator = sum_vector(v, 3) * sum_vector(w, 3);
+  double nominator = sqrt(sum_vector(v_copy, 3)) * sqrt(sum_vector(w_copy, 3));
   double cos = denominator / nominator;
   gsl_vector_free(temp);
+  gsl_vector_free(v_copy);
+  gsl_vector_free(w_copy);
   return cos;
 }
 
@@ -205,8 +216,11 @@ double sum_vector(gsl_vector* v, int size) {
   return sum;
 }
 
-double get_angle(gsl_vector* v) {
-  double tan = gsl_vector_get(v, 1) / gsl_vector_get(v, 0);
-  double angle = atan(tan) * ANGLE_CONVERTER;
+double get_angle(Boid* b) {
+  double cos = projection_cos(b->normal, b->velocity);
+  double angle = acos(cos) * ANGLE_CONVERTER;
+  if(gsl_vector_get(b->velocity, 0) > 0) {
+    angle = 360 - angle;
+  }
   return angle;
 }

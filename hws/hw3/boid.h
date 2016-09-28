@@ -10,6 +10,7 @@
 
 typedef struct _boid {
   int id;
+  gsl_vector *normal;
   gsl_vector *location;//center
   gsl_vector *velocity;
   GLfloat angle;
@@ -43,6 +44,7 @@ void init();
 void draw_checkerboard();
 void draw_boid(Boid* b);
 void draw_boids();
+void draw_speed(Boid* b);
 void calc_checkerboard_vertices(int n, GLfloat len);
 void calc_checkerboard_indices(int n);
 void calc_checkerboard_colors(int n);
@@ -74,4 +76,4 @@ void cursor(GLFWwindow* w, double xpos, double ypos);
 
 double projection_cos(gsl_vector *v, gsl_vector *);
 double sum_vector(gsl_vector *v, int size);
-double get_angle(gsl_vector *v);
+double get_angle(Boid *b);
