@@ -13,6 +13,7 @@ void init() {
 
   angle = 0;
   count = BOID_COUNT;
+  isPaused = 0;
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
@@ -200,7 +201,16 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
 	}       
         break;
       case GLFW_KEY_Q:
+      case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(w, TRUE);
+        break;
+      case GLFW_KEY_P:
+        isPaused = isPaused ? 0 : 1;
+        break;
+      case GLFW_KEY_D:
+        isPaused = 1;
+        update_goal(&g);
+        update_boids();
         break;
     }
   }
@@ -248,10 +258,12 @@ int main(int argc, char **argv) {
     glClearDepth(1.0);
     draw_boids();
     //draw_speed((Boid *)head->next->data);
-    update_boids();
     draw_checkerboard();
     draw_goal(g);
-    update_goal(&g);
+    if (!isPaused) {
+      update_boids();
+      update_goal(&g);
+    }
     glLoadIdentity();
     gluLookAt(
 	      0.2, 0.01, 1.5,
