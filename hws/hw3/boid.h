@@ -78,3 +78,9 @@ void cursor(GLFWwindow* w, double xpos, double ypos);
 double projection_cos(gsl_vector *v, gsl_vector *);
 double sum_vector(gsl_vector *v, int size);
 double get_angle(Boid *b);
+
+void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
+void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+
+void crossProduct(gsl_vector* u, gsl_vector* v, gsl_vector* r);
+void testCP();
