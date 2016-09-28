@@ -1,4 +1,5 @@
 #include "common.h"
+#include <gsl/gsl_vector.h>
 
 GLfloat boid_vertices[][3] = {
   {0.0, 0.0 ,0},
@@ -26,3 +27,6 @@ GLfloat goal_vertices[][3] = {
 GLfloat goal_colors[][3] = {
   {0.0, 0.0, 1.0},
 };
+
+float world_scale[3] = {0.0001, 0.0001, 0.0005};
+

@@ -10,7 +10,7 @@ else
 LDFLAGS=-lX11 -lGL -lGLU -lglfw -lGLEW -lm -L/home/kqu/lib -lgsl -lgslcblas -lm
 endif
 CC=gcc
-CFLAGS=-g -Wall -I/opt/ports/include
+CFLAGS=-g -Wall -I/opt/ports/include -I/home/kqu/include
 SOURCES= linkedlist.c main.c boid.c externs.c 
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=run

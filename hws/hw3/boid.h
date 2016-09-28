@@ -1,3 +1,6 @@
+#ifndef BOID_H
+#define BOID_H
+
 #include <float.h>
 #include "common.h"
 #include "linkedlist.h"
@@ -8,6 +11,7 @@
 #define BOID_COUNT 10
 #define NUM_NEIGHBORS 5
 
+enum VIEW_MODE {CENTER, TRAILING, SIDE};
 typedef struct _boid {
   int id;
   gsl_vector *normal;
@@ -20,19 +24,24 @@ typedef struct _boid {
 typedef struct _goal {
   GLfloat angle;
   GLfloat radius;
-  GLfloat x_trans;
-  GLfloat y_trans;
-  GLfloat z_trans;
+  gsl_vector * trans;
 } Goal;
+
+typedef struct _view {
+  gsl_vector * pos;
+  gsl_vector * look;
+  gsl_vector * up;
+} View;
 
 extern GLfloat boid_vertices[][3];
 extern GLfloat boid_colors[][3];
 extern GLubyte boid_indices[];
 extern GLfloat goal_vertices[3];
 extern GLfloat goal_colors[3];
+extern float world_scale[3];
 double ave_multiplier;
 GLfloat angle;
-GLshort count;
+int count;
 double x_pos, y_pos;
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
@@ -40,7 +49,14 @@ GLshort board_indices[SIDES*SIDES*4];
 Node* head, *tail;
 Goal g;
 Boid** cache;
+View center_view, trailing_view, side_view;
+View view;
 void init();
+void init_views();
+void update_view();
+void init_center_view();
+void update_center_view();
+void camera_look();
 void draw_checkerboard();
 void draw_boid(Boid* b);
 void draw_boids();
@@ -63,6 +79,7 @@ void update_boid(Boid* b, Boid** neighbors, Goal g);
 
 void print_boid(Boid* b);
 void print_boids(Node* head);
+void print_view(View v);
 void print_vector(gsl_vector *v);
 void print_boids_array(Boid** bs, int size);
 
@@ -71,9 +88,16 @@ gsl_vector* cohesion(Boid* b, Boid** neighbors);
 gsl_vector* alignment(Boid* b, Boid** neighbors);
 gsl_vector* goal_seeking(Goal g, Boid* b);
 
+gsl_vector* get_flock_center(Boid** bs, int size);
+gsl_vector* ave(gsl_vector* v, gsl_vector* w);
+gsl_vector* calc_middleway(Boid** bs, int size, Goal g);
+
+void world_scale_vector(gsl_vector *v);
 void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods);
 void cursor(GLFWwindow* w, double xpos, double ypos);
 
 double projection_cos(gsl_vector *v, gsl_vector *);
 double sum_vector(gsl_vector *v, int size);
 double get_angle(Boid *b);
+
+#endif

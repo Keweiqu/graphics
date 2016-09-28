@@ -30,12 +30,37 @@ Goal init_goal() {
   Goal g;
   g.angle = 0;
   g.radius = 2000;
-  g.x_trans = g.radius * sin(g.angle);
-  g.y_trans = g.radius * cos(g.angle);
-  g.z_trans = 1000;
+  g.trans = gsl_vector_alloc(3);
+  gsl_vector_set(g.trans, 0, g.radius * sin(g.angle));
+  gsl_vector_set(g.trans, 1, g.radius * cos(g.angle));
+  gsl_vector_set(g.trans, 2, 1000);
   return g;
 }
 
+void init_views() {
+  init_center_view();
+}
+
+void update_view() {
+  update_center_view();
+}
+
+void init_center_view() {
+  center_view.pos = gsl_vector_calloc(3);
+  gsl_vector_set(center_view.pos, 2, 1000);
+  center_view.up = gsl_vector_calloc(3);
+  gsl_vector_set(center_view.up, 2, 1);
+  center_view.look = calc_middleway(cache, count, g);
+}
+
+void update_center_view() {
+  gsl_vector_free(center_view.look);
+  center_view.look = calc_middleway(cache, count, g);
+}
+
+void camera_look() {
+  glulookat()
+}
 
 void draw_goal(Goal g) {
   glEnableClientState(GL_COLOR_ARRAY);
@@ -43,8 +68,12 @@ void draw_goal(Goal g) {
   glVertexPointer(3, GL_FLOAT, 0, goal_vertices);
   glColorPointer(3, GL_FLOAT, 0, goal_colors);
   glPushMatrix();
-  glScalef(0.0001, 0.0001, 0.0005);
-  glTranslatef(g.x_trans, g.y_trans, g.z_trans);
+  glScalef(world_scale[0], world_scale[1], world_scale[2]);
+  glTranslatef(
+	       gsl_vector_get(g.trans, 0),
+	       gsl_vector_get(g.trans, 1),
+	       gsl_vector_get(g.trans, 2)
+	       );
   glDrawArrays(GL_POINTS, 0, 1);
   glPopMatrix();
   glDisableClientState(GL_VERTEX_ARRAY);
@@ -53,8 +82,8 @@ void draw_goal(Goal g) {
 
 void update_goal(Goal *g) {
   g->angle += 0.005;
-  g->x_trans = g->radius * sin(g->angle);
-  g->y_trans = g->radius * cos(g->angle);
+  gsl_vector_set(g->trans, 0, g->radius * sin(g->angle));
+  gsl_vector_set(g->trans, 1, g->radius * cos(g->angle));
 }
 
 Boid** n_neighbours(Boid *target, Boid** list, int size,  int n) {
@@ -118,6 +147,11 @@ void print_boids(Node* head) {
   }
 }
 
+void print_view(View v){
+  print_vector(v.pos);
+  print_vector(v.look);
+  print_vector(v.up);
+}
 
 void print_vector(gsl_vector * v){
   printf("x %f, y %f, z %f\n", gsl_vector_get(v, 0),gsl_vector_get(v, 1),gsl_vector_get(v, 2));
@@ -153,38 +187,47 @@ gsl_vector* separation(Boid* b, Boid** neighbors) {
 }
 
 gsl_vector* cohesion(Boid* b, Boid** neighbors) {
-  gsl_vector* res = gsl_vector_alloc(3);
-  gsl_vector_set_zero(res);
-  for (int i = 0; i < NUM_NEIGHBORS; i++) {
-    gsl_vector_add(res, (const gsl_vector*)neighbors[i]->location);
-  }
-  gsl_vector_scale(res, ave_multiplier);
+  gsl_vector* res = get_flock_center(neighbors, NUM_NEIGHBORS);
   gsl_vector_sub(res, (const gsl_vector*)b->location);
   gsl_vector_scale(res, 0.0001);
   return res;
 }
 
 gsl_vector* alignment(Boid*b, Boid** neighbors) {
-  gsl_vector* res = gsl_vector_alloc(3);
-  gsl_vector_set_zero(res);
+  gsl_vector* res = gsl_vector_calloc(3);
   for (int i = 0; i < NUM_NEIGHBORS; i++) {
     gsl_vector_add(res, (const gsl_vector*)neighbors[i]->velocity);
   }
+
   gsl_vector_scale(res, ave_multiplier * 0.001);
   return res;
 }
 
 gsl_vector* goal_seeking(Goal g, Boid* b) {
   gsl_vector* res = gsl_vector_alloc(3);
-  gsl_vector_set_zero(res);
-  gsl_vector_set(res, 0, g.x_trans);
-  gsl_vector_set(res, 1, g.y_trans);
-  gsl_vector_set(res, 2, g.z_trans);
+  gsl_vector_memcpy(res, g.trans);
   gsl_vector_sub(res, b->location);
   gsl_vector_scale(res, 0.00003);
   return res;
 }
 
+gsl_vector* get_flock_center(Boid** bs, int size) {
+ gsl_vector* res = gsl_vector_alloc(3);
+  gsl_vector_set_zero(res);
+  for (int i = 0; i < size; i++) {
+    gsl_vector_add(res, (const gsl_vector*)bs[i]->location);
+  }
+  gsl_vector_scale(res, 1.0 / size);
+  return res;
+}
+
+gsl_vector* calc_middleway(Boid** bs, int size, Goal g) {
+  gsl_vector* flock_center = get_flock_center(bs, size);
+  printf("flocking center\n");
+  print_vector(flock_center);
+  gsl_vector* res = ave(flock_center, g.trans);
+  return res;
+}
 
 double projection_cos(gsl_vector* v, gsl_vector* w) {
   gsl_vector * v_copy = gsl_vector_alloc(3);
@@ -205,6 +248,14 @@ double projection_cos(gsl_vector* v, gsl_vector* w) {
   gsl_vector_free(v_copy);
   gsl_vector_free(w_copy);
   return cos;
+}
+
+gsl_vector* ave(gsl_vector* v, gsl_vector* w) {
+  gsl_vector* res = gsl_vector_calloc(3);
+  gsl_vector_add(res, v);
+  gsl_vector_add(res, w);
+  gsl_vector_scale(res, 0.5);
+  return res;
 }
 
 double sum_vector(gsl_vector* v, int size) {

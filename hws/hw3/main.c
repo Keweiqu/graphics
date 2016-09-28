@@ -12,7 +12,6 @@ void init() {
   glShadeModel(GL_FLAT);
 
   angle = 0;
-  count = BOID_COUNT;
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
@@ -29,6 +28,7 @@ void init() {
 }
 
 void init_boids() {
+  count = BOID_COUNT;
   head = create_linkedlist();
   tail = head->next;
   for (int i = 0; i < 10; i++) {
@@ -42,7 +42,7 @@ void init_boids() {
 void draw_boid(Boid* b) {
   gsl_vector *location = b->location;
   glPushMatrix();
-  glScalef(0.0001, 0.0001, 0.0005);
+  glScalef(world_scale[0], world_scale[1], world_scale[2]);
   glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
   glRotatef(b->angle, 0,0,1);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
@@ -102,7 +102,7 @@ void draw_checkerboard() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnableClientState(GL_VERTEX_ARRAY);
   glPushMatrix();
-  glScalef(0.0001,0.0001,1);
+  glScalef(world_scale[0], world_scale[1], world_scale[2]);
   glVertexPointer(3, GL_FLOAT, 0, board_vertices);
   glColorPointer(3, GL_FLOAT, 0, board_colors);
   glDrawElements(GL_QUADS, SIDES*SIDES*4, GL_UNSIGNED_SHORT, board_indices);
@@ -117,7 +117,6 @@ void draw_checkerboard() {
  * @param len side-length of the checkboard
  */
 void calc_checkerboard_vertices(int n, GLfloat len) {
-  printf("calculate vertices\n");
   GLfloat lx = -len / 2, ly = len / 2;
   GLfloat num_of_points = pow(n + 1, 2); 
   for (int i = 0; i < num_of_points; i++) {
@@ -133,7 +132,6 @@ void calc_checkerboard_vertices(int n, GLfloat len) {
  * Calculate the indices for each square.
  */
 void calc_checkerboard_indices(int n) {
-  printf("calclulate indices\n");
   int i;
   for (i = 0; i < pow(n, 2); i++) {
     board_indices[4 * i] = (i / n) * (n + 1) + i % n + 1;    
@@ -214,14 +212,17 @@ int main(int argc, char **argv) {
   cache = cache_linkedlist(head);
   g = init_goal();
   ave_multiplier = 0.2;
-
+  init_views();
+  printf("center view:\n");
+  print_view(center_view);
+  
   GLFWwindow *window;
-  print_boids(head);
-  Boid** bs= cache_linkedlist(head);
-  print_boids_array(bs, 10);
-  Boid** sorted = n_neighbours(bs[0], bs, 10, 5);
-
-  print_boids_array(sorted, 5);
+  //print_boids(head);
+  //Boid** bs= cache_linkedlist(head);
+  //print_boids_array(bs, 10);
+  //Boid** sorted = n_neighbours(bs[0], bs, 10, 5);
+  //print_boids_array(sorted, 5);
+  
   if (!glfwInit()) {
     exit(EXIT_FAILURE);
   }
@@ -244,7 +245,6 @@ int main(int argc, char **argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.0);
     draw_boids();
-    //draw_speed((Boid *)head->next->data);
     update_boids();
     draw_checkerboard();
     draw_goal(g);
