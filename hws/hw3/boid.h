@@ -72,3 +72,6 @@ gsl_vector* goal_seeking(Goal g, Boid* b);
 void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods);
 void cursor(GLFWwindow* w, double xpos, double ypos);
 
+double projection_cos(gsl_vector *v, gsl_vector *);
+double sum_vector(gsl_vector *v, int size);
+double get_angle(gsl_vector *v);

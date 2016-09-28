@@ -140,7 +140,7 @@ gsl_vector* separation(Boid* b, Boid** neighbors) {
     gsl_vector_sub(diff1, (const gsl_vector*)b->location);
     gsl_vector_memcpy(diff2, diff1);
     gsl_vector_mul(diff1, diff1);
-    double sum = gsl_vector_get(diff1, 0) + gsl_vector_get(diff1, 1) + gsl_vector_get(diff1, 2);
+    double sum = sum_vector(diff1, 3);
     gsl_vector_scale(diff2, 1.0 / sum);
     gsl_vector_add(res, diff2);
   }
@@ -180,4 +180,33 @@ gsl_vector* goal_seeking(Goal g, Boid* b) {
   gsl_vector_sub(res, b->location);
   gsl_vector_scale(res, 0.00003);
   return res;
+}
+
+
+double projection_cos(gsl_vector* v, gsl_vector* w) {
+  gsl_vector * temp = gsl_vector_alloc(3);
+  gsl_vector_memcpy(temp, v);
+  gsl_vector_mul(temp, w);
+  gsl_vector_mul(v, v);
+  gsl_vector_mul(w, w);
+  double denominator = sum_vector(temp, 3);
+  double nominator = sum_vector(v, 3) * sum_vector(w, 3);
+  double cos = denominator / nominator;
+  gsl_vector_free(temp);
+  return cos;
+}
+
+double sum_vector(gsl_vector* v, int size) {
+  int i;
+  double sum = 0;
+  for(i = 0; i < size; i++){
+    sum += gsl_vector_get(v, i);
+  }
+  return sum;
+}
+
+double get_angle(gsl_vector* v) {
+  double tan = gsl_vector_get(v, 1) / gsl_vector_get(v, 0);
+  double angle = atan(tan) * ANGLE_CONVERTER;
+  return angle;
 }

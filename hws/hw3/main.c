@@ -44,6 +44,7 @@ void draw_boid(Boid* b) {
   glPushMatrix();
   glScalef(0.0001, 0.0001, 0.0005);
   glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
+  glRotatef(b->angle, 0,0,1);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
   glPopMatrix();
  
@@ -76,17 +77,18 @@ void update_boids() {
 
 void update_boid(Boid* b, Boid** neighbors, Goal g) {
   gsl_vector_add(b->location, b->velocity);
-  
-  gsl_vector* s = separation(b, neighbors);
-  gsl_vector* c = cohesion(b, neighbors);
-  gsl_vector* a = alignment(b, neighbors);
+  b->angle = get_angle(b->velocity);
+  //gsl_vector* s = separation(b, neighbors);
+  //gsl_vector* c = cohesion(b, neighbors);
+  //gsl_vector* a = alignment(b, neighbors);
   gsl_vector* g_s = goal_seeking(g, b);
-  gsl_vector_add(g_s, s);
-  gsl_vector_add(g_s, c);
-  gsl_vector_add(g_s, a);
+  //gsl_vector_add(g_s, s);
+  //gsl_vector_add(g_s, c);
+  //gsl_vector_add(g_s, a);
   gsl_vector_scale(b->velocity, 0.99);
   gsl_vector_scale(g_s, 4);
   gsl_vector_add(b->velocity, g_s);
+
 }
 
 void draw_checkerboard() {
