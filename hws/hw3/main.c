@@ -184,8 +184,8 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
 	  delete_last(tail);
 	  free(cache);
 	  cache = cache_linkedlist(head);
+	  count--;
 	}       
-	count--;
         break;
       case GLFW_KEY_Q:
         glfwSetWindowShouldClose(w, TRUE);
