@@ -88,7 +88,10 @@ void update_boid(Boid* b, Boid** neighbors, Goal g) {
   gsl_vector_scale(b->velocity, 0.99);
   gsl_vector_scale(g_s, 4);
   gsl_vector_add(b->velocity, g_s);
-
+  gsl_vector_free(s);
+  gsl_vector_free(c);
+  gsl_vector_free(a);
+  gsl_vector_free(g_s);
 }
 
 void draw_checkerboard() {
@@ -251,6 +254,7 @@ int main(int argc, char **argv) {
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+  free_linkedlist(head);
   
   glfwTerminate();
   exit(EXIT_SUCCESS);
