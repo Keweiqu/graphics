@@ -1,4 +1,5 @@
 #include "boid.h"
+
 Boid* init_boid(int count) {
   Boid *b = (Boid*) malloc(sizeof(Boid));
   GLfloat lx, ly, lz;
@@ -115,4 +116,44 @@ void print_boids(Node* head) {
 
 void print_vector(gsl_vector * v){
   printf("x %f, y %f, z %f\n", gsl_vector_get(v, 0),gsl_vector_get(v, 1),gsl_vector_get(v, 2));
+}
+
+gsl_vector* separation(Boid* b, Boid** neighbors) {
+  gsl_vector* res = gsl_vector_alloc(3);
+  gsl_vector_set_zero(res);
+  for (int i = 0; i < NUM_NEIGHBORS; i++) {
+    gsl_vector_add(res, neighbors[i]->location);
+    gsl_vector_sub(res, b->location);
+  }
+  gsl_vector_scale(res, -1);
+  return res;
+}
+
+gsl_vector* cohesion(Boid* b, Boid** neighbors) {
+  gsl_vector* res = gsl_vector_alloc(3);
+  gsl_vector_set_zero(res);
+  for (int i = 0; i < NUM_NEIGHBORS; i++) {
+    gsl_vector_add(res, neighbors[i]->location);
+  }
+  gsl_vector_scale(res, NUM_NEIGHBORS);
+  gsl_vector_sub(res, b->location);
+  return res;
+}
+
+gsl_vector* alignment(Boid*b, Boid** neighbors) {
+  gsl_vector* res = gsl_vector_alloc(3);
+  gsl_vector_set_zero(res);
+  for (int i = 0; i < NUM_NEIGHBORS; i++) {
+    gsl_vector_add(res, neighbors[i]->velocity);
+  }
+  gsl_vector_scale(res, NUM_NEIGHBORS);
+  return res;
+}
+
+gl_vector* goal_seeking(Boid* target, Boid* b) {
+  gsl_vector* res = gsl_vector_alloc(3);
+  gsl_vector_set_zero(res);
+  gsl_vector_add(res, target);
+  gsl_vector_sub(res, b);
+  return res;
 }

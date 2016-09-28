@@ -6,6 +6,7 @@
 #define SIDES 4
 #define NUM_BOID_INDICES 6
 #define BOID_COUNT 10
+#define NUM_NEIGHBORS 5
 extern GLfloat boid_vertices[][3];
 extern GLfloat boid_colors[][3];
 extern GLubyte boid_indices[];
@@ -20,6 +21,7 @@ typedef struct _boid {
 
 GLfloat angle;
 GLshort count;
+double x_pos, y_pos;
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
 GLshort board_indices[SIDES*SIDES*4];
@@ -52,4 +54,10 @@ void print_boid(Boid* b);
 void print_boids(Node* head);
 void print_vector(gsl_vector *v);
 
+gsl_vector* separation(Boid* b, Boid** neighbors);
+gsl_vector* cohesion(Boid* b, Boid** neighbors);
+gsl_vector* alignment(Boid* b, Boid** neighbors);
+gsl_vector* goal_seeking(Boid* target, Boid* b);
+
 void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods);
+void cursor(GLFWwindow* w, double xpos, double ypos);

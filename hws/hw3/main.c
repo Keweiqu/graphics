@@ -163,6 +163,11 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
   
 }
 
+void cursor(GLFWwindow* w, double xpos, double ypos) {
+  x_pos = xpos;
+  y_pos = ypos;
+}
+
 int main(int argc, char **argv) {
   Goal g = init_goal();
   init_boids();
@@ -186,7 +191,7 @@ int main(int argc, char **argv) {
   /* glfwSetFramebufferSizeCallback(window, framebuffer_resize); */
   glfwSetKeyCallback(window, keyboard);
   /* glfwSetMouseButtonCallback(window, mouse); */
-  /* glfwSetCursorPosCallback(window, cursor); */
+  glfwSetCursorPosCallback(window, cursor);
 
   init();
   while (!glfwWindowShouldClose(window)) {
@@ -198,9 +203,9 @@ int main(int argc, char **argv) {
     update_goal(&g);
     glLoadIdentity();
     gluLookAt(
-	      1.5 * sin(angle), -1.5 * cos(angle), 2,
+	      0, 0, 5,
 	      0, 0, 0,
-	      0, 0, 1
+	      0, 1, 0
 	      );
     //angle += M_PI / 200;
     glfwSwapBuffers(window);
