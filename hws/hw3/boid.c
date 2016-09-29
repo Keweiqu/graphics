@@ -20,7 +20,8 @@ Boid* init_boid(int count) {
   gsl_vector_set(b->velocity, Y, vy);
   gsl_vector_set(b->velocity, Z, vz);
   b->angle = rand() % 360;
-  b->wing_angle = 0;
+  b->wing_angle = rand() % 10;
+  b->wing_direction = UP;
   b->z_angle = 0;
 
   b->normal = gsl_vector_alloc(VECTOR_LENGTH);
@@ -466,7 +467,7 @@ double get_z_angle(Boid* b) {
   gsl_vector_set(xy_normal, 2, 0);
   double cos = projection_cos(xy_normal, b->velocity);
   double angle = acos(cos) * ANGLE_CONVERTER;
-  if(gsl_vector_get(b->velocity, 0) < 0) {
+  if(gsl_vector_get(b->velocity, 2) < 0) {
     angle = 360 - angle;
   }
   return angle;

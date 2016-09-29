@@ -12,21 +12,10 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
 
-  angle = 0;
   isPaused = 0;
   calc_checkerboard_vertices(SIDES, 2 * WORLD_HALF_WIDTH);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
-
-  /*print checkerboard data
-  int i;
-  for(i = 0; i < pow(SIDES + 1, 2); i++) {
-    printf("No.%d: r %f, g %f, b %f\n",i, board_colors[i][0], board_colors[i][1], board_colors[i][2]);
-  }
-  for(i = 0; i < pow(SIDES, 2); i++ ) {
-    printf("index No.%d, value %d\n",i,  board_indices[i *4 ]);
-  }
-  */
 }
 
 void init_boids() {
@@ -47,7 +36,7 @@ void draw_boid(Boid* b) {
   glScalef(world_scale[0], world_scale[1], world_scale[2]);
   glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
   glRotatef(b->angle, 0, 0, 1);
-  glRotatef(b->z_angle, 1, 0, 0);
+  glRotatef(b->z_angle, 0, 1, 0);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
   glPopMatrix();
 }
@@ -58,6 +47,8 @@ void draw_left_wing(Boid* b) {
   glScalef(world_scale[0], world_scale[1], world_scale[2]);
   glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
   glRotatef(b->angle, 0, 0, 1);
+  glRotatef(b->z_angle, 1, 0, 0);
+  //glRotatef( b->wing_angle, 0, 1, 0);
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, left_indices);
   glPopMatrix();
 }
@@ -68,6 +59,8 @@ void draw_right_wing(Boid* b) {
   glScalef(world_scale[0], world_scale[1], world_scale[2]);
   glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
   glRotatef(b->angle, 0, 0, 1);
+  glRotatef(b->z_angle, 1, 0, 0);
+  //glRotatef(b->wing_angle, 0, 1, 0);
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, right_indices);
   glPopMatrix();
 }
@@ -117,6 +110,14 @@ void update_boid(Boid* b, Boid** neighbors, Goal g) {
   gsl_vector_free(c);
   gsl_vector_free(a);
   gsl_vector_free(g_s);
+  update_boid_wing(b);
+}
+
+void update_boid_wing(Boid* b) {
+  b->wing_angle += WING_DELTA * b->wing_direction;
+  if(fabs(b->wing_angle) > MAX_WING_ANGLE) {
+    b->wing_direction *= -1;
+  }
 }
 
 void draw_checkerboard() {

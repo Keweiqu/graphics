@@ -33,6 +33,8 @@
 #define ALIGNMENT_SCALE 0.001
 #define GOAL_SEEKING_SCALE 0.00003
 #define MATRIX_SIZE 16
+#define MAX_WING_ANGLE 45
+#define WING_DELTA 1
 
 enum VIEW_MODE {CENTER, TRAILING, SIDE};
 typedef struct _boid {
@@ -43,6 +45,7 @@ typedef struct _boid {
   GLfloat z_angle;
   GLfloat angle;
   GLfloat wing_angle;
+  GLfloat wing_direction;
   GLfloat dist; //neighbour dist
 } Boid;
 
@@ -117,6 +120,7 @@ GLfloat get_dist(Boid* a, Boid *b);
 void add_boid();
 void update_boids();
 void update_boid(Boid* b, Boid** neighbors, Goal g);
+void update_boid_wing(Boid* b);
 
 void print_boid(Boid* b);
 void print_boids(Node* head);
