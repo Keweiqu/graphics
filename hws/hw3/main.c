@@ -17,9 +17,6 @@ void init() {
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
 
-  testCP();
-  testLookAt();
- 
   /*print checkerboard data
   int i;
   for(i = 0; i < pow(SIDES + 1, 2); i++) {
@@ -279,6 +276,10 @@ void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdou
 
   glMultMatrixd((const GLdouble *)m);
   glTranslated(-eyeX, -eyeY, -eyeZ);
+
+  gsl_vector_free(forward);
+  gsl_vector_free(up);
+  gsl_vector_free(side);
 }
 
 void testLookAt() {
