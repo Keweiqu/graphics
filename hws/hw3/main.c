@@ -230,12 +230,20 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
   if(action == GLFW_REPEAT || action == GLFW_PRESS) {
     switch(key) {
     case GLFW_KEY_UP:
-      update_goal_height(UP);
+      g.h_move = 10;
+      gsl_vector_set(g.direction, 2, UP);
       break;
     case GLFW_KEY_DOWN:
-      update_goal_height(DOWN);
+      g.h_move = 10;
+      gsl_vector_set(g.direction, 2, DOWN);
       break;
     case GLFW_KEY_LEFT:
+      g.x_move = 10;
+      gsl_vector_set(g.direction, 0, LEFT);
+      break;
+    case GLFW_KEY_RIGHT:
+      g.x_move = 10;
+      gsl_vector_set(g.direction, 0, RIGHT);
       break;
     }
   }

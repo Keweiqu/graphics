@@ -29,7 +29,8 @@ Boid* init_boid(int count) {
 Goal init_goal() {
   Goal g;
   g.speed = 10;
-  g.angle = 0;
+  g.h_move = 0;
+  g.x_move = 0;
   g.trans = gsl_vector_alloc(3);
   gsl_vector_set(g.trans, 0, 2000);
   gsl_vector_set(g.trans, 1, 1500);
@@ -149,26 +150,33 @@ void draw_goal(Goal g) {
 }
 
 void update_goal(Goal *g) {
-  double x_trans = gsl_vector_get(g->trans, 0) + gsl_vector_get(g->direction, 0) * g->speed;
   double y_trans = gsl_vector_get(g->trans, 1) + gsl_vector_get(g->direction, 1) * g->speed;
-  gsl_vector_set(g->trans, 0, x_trans);
   gsl_vector_set(g->trans, 1, y_trans);
-  if(fabs(x_trans) > WORLD_HALF_WIDTH) {
-    g->angle = 2 * M_PI - g->angle;
-    gsl_vector_set(g->direction, 0, sin(g->angle));
-    gsl_vector_set(g->direction, 1, cos(g->angle));
-  }
   if(fabs(y_trans) > WORLD_HALF_WIDTH) {
-    g->angle = M_PI - g->angle;
-    gsl_vector_set(g->direction, 0, sin(g->angle));
-    gsl_vector_set(g->direction, 1, cos(g->angle));
+    gsl_vector_set(g->direction, 1, gsl_vector_get(g->direction, 1) * -1);
+  }
+  update_goal_height(g);
+}
+
+void update_goal_height(Goal *g) {
+  if(g->h_move > 0){
+    double v_direction = gsl_vector_get(g->direction, 2);
+    double height = gsl_vector_get(g->trans, 2) + GOAL_VERTICAL_DELTA * v_direction;
+    if(fabs(WORLD_HALF_WIDTH - height) < WORLD_HALF_WIDTH) {
+      gsl_vector_set(g->trans, 2, height);
+    }
+    g->h_move--;
   }
 }
 
-void update_goal_height(int direction) {
-  double height = gsl_vector_get(g.trans, 2) + GOAL_VERTICAL_DELTA * direction;
-  if(height > 0) {
-    gsl_vector_set(g.trans, 2, height);
+void update_goal_horizontal(Goal* g) {
+  if(g->x_move > 0) {
+    double h_direction = gsl_vector_get(g->direction, 0);
+    double x_trans = gsl_vector_get(g->trans, 0) + GOAL_HORIZONTAL_DELTA * h_direction;
+    if(fabs(WORLD_HALF_WIDTH - x_trans) < WORLD_HALF_WIDTH) {
+      gsl_vector_set(g->trans, 0, x_trans);
+    }
+    g->x_move--;
   }
 }
 
@@ -321,6 +329,7 @@ gsl_vector* trailing_position(Boid** bs, int size, Goal g) {
   
   gsl_vector_add(u, center);
   gsl_vector_set(u, 2, gsl_vector_get(u , 2) + (d + r)* 0.3 );
+  gsl_vector_free(center);
   return u;
 }
 
@@ -354,6 +363,7 @@ double center_goal_dist(Boid** bs, int size, Goal g) {
 gsl_vector* calc_middleway(Boid** bs, int size, Goal g) {
   gsl_vector* flock_center = get_flock_center(bs, size);
   gsl_vector* res = ave(flock_center, g.trans);
+  gsl_vector_free(flock_center);
   return res;
 }
 

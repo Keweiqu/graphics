@@ -13,7 +13,8 @@
 #define BOID_COUNT 10
 #define NUM_NEIGHBORS 5
 #define WORLD_HALF_WIDTH 10000
-#define GOAL_VERTICAL_DELTA 10
+#define GOAL_VERTICAL_DELTA 1
+#define GOAL_HORIZONTAL_DELTA 1
 
 
 enum VIEW_MODE {CENTER, TRAILING, SIDE};
@@ -27,9 +28,10 @@ typedef struct _boid {
 } Boid;
 
 typedef struct _goal {
-  GLfloat angle;
   GLfloat speed;
-  gsl_vector * direction;
+  int h_move;
+  int x_move;
+  gsl_vector* direction;
   gsl_vector * trans;
 } Goal;
 
