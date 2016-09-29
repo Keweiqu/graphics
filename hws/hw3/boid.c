@@ -276,13 +276,12 @@ gsl_vector* goal_seeking(Goal g, Boid* b) {
 }
 
 gsl_vector* get_flock_center(Boid** bs, int size) {
- gsl_vector* res = gsl_vector_alloc(3);
-  gsl_vector_set_zero(res);
-  for (int i = 0; i < size; i++) {
-    gsl_vector_add(res, (const gsl_vector*)bs[i]->location);
-  }
-  gsl_vector_scale(res, 1.0 / size);
-  return res;
+ gsl_vector* res = gsl_vector_calloc(3);
+ for (int i = 0; i < size; i++) {
+   gsl_vector_add(res, (const gsl_vector*)bs[i]->location);
+ }
+ gsl_vector_scale(res, 1.0 / size);
+ return res;
 }
 
 gsl_vector* center_goal_direction(Boid** bs, int size, Goal g) {
@@ -302,6 +301,7 @@ gsl_vector* trailing_position(Boid** bs, int size, Goal g) {
   
   gsl_vector_add(u, center);
   gsl_vector_set(u, 2, gsl_vector_get(u , 2) + (d + r)* 0.3 );
+  gsl_vector_free(center);
   return u;
 }
 
@@ -335,6 +335,7 @@ double center_goal_dist(Boid** bs, int size, Goal g) {
 gsl_vector* calc_middleway(Boid** bs, int size, Goal g) {
   gsl_vector* flock_center = get_flock_center(bs, size);
   gsl_vector* res = ave(flock_center, g.trans);
+  gsl_vector_free(flock_center);
   return res;
 }
 
