@@ -42,7 +42,6 @@ typedef struct _boid {
   gsl_vector *velocity;
   GLfloat z_angle;
   GLfloat angle;
-  GLfloat flap_angle;
   GLfloat wing_angle;
   GLfloat dist; //neighbour dist
 } Boid;
