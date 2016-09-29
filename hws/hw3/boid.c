@@ -301,6 +301,7 @@ gsl_vector* trailing_position(Boid** bs, int size, Goal g) {
   
   gsl_vector_add(u, center);
   gsl_vector_set(u, 2, gsl_vector_get(u , 2) + (d + r)* 0.3 );
+  gsl_vector_free(center);
   return u;
 }
 
@@ -333,8 +334,8 @@ double center_goal_dist(Boid** bs, int size, Goal g) {
 
 gsl_vector* calc_middleway(Boid** bs, int size, Goal g) {
   gsl_vector* flock_center = get_flock_center(bs, size);
-  gsl_vector_free(flock_center);
   gsl_vector* res = ave(flock_center, g.trans);
+  gsl_vector_free(flock_center);
   return res;
 }
 
