@@ -5,6 +5,7 @@
 #include "common.h"
 #include "linkedlist.h"
 #include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
 
 #define SIDES 50
 #define NUM_BOID_INDICES 6
@@ -98,7 +99,7 @@ gsl_vector* get_flock_center(Boid** bs, int size);
 gsl_vector* ave(gsl_vector* v, gsl_vector* w);
 gsl_vector* calc_middleway(Boid** bs, int size, Goal g);
 
-void normalize_vector(gsl_vector* v);
+void normalize_vector(gsl_vector* v, int size);
 void world_scale_vector(gsl_vector *v);
 void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods);
 void cursor(GLFWwindow* w, double xpos, double ypos);
@@ -114,4 +115,5 @@ void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
 void crossProduct(gsl_vector* u, gsl_vector* v, gsl_vector* r);
 void testCP();
+void testLookAt();
 #endif

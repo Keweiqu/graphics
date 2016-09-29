@@ -240,7 +240,7 @@ gsl_vector* get_flock_center(Boid** bs, int size) {
 gsl_vector* center_goal_direction(Boid** bs, int size, Goal g) {
   gsl_vector* res = get_flock_center(bs, size);
   gsl_vector_sub(res, g.trans);
-  normalize_vector(res);
+  normalize_vector(res, 3);
   return res;
 }
 
@@ -293,11 +293,11 @@ double sum_vector(gsl_vector* v, int size) {
   return sum;
 }
 
-void normalize_vector(gsl_vector* v) {
-  gsl_vector* temp = gsl_vector_alloc(3);
+void normalize_vector(gsl_vector* v, int size) {
+  gsl_vector* temp = gsl_vector_alloc(size);
   gsl_vector_memcpy(temp, v);
   gsl_vector_mul(temp, temp);
-  double sum = sum_vector(temp, 3);
+  double sum = sum_vector(temp, size);
   gsl_vector_scale(v, 1.0 / sum);
   gsl_vector_free(temp);
 }

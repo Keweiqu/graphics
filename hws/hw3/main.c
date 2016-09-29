@@ -12,12 +12,13 @@ void init() {
   glShadeModel(GL_FLAT);
 
   angle = 0;
-  isPaused = 0;
+  isPaused = 1;
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
 
   testCP();
+  testLookAt();
  
   /*print checkerboard data
   int i;
@@ -223,17 +224,82 @@ void cursor(GLFWwindow* w, double xpos, double ypos) {
 }
 
 void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ) {
-  gsl_vector* f = gsl_vector_alloc(3);
-  gsl_vector* up = gsl_vector_alloc(3);
-  gsl_vector_set(f, 0, centerX - eyeX);
-  gsl_vector_set(f, 1, centerY - eyeY);
-  gsl_vector_set(f, 2, centerZ - eyeZ);
+  GLdouble m[16];
+  gsl_matrix* m1 = gsl_matrix_alloc(4, 4);
+  gsl_matrix* m2 = gsl_matrix_alloc(4, 4);
+  gsl_matrix_set_identity(m1);
+  gsl_matrix_set_identity(m2);
+  gsl_vector* forward = gsl_vector_alloc(4);
+  gsl_vector* up = gsl_vector_alloc(4);
+  gsl_vector* side = gsl_vector_alloc(4);
+  gsl_vector* up2 = gsl_vector_alloc(4);
+  
+  gsl_vector_set_zero(forward);
+  gsl_vector_set_zero(up);
+  gsl_vector_set_zero(side);
+  gsl_vector_set_zero(up2);
+  gsl_vector_set(forward, 0, centerX - eyeX);
+  gsl_vector_set(forward, 1, centerY - eyeY);
+  gsl_vector_set(forward, 2, centerZ - eyeZ);
+  normalize_vector(forward, 4);
   gsl_vector_set(up, 0, upX);
   gsl_vector_set(up, 1, upY);
-  gsl_vector_set(up, 2, upZ);
-  gsl_vector_mul(f, f);
-  gsl_vector_mul(up, up);
+  gsl_vector_set(up, 2, upZ); 
+  crossProduct(forward, up, side);
+  normalize_vector(side, 4);
+  printf("side: \n");
+  print_vector(side);
+  crossProduct(side, forward, up);
+  printf("up: \n");
+  print_vector(up);
+  gsl_vector_scale(forward, -1);
+  printf("forward: \n");
+  print_vector(forward);
+  const double* f = gsl_vector_const_ptr(forward, 0);
+  const double* u = gsl_vector_const_ptr(up, 0);
+  const double* s = gsl_vector_const_ptr(side, 0);
+
+  m[0] = s[0];
+  m[4] = s[1];
+  m[8] = s[2];
+  m[12] = 0.0;
   
+  m[1] = u[0];
+  m[5] = u[1];
+  m[9] = u[2];
+  m[13] = 0.0;
+
+  m[2] = f[0];
+  m[6] = f[1];
+  m[10] = f[2];
+  m[14] = 0.0;
+
+  m[3] = m[7] = m[11] = 0.0;
+  m[15] = 1.0;
+
+  /* gsl_matrix_set_row(m1, 0, side); */
+  /* gsl_matrix_set_row(m1, 1, up); */
+  /* gsl_matrix_set_row(m1, 2, forward); */
+  /* gsl_matrix_set(m2, 0, 3, -eyeX); */
+  /* gsl_matrix_set(m2, 1, 3, -eyeY); */
+  /* gsl_matrix_set(m2, 2, 3, -eyeZ); */
+  /* gsl_matrix_mul_elements(m1, m2); */
+  /* gsl_matrix_transpose(m1); */
+
+  /* for (int i = 0; i < 16; i++) { */
+  /*   m[i] = gsl_matrix_get(m1, i / 4, i % 4); */
+  /* } */
+  glMultMatrixd((const GLdouble *)m);
+  glTranslated(-eyeX, -eyeY, -eyeZ);
+
+  for (int i = 0; i < 16; i++) {
+    printf("m[%d]: %f ", i, m[i]);
+  }
+  printf("\n");
+}
+
+void testLookAt() {
+  lookAt(-3, -1, -2, 0, 3, 1, 2, 1, 0);  
 }
 
 void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar) {
@@ -270,7 +336,7 @@ int main(int argc, char **argv) {
   ave_multiplier = 0.2;
   init_views();
   printf("center view:\n");
-  print_view(center_view);
+  //print_view(center_view);
   
   GLFWwindow *window;
   //print_boids(head);
@@ -317,7 +383,7 @@ int main(int argc, char **argv) {
 	      0, 1, 0
 	      );
     */
-    print_view(center_view);
+    //print_view(center_view);
     update_view();
     glfwSwapBuffers(window);
     glfwPollEvents();
