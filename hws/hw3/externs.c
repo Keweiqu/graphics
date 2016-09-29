@@ -20,6 +20,14 @@ GLubyte boid_indices[] = {
   3, 1, 0
 };
 
+GLubyte left_indices[] = {
+  0, 1, 2
+};
+
+GLubyte right_indices[] = {
+  3, 1, 0
+};
+
 GLfloat goal_vertices[][3] = {
   {0.0, 0.0, 0.0},
 };

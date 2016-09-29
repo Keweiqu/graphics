@@ -125,4 +125,6 @@ void testLookAt();
 
 void free_view(View v);
 void free_views();
+void free_boid(Boid* b);
+void free_boids();
 #endif
