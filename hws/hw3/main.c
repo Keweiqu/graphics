@@ -6,13 +6,13 @@ void init() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, 1, 0.000001, 10);
+  gluPerspective(40, 1, 0.000001, 10);
   glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
 
   angle = 0;
-  isPaused = 1;
+  isPaused = 0;
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
@@ -188,31 +188,43 @@ void add_boid() {
 void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
   if (action == GLFW_PRESS) {
     switch(key) {
-      case GLFW_KEY_EQUAL:
-        add_boid();
+    case GLFW_KEY_EQUAL:
+      add_boid();
+      free(cache);
+      cache = cache_linkedlist(head);
+      break;
+    case GLFW_KEY_BACKSPACE:
+      if (count > 10) {
+	delete_last(tail);
 	free(cache);
 	cache = cache_linkedlist(head);
-        break;
-      case GLFW_KEY_BACKSPACE:
-	if (count > 10) {
-	  delete_last(tail);
-	  free(cache);
-	  cache = cache_linkedlist(head);
-	  count--;
-	}       
-        break;
-      case GLFW_KEY_Q:
-      case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(w, TRUE);
-        break;
-      case GLFW_KEY_P:
-        isPaused = isPaused ? 0 : 1;
-        break;
-      case GLFW_KEY_D:
-        isPaused = 1;
-        update_goal(&g);
-        update_boids();
-        break;
+	count--;
+      }       
+      break;
+    case GLFW_KEY_V:
+      v_mode = CENTER;
+      view = &center_view;
+      break;
+    case GLFW_KEY_T:
+      v_mode = TRAILING;
+      view = &trailing_view;
+      break;
+    case GLFW_KEY_S:
+      v_mode = SIDE;
+      view = &side_view;
+      break;
+    case GLFW_KEY_P:
+      isPaused = isPaused ? 0 : 1;
+      break;
+    case GLFW_KEY_D:
+      isPaused = 1;
+      update_goal(&g);
+      update_boids();
+      break;
+    case GLFW_KEY_Q:
+    case GLFW_KEY_ESCAPE:
+      glfwSetWindowShouldClose(w, TRUE);
+      break;
     }
   }
   
@@ -225,19 +237,13 @@ void cursor(GLFWwindow* w, double xpos, double ypos) {
 
 void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ) {
   GLdouble m[16];
-  gsl_matrix* m1 = gsl_matrix_alloc(4, 4);
-  gsl_matrix* m2 = gsl_matrix_alloc(4, 4);
-  gsl_matrix_set_identity(m1);
-  gsl_matrix_set_identity(m2);
   gsl_vector* forward = gsl_vector_alloc(4);
   gsl_vector* up = gsl_vector_alloc(4);
   gsl_vector* side = gsl_vector_alloc(4);
-  gsl_vector* up2 = gsl_vector_alloc(4);
   
   gsl_vector_set_zero(forward);
   gsl_vector_set_zero(up);
   gsl_vector_set_zero(side);
-  gsl_vector_set_zero(up2);
   gsl_vector_set(forward, 0, centerX - eyeX);
   gsl_vector_set(forward, 1, centerY - eyeY);
   gsl_vector_set(forward, 2, centerZ - eyeZ);
@@ -247,14 +253,8 @@ void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdou
   gsl_vector_set(up, 2, upZ); 
   crossProduct(forward, up, side);
   normalize_vector(side, 4);
-  printf("side: \n");
-  print_vector(side);
   crossProduct(side, forward, up);
-  printf("up: \n");
-  print_vector(up);
   gsl_vector_scale(forward, -1);
-  printf("forward: \n");
-  print_vector(forward);
   const double* f = gsl_vector_const_ptr(forward, 0);
   const double* u = gsl_vector_const_ptr(up, 0);
   const double* s = gsl_vector_const_ptr(side, 0);
@@ -277,25 +277,8 @@ void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdou
   m[3] = m[7] = m[11] = 0.0;
   m[15] = 1.0;
 
-  /* gsl_matrix_set_row(m1, 0, side); */
-  /* gsl_matrix_set_row(m1, 1, up); */
-  /* gsl_matrix_set_row(m1, 2, forward); */
-  /* gsl_matrix_set(m2, 0, 3, -eyeX); */
-  /* gsl_matrix_set(m2, 1, 3, -eyeY); */
-  /* gsl_matrix_set(m2, 2, 3, -eyeZ); */
-  /* gsl_matrix_mul_elements(m1, m2); */
-  /* gsl_matrix_transpose(m1); */
-
-  /* for (int i = 0; i < 16; i++) { */
-  /*   m[i] = gsl_matrix_get(m1, i / 4, i % 4); */
-  /* } */
   glMultMatrixd((const GLdouble *)m);
   glTranslated(-eyeX, -eyeY, -eyeZ);
-
-  for (int i = 0; i < 16; i++) {
-    printf("m[%d]: %f ", i, m[i]);
-  }
-  printf("\n");
 }
 
 void testLookAt() {
@@ -330,14 +313,13 @@ void testCP() {
 }
 
 int main(int argc, char **argv) {
+  v_mode = CENTER;
   init_boids();
   cache = cache_linkedlist(head);
   g = init_goal();
   ave_multiplier = 0.2;
   init_views();
-  printf("center view:\n");
-  //print_view(center_view);
-  
+
   GLFWwindow *window;
   //print_boids(head);
   //Boid** bs= cache_linkedlist(head);
@@ -383,7 +365,7 @@ int main(int argc, char **argv) {
 	      0, 1, 0
 	      );
     */
-    //print_view(center_view);
+
     update_view();
     glfwSwapBuffers(window);
     glfwPollEvents();

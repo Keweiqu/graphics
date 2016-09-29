@@ -40,6 +40,8 @@ extern GLubyte boid_indices[];
 extern GLfloat goal_vertices[3];
 extern GLfloat goal_colors[3];
 extern float world_scale[3];
+
+enum VIEW_MODE v_mode;
 double ave_multiplier;
 GLfloat angle;
 
@@ -53,14 +55,16 @@ Node* head, *tail;
 Goal g;
 Boid** cache;
 View center_view, trailing_view, side_view;
-View view;
+View* view;
 void init();
 void init_views();
 void update_view();
 void init_center_view();
 void init_trailing_view();
+void init_side_view();
 void update_center_view();
 void update_trailing_view();
+void update_side_view();
 void camera_look();
 void draw_checkerboard();
 void draw_boid(Boid* b);
@@ -93,6 +97,8 @@ gsl_vector* cohesion(Boid* b, Boid** neighbors);
 gsl_vector* alignment(Boid* b, Boid** neighbors);
 gsl_vector* goal_seeking(Goal g, Boid* b);
 
+gsl_vector* trailing_position(Boid** bs, int size, Goal g);
+gsl_vector* side_position(Boid** bs, int size, Goal g);
 gsl_vector* center_goal_direction(Boid** bs, int size, Goal g);
 double center_goal_dist(Boid** bs, int size, Goal);
 gsl_vector* get_flock_center(Boid** bs, int size);

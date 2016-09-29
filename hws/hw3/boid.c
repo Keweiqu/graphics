@@ -39,10 +39,23 @@ Goal init_goal() {
 
 void init_views() {
   init_center_view();
+  init_trailing_view();
+  init_side_view();
+  view = &center_view;
 }
 
 void update_view() {
-  update_center_view();
+  switch(v_mode){
+  case CENTER:
+    update_center_view();
+    break;
+  case TRAILING:
+    update_trailing_view();
+    break;
+  case SIDE:
+    update_side_view();
+    break;
+  }
 }
 
 void init_center_view() {
@@ -58,12 +71,25 @@ void init_center_view() {
 }
 
 void init_trailing_view() {
+  trailing_view.pos = trailing_position(cache, count, g);
+  world_scale_vector(trailing_view.pos);
   
-  center_view.look = calc_middleway(cache, count, g);
-  world_scale_vector(center_view.look);
+  trailing_view.look = calc_middleway(cache, count, g);
+  world_scale_vector(trailing_view.look);
   
   trailing_view.up = gsl_vector_calloc(3);
   gsl_vector_set(trailing_view.up, 2, 1);
+}
+
+void init_side_view() {
+  side_view.pos = side_position(cache, count, g);
+  world_scale_vector(side_view.pos);
+
+  side_view.look = calc_middleway(cache, count, g);
+  world_scale_vector(side_view.look);
+  
+  side_view.up = gsl_vector_calloc(3);
+  gsl_vector_set(side_view.up, 2, 1);
 }
 
 void update_center_view() {
@@ -72,11 +98,30 @@ void update_center_view() {
   world_scale_vector(center_view.look);
 }
 
+void update_trailing_view() {
+  gsl_vector_free(trailing_view.look);
+  trailing_view.look = calc_middleway(cache, count, g);
+  world_scale_vector(trailing_view.look);
+
+  gsl_vector_free(trailing_view.pos);
+  trailing_view.pos = trailing_position(cache, count, g);
+  world_scale_vector(trailing_view.pos);
+}
+
+void update_side_view() {
+  gsl_vector_free(side_view.look);
+  side_view.look = calc_middleway(cache, count, g);
+  world_scale_vector(side_view.look);
+
+  gsl_vector_free(side_view.pos);
+  side_view.pos = side_position(cache, count, g);
+  world_scale_vector(side_view.pos);
+}
 void camera_look() {
-  const double * pos = gsl_vector_const_ptr(center_view.pos, 0);
-  const double * look = gsl_vector_const_ptr(center_view.look, 0);
-  const double * up = gsl_vector_const_ptr(center_view.up, 0);
-  gluLookAt(
+  const double * pos = gsl_vector_const_ptr(view->pos, 0);
+  const double * look = gsl_vector_const_ptr(view->look, 0);
+  const double * up = gsl_vector_const_ptr(view->up, 0);
+  lookAt(
 	    *pos, *(pos+1), *(pos+2),
 	    *look, *(look+1), *(look+2),
 	    *up, *(up+1), *(up+2)
@@ -102,6 +147,7 @@ void draw_goal(Goal g) {
 }
 
 void update_goal(Goal *g) {
+  // gsl_vector_set(g->trans, 0, gsl_vector_get(g->trans, 0) + 5);
   g->angle += 0.005;
   gsl_vector_set(g->trans, 0, g->radius * sin(g->angle));
   gsl_vector_set(g->trans, 1, g->radius * cos(g->angle));
@@ -196,6 +242,8 @@ gsl_vector* separation(Boid* b, Boid** neighbors) {
     double sum = sum_vector(diff1, 3);
     gsl_vector_scale(diff2, 1.0 / sum);
     gsl_vector_add(res, diff2);
+    gsl_vector_free(diff1);
+    gsl_vector_free(diff2);
   }
   
   gsl_vector_scale(res, -1);
@@ -244,9 +292,44 @@ gsl_vector* center_goal_direction(Boid** bs, int size, Goal g) {
   return res;
 }
 
+gsl_vector* trailing_position(Boid** bs, int size, Goal g) {
+  gsl_vector* center = get_flock_center(bs, size);
+  gsl_vector* u = center_goal_direction(bs, size, g);
+
+  double d = center_goal_dist(bs, size, g);
+  double r = max_boid_goal_dist(bs, size, g);
+  gsl_vector_scale(u, (d + 5 * r) * 0.3);
+  
+  gsl_vector_add(u, center);
+  gsl_vector_set(u, 2, gsl_vector_get(u , 2) + (d + r)* 0.3 );
+  return u;
+}
+
+gsl_vector* side_position(Boid** bs, int size, Goal g) {
+  gsl_vector* m = calc_middleway(bs, size, g);
+  gsl_vector* u = center_goal_direction(bs, size, g);
+  gsl_vector_scale(u, -1);
+  gsl_vector* z = gsl_vector_calloc(3);
+  gsl_vector_set_basis(z, 2);
+  gsl_vector* p = gsl_vector_alloc(3);
+  crossProduct(u, z, p);
+  double d = center_goal_dist(bs, size, g);
+  double r = max_boid_goal_dist(bs, size, g);
+  normalize_vector(p, 3);
+  gsl_vector_scale(p, (r + 2 * d) * 0.5);
+  gsl_vector_add(p, m);
+  gsl_vector_set(p, 2, gsl_vector_get(p, 2) + (d + r) * 0.3);
+  gsl_vector_free(m);
+  gsl_vector_free(u);
+  gsl_vector_free(z);
+  return p;
+}
+
 double center_goal_dist(Boid** bs, int size, Goal g) {
   gsl_vector* center = get_flock_center(bs, size);
-  return point_dist(center, g.trans);
+  double dist = point_dist(center, g.trans);
+  free(center);
+  return dist;
 }
 
 gsl_vector* calc_middleway(Boid** bs, int size, Goal g) {
@@ -298,6 +381,7 @@ void normalize_vector(gsl_vector* v, int size) {
   gsl_vector_memcpy(temp, v);
   gsl_vector_mul(temp, temp);
   double sum = sum_vector(temp, size);
+  sum = sqrt(sum);
   gsl_vector_scale(v, 1.0 / sum);
   gsl_vector_free(temp);
 }
@@ -308,9 +392,21 @@ double point_dist(gsl_vector *v, gsl_vector *w) {
   gsl_vector_sub(copy, w);
   gsl_vector_mul(copy, copy);
   GLfloat dist = gsl_vector_get(copy, 0) + gsl_vector_get(copy, 1) + gsl_vector_get(copy, 2);
+  dist = sqrt(dist);
   gsl_vector_free(copy);
   return dist;
 }
+
+double max_boid_goal_dist(Boid**bs, int size, Goal g) {
+  double max = 0;
+  int i;
+  for(i = 0; i < size; i++) {
+    double dist = point_dist(bs[i]->location, g.trans);
+    max = dist > max? dist : max;
+  }
+  return max;
+}
+
 
 void world_scale_vector(gsl_vector *v){
   double * ptr = gsl_vector_ptr(v, 0);
