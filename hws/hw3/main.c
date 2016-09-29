@@ -6,7 +6,7 @@ void init() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60, 1, 0.000001, 10);
+  gluPerspective(40, 1, 0.000001, 10);
   glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
@@ -17,7 +17,7 @@ void init() {
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
 
-  testCP();
+  //testCP();
  
   /*print checkerboard data
   int i;
@@ -187,31 +187,43 @@ void add_boid() {
 void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
   if (action == GLFW_PRESS) {
     switch(key) {
-      case GLFW_KEY_EQUAL:
-        add_boid();
+    case GLFW_KEY_EQUAL:
+      add_boid();
+      free(cache);
+      cache = cache_linkedlist(head);
+      break;
+    case GLFW_KEY_BACKSPACE:
+      if (count > 10) {
+	delete_last(tail);
 	free(cache);
 	cache = cache_linkedlist(head);
-        break;
-      case GLFW_KEY_BACKSPACE:
-	if (count > 10) {
-	  delete_last(tail);
-	  free(cache);
-	  cache = cache_linkedlist(head);
-	  count--;
-	}       
-        break;
-      case GLFW_KEY_Q:
-      case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(w, TRUE);
-        break;
-      case GLFW_KEY_P:
-        isPaused = isPaused ? 0 : 1;
-        break;
-      case GLFW_KEY_D:
-        isPaused = 1;
-        update_goal(&g);
-        update_boids();
-        break;
+	count--;
+      }       
+      break;
+    case GLFW_KEY_V:
+      v_mode = CENTER;
+      view = &center_view;
+      break;
+    case GLFW_KEY_T:
+      v_mode = TRAILING;
+      view = &trailing_view;
+      break;
+    case GLFW_KEY_S:
+      v_mode = SIDE;
+      view = &side_view;
+      break;
+    case GLFW_KEY_P:
+      isPaused = isPaused ? 0 : 1;
+      break;
+    case GLFW_KEY_D:
+      isPaused = 1;
+      update_goal(&g);
+      update_boids();
+      break;
+    case GLFW_KEY_Q:
+    case GLFW_KEY_ESCAPE:
+      glfwSetWindowShouldClose(w, TRUE);
+      break;
     }
   }
   
@@ -264,13 +276,12 @@ void testCP() {
 }
 
 int main(int argc, char **argv) {
+  v_mode = CENTER;
   init_boids();
   cache = cache_linkedlist(head);
   g = init_goal();
   ave_multiplier = 0.2;
   init_views();
-  printf("center view:\n");
-  print_view(center_view);
   
   GLFWwindow *window;
   //print_boids(head);
@@ -317,7 +328,6 @@ int main(int argc, char **argv) {
 	      0, 1, 0
 	      );
     */
-    print_view(center_view);
     update_view();
     glfwSwapBuffers(window);
     glfwPollEvents();
