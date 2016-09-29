@@ -6,7 +6,7 @@ void init() {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(40, 1, 0.000001, 10);
+  perspective(40, 1, 0.000001, 10);
   glMatrixMode(GL_MODELVIEW);
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_FLAT);
@@ -286,7 +286,15 @@ void testLookAt() {
 }
 
 void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar) {
-  
+  GLdouble m[16] = {0};
+  GLdouble fovy_in_radians = fovy * PI / 180;
+  m[0] = (1 / tan(fovy_in_radians / 2)) / aspect;
+  m[5] = 1 / tan(fovy_in_radians / 2);
+  m[10] = (zFar + zNear) / (zNear - zFar);
+  m[11] = -1;
+  m[14] = 2 * (zNear * zFar) / (zNear - zFar);
+  glLoadIdentity();
+  glMultMatrixd((const GLdouble *)m);
 }
 
 void crossProduct(gsl_vector* u, gsl_vector* v, gsl_vector* r) {
