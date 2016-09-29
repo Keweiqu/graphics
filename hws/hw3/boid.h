@@ -13,8 +13,10 @@
 #define BOID_COUNT 10
 #define NUM_NEIGHBORS 5
 #define WORLD_HALF_WIDTH 10000
+#define GOAL_V_STEP 10
+#define GOAL_H_STEP 100
 #define GOAL_VERTICAL_DELTA 1
-#define GOAL_HORIZONTAL_DELTA 1
+#define GOAL_HORIZONTAL_DELTA 20
 
 
 enum VIEW_MODE {CENTER, TRAILING, SIDE};
@@ -83,7 +85,8 @@ void calc_checkerboard_colors(int n);
 Goal init_goal();
 void draw_goal();
 void update_goal(Goal *g);
-void update_goal_height();
+void update_goal_height(Goal *g);
+void update_goal_horizontal(Goal *g);
 Boid** n_neighbours(Boid *target, Boid** list, int size, int n);
 Boid* init_boid(int count);
 void init_boids();

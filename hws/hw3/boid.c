@@ -156,6 +156,7 @@ void update_goal(Goal *g) {
     gsl_vector_set(g->direction, 1, gsl_vector_get(g->direction, 1) * -1);
   }
   update_goal_height(g);
+  update_goal_horizontal(g);
 }
 
 void update_goal_height(Goal *g) {
@@ -173,7 +174,7 @@ void update_goal_horizontal(Goal* g) {
   if(g->x_move > 0) {
     double h_direction = gsl_vector_get(g->direction, 0);
     double x_trans = gsl_vector_get(g->trans, 0) + GOAL_HORIZONTAL_DELTA * h_direction;
-    if(fabs(WORLD_HALF_WIDTH - x_trans) < WORLD_HALF_WIDTH) {
+    if(fabs(x_trans) < WORLD_HALF_WIDTH) {
       gsl_vector_set(g->trans, 0, x_trans);
     }
     g->x_move--;

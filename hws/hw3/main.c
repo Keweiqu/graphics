@@ -67,13 +67,6 @@ void draw_boids() {
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
-void draw_speed(Boid *b) {
-  glBegin(GL_LINES);
-  glVertex3f(0,0,0);
-  glVertex3fv((GLfloat *)b->velocity->data);
-  glEnd();
-}
-
 void update_boids() {
   Node* current = head->next;
   while (current->type != HEAD_TAIL) {
@@ -230,19 +223,19 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
   if(action == GLFW_REPEAT || action == GLFW_PRESS) {
     switch(key) {
     case GLFW_KEY_UP:
-      g.h_move = 10;
+      g.h_move = GOAL_V_STEP;
       gsl_vector_set(g.direction, 2, UP);
       break;
     case GLFW_KEY_DOWN:
-      g.h_move = 10;
+      g.h_move = GOAL_V_STEP;
       gsl_vector_set(g.direction, 2, DOWN);
       break;
     case GLFW_KEY_LEFT:
-      g.x_move = 10;
+      g.x_move = GOAL_H_STEP;
       gsl_vector_set(g.direction, 0, LEFT);
       break;
     case GLFW_KEY_RIGHT:
-      g.x_move = 10;
+      g.x_move = GOAL_H_STEP;
       gsl_vector_set(g.direction, 0, RIGHT);
       break;
     }
@@ -311,7 +304,7 @@ void testLookAt() {
 
 void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar) {
   GLdouble m[16] = {0};
-  GLdouble fovy_in_radians = fovy * PI / 180;
+  GLdouble fovy_in_radians = fovy * M_PI / 180;
   m[0] = (1 / tan(fovy_in_radians / 2)) / aspect;
   m[5] = 1 / tan(fovy_in_radians / 2);
   m[10] = (zFar + zNear) / (zNear - zFar);
