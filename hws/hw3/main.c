@@ -367,13 +367,13 @@ int main(int argc, char **argv) {
     }
     
     glLoadIdentity();
-    //camera_look();
+    camera_look();
     
-    gluLookAt(
- 	      0.2, 0.01, 1.2,
- 	      -0.2, -0.1, 0,
- 	      0, 1, 0
- 	      );
+    /* gluLookAt( */
+    /* 	      0.2, 0.01, 1.2, */
+    /* 	      -0.2, -0.1, 0, */
+    /* 	      0, 1, 0 */
+    /* 	      ); */
 
     update_view();
     glfwSwapBuffers(window);
