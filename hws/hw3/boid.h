@@ -2,6 +2,7 @@
 #define BOID_H
 
 #include <float.h>
+#include <math.h>
 #include "common.h"
 #include "linkedlist.h"
 #include <gsl/gsl_vector.h>
@@ -11,6 +12,9 @@
 #define NUM_BOID_INDICES 6
 #define BOID_COUNT 10
 #define NUM_NEIGHBORS 5
+#define WORLD_HALF_WIDTH 10000
+#define GOAL_VERTICAL_DELTA 10
+
 
 enum VIEW_MODE {CENTER, TRAILING, SIDE};
 typedef struct _boid {
@@ -24,7 +28,8 @@ typedef struct _boid {
 
 typedef struct _goal {
   GLfloat angle;
-  GLfloat radius;
+  GLfloat speed;
+  gsl_vector * direction;
   gsl_vector * trans;
 } Goal;
 
@@ -76,6 +81,7 @@ void calc_checkerboard_colors(int n);
 Goal init_goal();
 void draw_goal();
 void update_goal(Goal *g);
+void update_goal_height();
 Boid** n_neighbours(Boid *target, Boid** list, int size, int n);
 Boid* init_boid(int count);
 void init_boids();

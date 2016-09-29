@@ -2,6 +2,7 @@
 #include "linkedlist.h"
 
 void init() {
+  glEnable(GL_LINE_SMOOTH);
   glPointSize(10);
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
@@ -13,7 +14,7 @@ void init() {
 
   angle = 0;
   isPaused = 0;
-  calc_checkerboard_vertices(SIDES, 20000);
+  calc_checkerboard_vertices(SIDES, 2 * WORLD_HALF_WIDTH);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
 
@@ -199,7 +200,7 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
 	count--;
       }       
       break;
-    case GLFW_KEY_V:
+    case GLFW_KEY_C:
       v_mode = CENTER;
       view = &center_view;
       break;
@@ -219,9 +220,22 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
       update_goal(&g);
       update_boids();
       break;
+    
     case GLFW_KEY_Q:
     case GLFW_KEY_ESCAPE:
       glfwSetWindowShouldClose(w, TRUE);
+      break;
+    }
+  }
+  if(action == GLFW_REPEAT || action == GLFW_PRESS) {
+    switch(key) {
+    case GLFW_KEY_UP:
+      update_goal_height(UP);
+      break;
+    case GLFW_KEY_DOWN:
+      update_goal_height(DOWN);
+      break;
+    case GLFW_KEY_LEFT:
       break;
     }
   }
@@ -331,11 +345,6 @@ int main(int argc, char **argv) {
   init_views();
 
   GLFWwindow *window;
-  //print_boids(head);
-  //Boid** bs= cache_linkedlist(head);
-  //print_boids_array(bs, 10);
-  //Boid** sorted = n_neighbours(bs[0], bs, 10, 5);
-  //print_boids_array(sorted, 5);
   
   if (!glfwInit()) {
     exit(EXIT_FAILURE);
@@ -368,13 +377,6 @@ int main(int argc, char **argv) {
     
     glLoadIdentity();
     camera_look();
-    /*
-    gluLookAt(
-	      0, 0, 1,
-	      0.12, 0.107, 0.54,
-	      0, 1, 0
-	      );
-    */
 
     update_view();
     glfwSwapBuffers(window);
