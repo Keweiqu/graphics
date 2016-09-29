@@ -367,14 +367,13 @@ int main(int argc, char **argv) {
     }
     
     glLoadIdentity();
-    camera_look();
-    /*
+    //camera_look();
+    
     gluLookAt(
-	      0, 0, 1,
-	      0.12, 0.107, 0.54,
-	      0, 1, 0
-	      );
-    */
+ 	      0.2, 0.01, 1.2,
+ 	      -0.2, -0.1, 0,
+ 	      0, 1, 0
+ 	      );
 
     update_view();
     glfwSwapBuffers(window);
@@ -383,6 +382,6 @@ int main(int argc, char **argv) {
   free_linkedlist(head);
   free_views();
   glfwTerminate();
-  // free_boids();
+  free_boids();
   exit(EXIT_SUCCESS);
 }
