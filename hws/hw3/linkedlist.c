@@ -1,4 +1,5 @@
 #include "linkedlist.h"
+#include <gsl/gsl_vector.h>
 
 Node* create_node(void *data, enum LL_Type t) {
   Node *n;

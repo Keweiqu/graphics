@@ -385,5 +385,6 @@ int main(int argc, char **argv) {
   free_linkedlist(head);
   free_views();
   glfwTerminate();
+  // free_boids();
   exit(EXIT_SUCCESS);
 }

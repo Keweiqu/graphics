@@ -455,3 +455,21 @@ void free_views() {
   free_view(trailing_view);
   free_view(side_view);
 }
+
+void free_boid(Boid* b) {
+  gsl_vector_free(b->location);
+  gsl_vector_free(b->velocity);
+  free(b);
+}
+
+void free_boids() {
+  while(head->next != NULL) {
+    Node* current = head->next;
+    head->next = head->next->next;
+    if (current->type != HEAD_TAIL) {
+      free_boid((Boid*)current);
+    }
+    free_node(current);
+  }  
+  free(head);
+}
