@@ -12,6 +12,7 @@ void init() {
   glShadeModel(GL_FLAT);
 
   angle = 0;
+  isPaused = 0;
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
@@ -95,7 +96,10 @@ void update_boid(Boid* b, Boid** neighbors, Goal g) {
   gsl_vector_scale(b->velocity, 0.99);
   gsl_vector_scale(g_s, 4);
   gsl_vector_add(b->velocity, g_s);
-
+  gsl_vector_free(s);
+  gsl_vector_free(c);
+  gsl_vector_free(a);
+  gsl_vector_free(g_s);
 }
 
 void draw_checkerboard() {
@@ -195,7 +199,16 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
 	}       
         break;
       case GLFW_KEY_Q:
+      case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(w, TRUE);
+        break;
+      case GLFW_KEY_P:
+        isPaused = isPaused ? 0 : 1;
+        break;
+      case GLFW_KEY_D:
+        isPaused = 1;
+        update_goal(&g);
+        update_boids();
         break;
     }
   }
@@ -245,20 +258,28 @@ int main(int argc, char **argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.0);
     draw_boids();
-    update_boids();
     draw_checkerboard();
     draw_goal(g);
-    update_goal(&g);
+    if (!isPaused) {
+      update_boids();
+      update_goal(&g);
+    }
+    
     glLoadIdentity();
+    camera_look();
+    /*
     gluLookAt(
-	      0.2, 0.01, 1.5,
-	      0.2, 0.01, 0,
+	      0, 0, 1,
+	      0.12, 0.107, 0.54,
 	      0, 1, 0
 	      );
-    //angle += M_PI / 200;
+    */
+    print_view(center_view);
+    update_view();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+  free_linkedlist(head);
   
   glfwTerminate();
   exit(EXIT_SUCCESS);

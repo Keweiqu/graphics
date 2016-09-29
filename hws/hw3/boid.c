@@ -29,7 +29,7 @@ Boid* init_boid(int count) {
 Goal init_goal() {
   Goal g;
   g.angle = 0;
-  g.radius = 2000;
+  g.radius = 1500;
   g.trans = gsl_vector_alloc(3);
   gsl_vector_set(g.trans, 0, g.radius * sin(g.angle));
   gsl_vector_set(g.trans, 1, g.radius * cos(g.angle));
@@ -47,19 +47,40 @@ void update_view() {
 
 void init_center_view() {
   center_view.pos = gsl_vector_calloc(3);
-  gsl_vector_set(center_view.pos, 2, 1000);
+  gsl_vector_set(center_view.pos, 2, 1300);
+  world_scale_vector(center_view.pos);
+  
   center_view.up = gsl_vector_calloc(3);
   gsl_vector_set(center_view.up, 2, 1);
+
   center_view.look = calc_middleway(cache, count, g);
+  world_scale_vector(center_view.look);
+}
+
+void init_trailing_view() {
+  
+  center_view.look = calc_middleway(cache, count, g);
+  world_scale_vector(center_view.look);
+  
+  trailing_view.up = gsl_vector_calloc(3);
+  gsl_vector_set(trailing_view.up, 2, 1);
 }
 
 void update_center_view() {
   gsl_vector_free(center_view.look);
   center_view.look = calc_middleway(cache, count, g);
+  world_scale_vector(center_view.look);
 }
 
 void camera_look() {
-  glulookat()
+  const double * pos = gsl_vector_const_ptr(center_view.pos, 0);
+  const double * look = gsl_vector_const_ptr(center_view.look, 0);
+  const double * up = gsl_vector_const_ptr(center_view.up, 0);
+  gluLookAt(
+	    *pos, *(pos+1), *(pos+2),
+	    *look, *(look+1), *(look+2),
+	    *up, *(up+1), *(up+2)
+	    );
 }
 
 void draw_goal(Goal g) {
@@ -126,14 +147,9 @@ int cmp(const void *aa, const void *bb) {
 }
 
 GLfloat get_dist(Boid* a, Boid* b) {
-  gsl_vector* copy = gsl_vector_alloc(3);
-  gsl_vector_memcpy(copy, a->location);
-  gsl_vector_sub(copy, b->location);
-  gsl_vector_mul(copy, copy);
-  GLfloat dist = gsl_vector_get(copy, 0) + gsl_vector_get(copy, 1) + gsl_vector_get(copy, 2);
-  gsl_vector_free(copy);
-  return dist;
+  return point_dist(a->location, b->location);
 }
+
 void print_boid(Boid *b) {
   printf("printing boid No.%d\n", b->id);
   printf("location x %f, y %f, z %f\n", gsl_vector_get(b->location,0), gsl_vector_get(b->location, 1), gsl_vector_get(b->location, 2));
@@ -221,10 +237,20 @@ gsl_vector* get_flock_center(Boid** bs, int size) {
   return res;
 }
 
+gsl_vector* center_goal_direction(Boid** bs, int size, Goal g) {
+  gsl_vector* res = get_flock_center(bs, size);
+  gsl_vector_sub(res, g.trans);
+  normalize_vector(res);
+  return res;
+}
+
+double center_goal_dist(Boid** bs, int size, Goal g) {
+  gsl_vector* center = get_flock_center(bs, size);
+  return point_dist(center, g.trans);
+}
+
 gsl_vector* calc_middleway(Boid** bs, int size, Goal g) {
   gsl_vector* flock_center = get_flock_center(bs, size);
-  printf("flocking center\n");
-  print_vector(flock_center);
   gsl_vector* res = ave(flock_center, g.trans);
   return res;
 }
@@ -265,6 +291,32 @@ double sum_vector(gsl_vector* v, int size) {
     sum += gsl_vector_get(v, i);
   }
   return sum;
+}
+
+void normalize_vector(gsl_vector* v) {
+  gsl_vector* temp = gsl_vector_alloc(3);
+  gsl_vector_memcpy(temp, v);
+  gsl_vector_mul(temp, temp);
+  double sum = sum_vector(temp, 3);
+  gsl_vector_scale(v, 1.0 / sum);
+  gsl_vector_free(temp);
+}
+
+double point_dist(gsl_vector *v, gsl_vector *w) {
+  gsl_vector* copy = gsl_vector_alloc(3);
+  gsl_vector_memcpy(copy, v);
+  gsl_vector_sub(copy, w);
+  gsl_vector_mul(copy, copy);
+  GLfloat dist = gsl_vector_get(copy, 0) + gsl_vector_get(copy, 1) + gsl_vector_get(copy, 2);
+  gsl_vector_free(copy);
+  return dist;
+}
+
+void world_scale_vector(gsl_vector *v){
+  double * ptr = gsl_vector_ptr(v, 0);
+  *ptr = *ptr * world_scale[0];
+  *(ptr + 1) = *(ptr + 1) * world_scale[1];
+  *(ptr + 2) = *(ptr + 2) * world_scale[2];
 }
 
 double get_angle(Boid* b) {
