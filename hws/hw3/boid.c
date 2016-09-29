@@ -328,7 +328,7 @@ gsl_vector* side_position(Boid** bs, int size, Goal g) {
 double center_goal_dist(Boid** bs, int size, Goal g) {
   gsl_vector* center = get_flock_center(bs, size);
   double dist = point_dist(center, g.trans);
-  free(center);
+  gsl_vector_free(center);
   return dist;
 }
 
@@ -422,4 +422,16 @@ double get_angle(Boid* b) {
     angle = 360 - angle;
   }
   return angle;
+}
+
+void free_view(View v) {
+  gsl_vector_free(v.pos);
+  gsl_vector_free(v.look);
+  gsl_vector_free(v.up);
+}
+
+void free_views() {
+  free_view(center_view);
+  free_view(trailing_view);
+  free_view(side_view);
 }

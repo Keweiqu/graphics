@@ -122,4 +122,7 @@ void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 void crossProduct(gsl_vector* u, gsl_vector* v, gsl_vector* r);
 void testCP();
 void testLookAt();
+
+void free_view(View v);
+void free_views();
 #endif

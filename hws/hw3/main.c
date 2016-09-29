@@ -82,6 +82,7 @@ void update_boids() {
     Boid* this_b = (Boid *)current->data;
     Boid ** knn = n_neighbours(this_b, cache, count, 5);
     update_boid(this_b, knn, g);
+    free(knn);
     current = current->next;
   }
 }
@@ -379,7 +380,7 @@ int main(int argc, char **argv) {
     glfwPollEvents();
   }
   free_linkedlist(head);
-  
+  free_views();
   glfwTerminate();
   exit(EXIT_SUCCESS);
 }
