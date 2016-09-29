@@ -28,12 +28,14 @@ Boid* init_boid(int count) {
 
 Goal init_goal() {
   Goal g;
+  g.speed = 10;
   g.angle = 0;
-  g.radius = 1500;
   g.trans = gsl_vector_alloc(3);
-  gsl_vector_set(g.trans, 0, g.radius * sin(g.angle));
-  gsl_vector_set(g.trans, 1, g.radius * cos(g.angle));
+  gsl_vector_set(g.trans, 0, 2000);
+  gsl_vector_set(g.trans, 1, 1500);
   gsl_vector_set(g.trans, 2, 1000);
+  g.direction = gsl_vector_calloc(3);
+  gsl_vector_set_basis(g.direction, 1);
   return g;
 }
 
@@ -147,10 +149,27 @@ void draw_goal(Goal g) {
 }
 
 void update_goal(Goal *g) {
-  // gsl_vector_set(g->trans, 0, gsl_vector_get(g->trans, 0) + 5);
-  g->angle += 0.005;
-  gsl_vector_set(g->trans, 0, g->radius * sin(g->angle));
-  gsl_vector_set(g->trans, 1, g->radius * cos(g->angle));
+  double x_trans = gsl_vector_get(g->trans, 0) + gsl_vector_get(g->direction, 0) * g->speed;
+  double y_trans = gsl_vector_get(g->trans, 1) + gsl_vector_get(g->direction, 1) * g->speed;
+  gsl_vector_set(g->trans, 0, x_trans);
+  gsl_vector_set(g->trans, 1, y_trans);
+  if(fabs(x_trans) > WORLD_HALF_WIDTH) {
+    g->angle = 2 * M_PI - g->angle;
+    gsl_vector_set(g->direction, 0, sin(g->angle));
+    gsl_vector_set(g->direction, 1, cos(g->angle));
+  }
+  if(fabs(y_trans) > WORLD_HALF_WIDTH) {
+    g->angle = M_PI - g->angle;
+    gsl_vector_set(g->direction, 0, sin(g->angle));
+    gsl_vector_set(g->direction, 1, cos(g->angle));
+  }
+}
+
+void update_goal_height(int direction) {
+  double height = gsl_vector_get(g.trans, 2) + GOAL_VERTICAL_DELTA * direction;
+  if(height > 0) {
+    gsl_vector_set(g.trans, 2, height);
+  }
 }
 
 Boid** n_neighbours(Boid *target, Boid** list, int size,  int n) {
