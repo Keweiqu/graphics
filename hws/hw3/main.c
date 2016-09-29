@@ -16,6 +16,8 @@ void init() {
   calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
+
+  testCP();
  
   /*print checkerboard data
   int i;
@@ -218,6 +220,47 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
 void cursor(GLFWwindow* w, double xpos, double ypos) {
   x_pos = xpos;
   y_pos = ypos;
+}
+
+void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ) {
+  gsl_vector* f = gsl_vector_alloc(3);
+  gsl_vector* up = gsl_vector_alloc(3);
+  gsl_vector_set(f, 0, centerX - eyeX);
+  gsl_vector_set(f, 1, centerY - eyeY);
+  gsl_vector_set(f, 2, centerZ - eyeZ);
+  gsl_vector_set(up, 0, upX);
+  gsl_vector_set(up, 1, upY);
+  gsl_vector_set(up, 2, upZ);
+  gsl_vector_mul(f, f);
+  gsl_vector_mul(up, up);
+  
+}
+
+void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar) {
+  
+}
+
+void crossProduct(gsl_vector* u, gsl_vector* v, gsl_vector* r) {
+  double p1 = gsl_vector_get(u, 1) * gsl_vector_get(v, 2) - gsl_vector_get(u, 2) * gsl_vector_get(v, 1);
+  double p2 = gsl_vector_get(u, 2) * gsl_vector_get(v, 0) - gsl_vector_get(u, 0) * gsl_vector_get(v, 2);
+  double p3 = gsl_vector_get(u, 0) * gsl_vector_get(v, 1) - gsl_vector_get(u, 1) * gsl_vector_get(v, 0);
+  gsl_vector_set(r, 0, p1);
+  gsl_vector_set(r, 1, p2);
+  gsl_vector_set(r, 2, p3);
+}
+
+void testCP() {
+  gsl_vector* u = gsl_vector_alloc(3);
+  gsl_vector* v = gsl_vector_alloc(3);
+  gsl_vector* r = gsl_vector_alloc(3);
+  gsl_vector_set(u, 0, 1);
+  gsl_vector_set(u, 1, 1);
+  gsl_vector_set(u, 2, 1);
+  gsl_vector_set(v, 0, 4);
+  gsl_vector_set(v, 1, 5);
+  gsl_vector_set(v, 2, 6);
+  crossProduct(u, v, r);
+  printf("x: %f, y: %f, z: %f\n", gsl_vector_get(r, 0), gsl_vector_get(r, 1), gsl_vector_get(r, 2));
 }
 
 int main(int argc, char **argv) {
