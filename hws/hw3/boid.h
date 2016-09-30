@@ -41,6 +41,7 @@ typedef struct _boid {
   gsl_vector *location;//center
   gsl_vector *velocity;
   GLfloat angle;
+  GLfloat wing_angle;
   GLfloat dist; //neighbour dist
 } Boid;
 
@@ -61,6 +62,8 @@ typedef struct _view {
 extern GLfloat boid_vertices[][VECTOR_LENGTH];
 extern GLfloat boid_colors[][VECTOR_LENGTH];
 extern GLubyte boid_indices[];
+extern GLubyte left_indices[];
+extern GLubyte right_indices[];
 extern GLfloat goal_vertices[VECTOR_LENGTH];
 extern GLfloat goal_colors[VECTOR_LENGTH];
 extern float world_scale[VECTOR_LENGTH];
@@ -93,6 +96,8 @@ void camera_look();
 void draw_checkerboard();
 void draw_boid(Boid* b);
 void draw_boids();
+void draw_left_wing(Boid* b);
+void draw_right_wing(Boid* b);
 void draw_speed(Boid* b);
 void calc_checkerboard_vertices(int n, GLfloat len);
 void calc_checkerboard_indices(int n);

@@ -49,7 +49,26 @@ void draw_boid(Boid* b) {
   glRotatef(b->angle, 0,0,1);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
   glPopMatrix();
- 
+}
+
+void draw_left_wing(Boid* b) {
+  gsl_vector* location = b->location;
+  glPushMatrix();
+  glScalef(world_scale[0], world_scale[1], world_scale[2]);
+  glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
+  glRotatef(b->angle, 0, 0, 1);
+  glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, left_indices);
+  glPopMatrix();
+}
+
+void draw_right_wing(Boid* b) {
+  gsl_vector* location = b->location;
+  glPushMatrix();
+  glScalef(world_scale[0], world_scale[1], world_scale[2]);
+  glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
+  glRotatef(b->angle, 0, 0, 1);
+  glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, right_indices);
+  glPopMatrix();
 }
 
 void draw_boids() {
@@ -60,10 +79,11 @@ void draw_boids() {
   Node* current;
   current = head->next;
   while (current->type != HEAD_TAIL) {
-    draw_boid(current->data);
+    draw_left_wing(current->data);
+    draw_right_wing(current->data);
     current = current->next;
   }
-   glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
@@ -115,7 +135,7 @@ void draw_checkerboard() {
  * @param n n * n checkerboard
  * @param len side-length of the checkboard
  */
-void calc_checkerboard_vertices(int n, GLfloat len) {
+void calc_checkerboard_vertices(inty n, GLfloat len) {
   GLfloat lx = -len / 2, ly = len / 2;
   GLfloat num_of_points = pow(n + 1, 2); 
   for (int i = 0; i < num_of_points; i++) {

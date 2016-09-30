@@ -20,6 +20,7 @@ Boid* init_boid(int count) {
   gsl_vector_set(b->velocity, Y, vy);
   gsl_vector_set(b->velocity, Z, vz);
   b->angle = rand() % 360;
+  b->wing_angle = 0;
 
   b->normal = gsl_vector_alloc(VECTOR_LENGTH);
   gsl_vector_set_basis(b->normal, 1);
