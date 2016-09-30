@@ -5,6 +5,7 @@
   
 - Design
   - Press left and right arrow to change the x-axis of goal
+  - Press "+" to add a bird and BACKSPACE to delete a bird
   - Press up and down to move goal up and down
   - Press v and b to speed up and slow down goal, w/ ceiling speed of 100 units and floor speed of 20 units
   - Each boid has a speed limit of 30 units
@@ -13,6 +14,11 @@
 - Extra credits
   - flapping wings
   - shadows
+  
+- Data Structure
+  - We used the Boid struct to store data including its location and velocity vectors, id and angles
+  - The Boid structs are kept in a linked list
+  - Whenever we add or delete a bird, we cache the linked list in an array. This is for the convenience of the sorting needed for calculating the nearest neighbors
   
 - What can be done better
   - It's probably a mistake to use the gsl_vector lib, which is definitely a overkill for vectors, as it malloc'd all vector's regardless, and the syntax is really cumbersome. We spent sometime trying to fix all memo leaks created by these gsk_vectors.
