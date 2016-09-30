@@ -3,6 +3,8 @@
 
 void init() {
   glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glPointSize(10);
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glMatrixMode(GL_PROJECTION);
@@ -64,6 +66,32 @@ void draw_right_wing(Boid* b) {
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, right_indices);
   glPopMatrix();
 }
+
+void draw_shadows() {
+  glEnableClientState(GL_COLOR_ARRAY);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, shadow_vertices);
+  glColorPointer(3, GL_FLOAT, 0, shadow_colors);
+  Node* current;
+  current = head->next;
+  while (current->type != HEAD_TAIL) {
+    draw_shadow(current->data);
+    current = current->next;
+  }
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
+}
+
+void draw_shadow(Boid* b) {
+  gsl_vector *location = b->location;
+  glPushMatrix();
+  glScalef(world_scale[0], world_scale[1], world_scale[2]);
+  glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2)*0.60);
+  glRotatef(b->angle, 0,0,1);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
+  glPopMatrix();
+}
+
 
 void draw_boids() {
   glEnableClientState(GL_COLOR_ARRAY);
@@ -413,6 +441,7 @@ int main(int argc, char **argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearDepth(1.0);
     draw_boids();
+    draw_shadows();
     draw_checkerboard();
     draw_goal(g);
     if (!isPaused) {

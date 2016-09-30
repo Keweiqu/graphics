@@ -35,6 +35,13 @@ GLubyte right_indices[] = {
   3, 1, 0
 };
 
+GLfloat shadow_colors[][3] = {
+  {0.0, 0.0, 0.0},
+  {0.0, 0.0, 0.0},
+  {0.0, 0.0, 0.0},
+  {0.0, 0.0, 0.0},
+};
+
 GLfloat goal_vertices[][3] = {
   {0.0, 0.0, 0.0},
 };
