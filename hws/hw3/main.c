@@ -48,7 +48,7 @@ void draw_left_wing(Boid* b) {
   glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
   glRotatef(b->angle, 0, 0, 1);
   glRotatef(b->z_angle, 1, 0, 0);
-  //glRotatef( b->wing_angle, 0, 1, 0);
+  glRotatef(-b->wing_angle, 0, 1, 0);
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, left_indices);
   glPopMatrix();
 }
@@ -60,7 +60,7 @@ void draw_right_wing(Boid* b) {
   glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
   glRotatef(b->angle, 0, 0, 1);
   glRotatef(b->z_angle, 1, 0, 0);
-  //glRotatef(b->wing_angle, 0, 1, 0);
+  glRotatef(b->wing_angle, 0, 1, 0);
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, right_indices);
   glPopMatrix();
 }
