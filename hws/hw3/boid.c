@@ -21,9 +21,11 @@ Boid* init_boid(int count) {
   gsl_vector_set(b->velocity, Z, vz);
   b->angle = rand() % 360;
   b->wing_angle = 0;
+  b->z_angle = 0;
 
   b->normal = gsl_vector_alloc(VECTOR_LENGTH);
   gsl_vector_set_basis(b->normal, 1);
+
   return b;
 }
 
@@ -275,7 +277,10 @@ gsl_vector* separation(Boid* b, Boid** neighbors) {
     gsl_vector_free(diff1);
     gsl_vector_free(diff2);
   }
-  
+  double* ptr = gsl_vector_ptr(res, 0);
+  *ptr = *ptr * 1.5;
+  *(ptr + 1) = *(ptr + 1) * 0.8;
+  *(ptr + 2) = *(ptr + 2) * 0.3;
   gsl_vector_scale(res, SEPARATION_SCALE);
   return res;
 }
@@ -331,7 +336,7 @@ gsl_vector* trailing_position(Boid** bs, int size, Goal g) {
   gsl_vector_scale(u, (d + 5 * r) * 0.3);
   
   gsl_vector_add(u, center);
-  gsl_vector_set(u, Y, gsl_vector_get(u , 2) + (d + r)* 0.3 );
+  gsl_vector_set(u, Z, gsl_vector_get(u , 2) + (d + r)* 0.3 );
   gsl_vector_free(center);
   return u;
 }
@@ -439,7 +444,6 @@ double max_boid_goal_dist(Boid**bs, int size, Goal g) {
   return max;
 }
 
-
 void world_scale_vector(gsl_vector *v){
   double * ptr = gsl_vector_ptr(v, 0);
   *ptr = *ptr * world_scale[0];
@@ -447,13 +451,35 @@ void world_scale_vector(gsl_vector *v){
   *(ptr + 2) = *(ptr + 2) * world_scale[2];
 }
 
-double get_angle(Boid* b) {
+double get_xy_angle(Boid* b) {
   double cos = projection_cos(b->normal, b->velocity);
   double angle = acos(cos) * ANGLE_CONVERTER;
   if(gsl_vector_get(b->velocity, 0) > 0) {
     angle = 360 - angle;
   }
   return angle;
+}
+
+double get_z_angle(Boid* b) {
+  gsl_vector* xy_normal = gsl_vector_alloc(VECTOR_LENGTH);
+  gsl_vector_memcpy(xy_normal, b->velocity);
+  gsl_vector_set(xy_normal, 2, 0);
+  double cos = projection_cos(xy_normal, b->velocity);
+  double angle = acos(cos) * ANGLE_CONVERTER;
+  if(gsl_vector_get(b->velocity, 0) < 0) {
+    angle = 360 - angle;
+  }
+  return angle;
+
+void project_point(GLfloat* o, GLfloat* p, GLshort size) {
+  gsl_vector* v = gsl_vector_alloc(VECTOR_LENGTH);
+  gsl_vector* n = gsl_vector_alloc(VECTOR_LENGTH);
+  double* v_ptr = gsl_vector_ptr(v, 0);
+  gsl_vector_set_zero(n);
+  gsl_vector_set(n, 2, 1);
+  v_ptr[0] = o[0];
+  v_ptr[1] = o[1];
+  v_ptr[2] = o[2];
 }
 
 void free_view(View v) {
@@ -484,5 +510,5 @@ void free_boids() {
       free_boid(b);
     }
     free_node(temp);
-  }  
+  } 
 }

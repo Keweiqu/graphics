@@ -33,7 +33,7 @@ void init_boids() {
   count = BOID_COUNT;
   head = create_linkedlist();
   tail = head->next;
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < BOID_COUNT; i++) {
     Boid *b = init_boid(i);
     Node *new_node = create_node(b, VAL);
     append(new_node, tail);    
@@ -46,7 +46,8 @@ void draw_boid(Boid* b) {
   glPushMatrix();
   glScalef(world_scale[0], world_scale[1], world_scale[2]);
   glTranslatef(gsl_vector_get(location, 0), gsl_vector_get(location, 1), gsl_vector_get(location, 2));
-  glRotatef(b->angle, 0,0,1);
+  glRotatef(b->angle, 0, 0, 1);
+  glRotatef(b->z_angle, 1, 0, 0);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, boid_indices);
   glPopMatrix();
 }
@@ -100,7 +101,8 @@ void update_boids() {
 
 void update_boid(Boid* b, Boid** neighbors, Goal g) {
   gsl_vector_add(b->location, b->velocity);
-  b->angle = get_angle(b);
+  b->angle = get_xy_angle(b);
+  b->z_angle = get_z_angle(b);
   gsl_vector* s = separation(b, neighbors);
   gsl_vector* c = cohesion(b, neighbors);
   gsl_vector* a = alignment(b, neighbors);
@@ -135,7 +137,7 @@ void draw_checkerboard() {
  * @param n n * n checkerboard
  * @param len side-length of the checkboard
  */
-void calc_checkerboard_vertices(inty n, GLfloat len) {
+void calc_checkerboard_vertices(int n, GLfloat len) {
   GLfloat lx = -len / 2, ly = len / 2;
   GLfloat num_of_points = pow(n + 1, 2); 
   for (int i = 0; i < num_of_points; i++) {
@@ -206,7 +208,7 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
       cache = cache_linkedlist(head);
       break;
     case GLFW_KEY_BACKSPACE:
-      if (count > 10) {
+      if (count > BOID_COUNT) {
 	delete_last(tail);
 	free(cache);
 	cache = cache_linkedlist(head);
@@ -233,7 +235,6 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
       update_goal(&g);
       update_boids();
       break;
-    
     case GLFW_KEY_Q:
     case GLFW_KEY_ESCAPE:
       glfwSetWindowShouldClose(w, TRUE);
@@ -257,6 +258,16 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
     case GLFW_KEY_RIGHT:
       g.x_move = GOAL_H_STEP;
       gsl_vector_set(g.direction, 0, RIGHT);
+      break;
+    case GLFW_KEY_V:
+      if(g.speed < 100) {
+	g.speed += 5;
+      }
+      break;
+    case GLFW_KEY_B:
+      if(g.speed > 20) {
+	g.speed -= 5;
+      }
       break;
     }
   }

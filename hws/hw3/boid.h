@@ -9,7 +9,7 @@
 
 #define SIDES 50
 #define NUM_BOID_INDICES 6
-#define BOID_COUNT 10
+#define BOID_COUNT 30
 #define NUM_NEIGHBORS 5
 #define WORLD_HALF_WIDTH 10000
 #define GOAL_V_STEP 10
@@ -38,8 +38,9 @@ enum VIEW_MODE {CENTER, TRAILING, SIDE};
 typedef struct _boid {
   int id;
   gsl_vector *normal;
-  gsl_vector *location;//center
+  gsl_vector *location;
   gsl_vector *velocity;
+  GLfloat z_angle;
   GLfloat angle;
   GLfloat wing_angle;
   GLfloat dist; //neighbour dist
@@ -143,9 +144,11 @@ void cursor(GLFWwindow* w, double xpos, double ypos);
 
 double max_boid_goal_dist(Boid** bs, int size, Goal g);
 double projection_cos(gsl_vector *v, gsl_vector *);
+void project_point(GLfloat* o, GLfloat* p, GLshort size);
 double sum_vector(gsl_vector *v, int size);
 double point_dist(gsl_vector *v, gsl_vector *w);
-double get_angle(Boid *b);
+double get_xy_angle(Boid *b);
+double get_z_angle(Boid *b);
 
 void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
 void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
