@@ -470,6 +470,7 @@ double get_z_angle(Boid* b) {
   if(gsl_vector_get(b->velocity, 2) < 0) {
     angle = 360 - angle;
   }
+  gsl_vector_free(xy_normal);
   return angle;
 }
 
