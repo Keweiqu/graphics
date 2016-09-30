@@ -216,7 +216,7 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
       break;
     case GLFW_KEY_BACKSPACE:
       if (count > BOID_COUNT) {
-	delete_last(tail);
+	delete_boid();
 	free(cache);
 	cache = cache_linkedlist(head);
 	count--;
@@ -427,8 +427,11 @@ int main(int argc, char **argv) {
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
-  free_linkedlist(head);
   free_views();
+  free(cache);
+  free_boids();
+  free(head);
+  free(tail);
   glfwTerminate();
   exit(EXIT_SUCCESS);
 }

@@ -505,6 +505,7 @@ void free_views() {
 }
 
 void free_boid(Boid* b) {
+  gsl_vector_free(b->normal);
   gsl_vector_free(b->location);
   gsl_vector_free(b->velocity);
   free(b);
@@ -515,10 +516,21 @@ void free_boids() {
   while(current->type == VAL) {
     Node* temp = current;
     current = current->next;
-    if (current->type == VAL) {
-      Boid* b = (Boid*)temp->data;
-      free_boid(b);
-    }
+    Boid* b = (Boid*)temp->data;
+    free_boid(b);
     free_node(temp);
   } 
+}
+
+void delete_boid() {
+  if(tail->prev->type != HEAD_TAIL) {
+    Node* temp = tail->prev->prev;
+    Boid* b = (Boid*) temp->next->data;
+    free_boid(b);
+    free(b);
+    free(temp->next);
+    temp->next = tail;
+    tail->prev = temp;
+    
+  }
 }

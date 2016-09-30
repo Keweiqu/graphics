@@ -118,6 +118,7 @@ Boid** cache_linkedlist(Node* head);
 int cmp(const void* a, const void* b);
 GLfloat get_dist(Boid* a, Boid *b);
 void add_boid();
+void delete_boid();
 void update_boids();
 void update_boid(Boid* b, Boid** neighbors, Goal g);
 void update_boid_wing(Boid* b);
