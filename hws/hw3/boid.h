@@ -2,7 +2,6 @@
 #define BOID_H
 
 #include <float.h>
-#include <math.h>
 #include "common.h"
 #include "linkedlist.h"
 #include <gsl/gsl_vector.h>
@@ -15,7 +14,23 @@
 #define WORLD_HALF_WIDTH 10000
 #define GOAL_VERTICAL_DELTA 1
 #define GOAL_HORIZONTAL_DELTA 1
-
+#define VECTOR_LENGTH 3
+#define NUM_SQUARE_VERTICES 4
+#define BOID_INITIAL_X 2375
+#define BOID_INITIAL_Y 125
+#define BOID_INITIAL_Z 1175
+#define BOID_INITIAL_RANGE 51
+#define GOAL_INITIAL_ANGLE 0
+#define GOAL_RADIUS 1500
+#define GOAL_UPDATE_ANGLE 0.005
+#define X 0
+#define Y 1
+#define Z 2
+#define SEPARATION_SCALE -1
+#define COHESION_SCALE 0.0001
+#define ALIGNMENT_SCALE 0.001
+#define GOAL_SEEKING_SCALE 0.00003
+#define MATRIX_SIZE 16
 
 enum VIEW_MODE {CENTER, TRAILING, SIDE};
 typedef struct _boid {
@@ -41,12 +56,12 @@ typedef struct _view {
   gsl_vector * up;
 } View;
 
-extern GLfloat boid_vertices[][3];
-extern GLfloat boid_colors[][3];
+extern GLfloat boid_vertices[][VECTOR_LENGTH];
+extern GLfloat boid_colors[][VECTOR_LENGTH];
 extern GLubyte boid_indices[];
-extern GLfloat goal_vertices[3];
-extern GLfloat goal_colors[3];
-extern float world_scale[3];
+extern GLfloat goal_vertices[VECTOR_LENGTH];
+extern GLfloat goal_colors[VECTOR_LENGTH];
+extern float world_scale[VECTOR_LENGTH];
 
 enum VIEW_MODE v_mode;
 double ave_multiplier;
@@ -55,9 +70,9 @@ GLfloat angle;
 int count;
 GLshort isPaused;
 double x_pos, y_pos;
-GLfloat board_vertices[(SIDES+1)*(SIDES+1)][3];
-GLfloat board_colors[(SIDES+1)*(SIDES+1)][3];
-GLshort board_indices[SIDES*SIDES*4];
+GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
+GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
+GLshort board_indices[SIDES*SIDES*NUM_SQUARE_VERTICES];
 Node* head, *tail;
 Goal g;
 Boid** cache;

@@ -7,21 +7,21 @@ Boid* init_boid(int count) {
   
   b->id = count + 1;
   
-  b->location = gsl_vector_alloc(3);
-  lx = 2375 + rand() % 51;
-  ly = 125 + rand() % 51;
-  lz = 1175 + rand() % 51;
-  gsl_vector_set(b->location, 0, lx);
-  gsl_vector_set(b->location, 1, ly);
-  gsl_vector_set(b->location, 2, lz);
+  b->location = gsl_vector_alloc(VECTOR_LENGTH);
+  lx = BOID_INITIAL_X + rand() % BOID_INITIAL_RANGE;
+  ly = BOID_INITIAL_Y + rand() % BOID_INITIAL_RANGE;
+  lz = BOID_INITIAL_Z + rand() % BOID_INITIAL_RANGE;
+  gsl_vector_set(b->location, X, lx);
+  gsl_vector_set(b->location, Y, ly);
+  gsl_vector_set(b->location, Z, lz);
   
-  b->velocity = gsl_vector_alloc(3);
-  gsl_vector_set(b->velocity, 0, vx);
-  gsl_vector_set(b->velocity, 1, vy);
-  gsl_vector_set(b->velocity, 2, vz);
+  b->velocity = gsl_vector_alloc(VECTOR_LENGTH);
+  gsl_vector_set(b->velocity, X, vx);
+  gsl_vector_set(b->velocity, Y, vy);
+  gsl_vector_set(b->velocity, Z, vz);
   b->angle = rand() % 360;
 
-  b->normal = gsl_vector_alloc(3);
+  b->normal = gsl_vector_alloc(VECTOR_LENGTH);
   gsl_vector_set_basis(b->normal, 1);
   return b;
 }
@@ -31,11 +31,11 @@ Goal init_goal() {
   g.speed = 10;
   g.h_move = 0;
   g.x_move = 0;
-  g.trans = gsl_vector_alloc(3);
-  gsl_vector_set(g.trans, 0, 2000);
-  gsl_vector_set(g.trans, 1, 1500);
-  gsl_vector_set(g.trans, 2, 1000);
-  g.direction = gsl_vector_calloc(3);
+  g.trans = gsl_vector_alloc(VECTOR_LENGTH);
+  gsl_vector_set(g.trans, X, 2000);
+  gsl_vector_set(g.trans, Y, 1500);
+  gsl_vector_set(g.trans, Z, 1000);
+  g.direction = gsl_vector_calloc(VECTOR_LENGTH);
   gsl_vector_set_basis(g.direction, 1);
   return g;
 }
@@ -62,11 +62,11 @@ void update_view() {
 }
 
 void init_center_view() {
-  center_view.pos = gsl_vector_calloc(3);
+  center_view.pos = gsl_vector_calloc(VECTOR_LENGTH);
   gsl_vector_set(center_view.pos, 2, 1300);
   world_scale_vector(center_view.pos);
   
-  center_view.up = gsl_vector_calloc(3);
+  center_view.up = gsl_vector_calloc(VECTOR_LENGTH);
   gsl_vector_set(center_view.up, 2, 1);
 
   center_view.look = calc_middleway(cache, count, g);
@@ -80,7 +80,7 @@ void init_trailing_view() {
   trailing_view.look = calc_middleway(cache, count, g);
   world_scale_vector(trailing_view.look);
   
-  trailing_view.up = gsl_vector_calloc(3);
+  trailing_view.up = gsl_vector_calloc(VECTOR_LENGTH);
   gsl_vector_set(trailing_view.up, 2, 1);
 }
 
@@ -137,11 +137,11 @@ void draw_goal(Goal g) {
   glVertexPointer(3, GL_FLOAT, 0, goal_vertices);
   glColorPointer(3, GL_FLOAT, 0, goal_colors);
   glPushMatrix();
-  glScalef(world_scale[0], world_scale[1], world_scale[2]);
+  glScalef(world_scale[X], world_scale[Y], world_scale[Z]);
   glTranslatef(
-	       gsl_vector_get(g.trans, 0),
-	       gsl_vector_get(g.trans, 1),
-	       gsl_vector_get(g.trans, 2)
+	       gsl_vector_get(g.trans, X),
+	       gsl_vector_get(g.trans, Y),
+	       gsl_vector_get(g.trans, Z)
 	       );
   glDrawArrays(GL_POINTS, 0, 1);
   glPopMatrix();
@@ -225,7 +225,7 @@ GLfloat get_dist(Boid* a, Boid* b) {
 
 void print_boid(Boid *b) {
   printf("printing boid No.%d\n", b->id);
-  printf("location x %f, y %f, z %f\n", gsl_vector_get(b->location,0), gsl_vector_get(b->location, 1), gsl_vector_get(b->location, 2));
+  printf("location x %f, y %f, z %f\n", gsl_vector_get(b->location,X), gsl_vector_get(b->location, Y), gsl_vector_get(b->location, Z));
 }
 
 void print_boids(Node* head) {
@@ -243,7 +243,7 @@ void print_view(View v){
 }
 
 void print_vector(gsl_vector * v){
-  printf("x %f, y %f, z %f\n", gsl_vector_get(v, 0),gsl_vector_get(v, 1),gsl_vector_get(v, 2));
+  printf("x %f, y %f, z %f\n", gsl_vector_get(v, X),gsl_vector_get(v, Y),gsl_vector_get(v, Z));
 }
 
 void print_boids_array(Boid** bs, int size) {
@@ -256,54 +256,55 @@ void print_boids_array(Boid** bs, int size) {
 }
 
 gsl_vector* separation(Boid* b, Boid** neighbors) {
-  gsl_vector* res = gsl_vector_alloc(3);
+  gsl_vector* res = gsl_vector_alloc(VECTOR_LENGTH);
   gsl_vector_set_zero(res);
-  for (int i = 0; i < NUM_NEIGHBORS; i++) {
-    gsl_vector* diff1 = gsl_vector_alloc(3);
-    gsl_vector* diff2 = gsl_vector_alloc(3);
+  int i;
+  for (i = 0; i < NUM_NEIGHBORS; i++) {
+    gsl_vector* diff1 = gsl_vector_alloc(VECTOR_LENGTH);
+    gsl_vector* diff2 = gsl_vector_alloc(VECTOR_LENGTH);
     gsl_vector_set_zero(diff1);
     gsl_vector_add(diff1, (const gsl_vector*)neighbors[i]->location);
     gsl_vector_sub(diff1, (const gsl_vector*)b->location);
     gsl_vector_memcpy(diff2, diff1);
     gsl_vector_mul(diff1, diff1);
-    double sum = sum_vector(diff1, 3);
+    double sum = sum_vector(diff1, VECTOR_LENGTH);
     gsl_vector_scale(diff2, 1.0 / sum);
     gsl_vector_add(res, diff2);
     gsl_vector_free(diff1);
     gsl_vector_free(diff2);
   }
   
-  gsl_vector_scale(res, -1);
+  gsl_vector_scale(res, SEPARATION_SCALE);
   return res;
 }
 
 gsl_vector* cohesion(Boid* b, Boid** neighbors) {
   gsl_vector* res = get_flock_center(neighbors, NUM_NEIGHBORS);
   gsl_vector_sub(res, (const gsl_vector*)b->location);
-  gsl_vector_scale(res, 0.0001);
+  gsl_vector_scale(res, COHESION_SCALE);
   return res;
 }
 
 gsl_vector* alignment(Boid*b, Boid** neighbors) {
-  gsl_vector* res = gsl_vector_calloc(3);
+  gsl_vector* res = gsl_vector_calloc(VECTOR_LENGTH);
   for (int i = 0; i < NUM_NEIGHBORS; i++) {
     gsl_vector_add(res, (const gsl_vector*)neighbors[i]->velocity);
   }
 
-  gsl_vector_scale(res, ave_multiplier * 0.001);
+  gsl_vector_scale(res, ave_multiplier * ALIGNMENT_SCALE);
   return res;
 }
 
 gsl_vector* goal_seeking(Goal g, Boid* b) {
-  gsl_vector* res = gsl_vector_alloc(3);
+  gsl_vector* res = gsl_vector_alloc(VECTOR_LENGTH);
   gsl_vector_memcpy(res, g.trans);
   gsl_vector_sub(res, b->location);
-  gsl_vector_scale(res, 0.00003);
+  gsl_vector_scale(res, GOAL_SEEKING_SCALE);
   return res;
 }
 
 gsl_vector* get_flock_center(Boid** bs, int size) {
- gsl_vector* res = gsl_vector_alloc(3);
+ gsl_vector* res = gsl_vector_alloc(VECTOR_LENGTH);
   gsl_vector_set_zero(res);
   for (int i = 0; i < size; i++) {
     gsl_vector_add(res, (const gsl_vector*)bs[i]->location);
@@ -315,7 +316,7 @@ gsl_vector* get_flock_center(Boid** bs, int size) {
 gsl_vector* center_goal_direction(Boid** bs, int size, Goal g) {
   gsl_vector* res = get_flock_center(bs, size);
   gsl_vector_sub(res, g.trans);
-  normalize_vector(res, 3);
+  normalize_vector(res, VECTOR_LENGTH);
   return res;
 }
 
@@ -328,7 +329,7 @@ gsl_vector* trailing_position(Boid** bs, int size, Goal g) {
   gsl_vector_scale(u, (d + 5 * r) * 0.3);
   
   gsl_vector_add(u, center);
-  gsl_vector_set(u, 2, gsl_vector_get(u , 2) + (d + r)* 0.3 );
+  gsl_vector_set(u, Y, gsl_vector_get(u , 2) + (d + r)* 0.3 );
   gsl_vector_free(center);
   return u;
 }
@@ -337,13 +338,13 @@ gsl_vector* side_position(Boid** bs, int size, Goal g) {
   gsl_vector* m = calc_middleway(bs, size, g);
   gsl_vector* u = center_goal_direction(bs, size, g);
   gsl_vector_scale(u, -1);
-  gsl_vector* z = gsl_vector_calloc(3);
+  gsl_vector* z = gsl_vector_calloc(VECTOR_LENGTH);
   gsl_vector_set_basis(z, 2);
-  gsl_vector* p = gsl_vector_alloc(3);
+  gsl_vector* p = gsl_vector_alloc(VECTOR_LENGTH);
   crossProduct(u, z, p);
   double d = center_goal_dist(bs, size, g);
   double r = max_boid_goal_dist(bs, size, g);
-  normalize_vector(p, 3);
+  normalize_vector(p, VECTOR_LENGTH);
   gsl_vector_scale(p, (r + 2 * d) * 0.5);
   gsl_vector_add(p, m);
   gsl_vector_set(p, 2, gsl_vector_get(p, 2) + (d + r) * 0.3);
@@ -368,9 +369,9 @@ gsl_vector* calc_middleway(Boid** bs, int size, Goal g) {
 }
 
 double projection_cos(gsl_vector* v, gsl_vector* w) {
-  gsl_vector * v_copy = gsl_vector_alloc(3);
-  gsl_vector * w_copy = gsl_vector_alloc(3);
-  gsl_vector * temp = gsl_vector_alloc(3);
+  gsl_vector * v_copy = gsl_vector_alloc(VECTOR_LENGTH);
+  gsl_vector * w_copy = gsl_vector_alloc(VECTOR_LENGTH);
+  gsl_vector * temp = gsl_vector_alloc(VECTOR_LENGTH);
 
   gsl_vector_memcpy(temp, v);
   gsl_vector_memcpy(v_copy, v);
@@ -379,8 +380,8 @@ double projection_cos(gsl_vector* v, gsl_vector* w) {
   gsl_vector_mul(temp, w_copy);
   gsl_vector_mul(v_copy, v_copy);
   gsl_vector_mul(w_copy, w_copy);
-  double denominator = sum_vector(temp, 3);
-  double nominator = sqrt(sum_vector(v_copy, 3)) * sqrt(sum_vector(w_copy, 3));
+  double denominator = sum_vector(temp, VECTOR_LENGTH);
+  double nominator = sqrt(sum_vector(v_copy, VECTOR_LENGTH)) * sqrt(sum_vector(w_copy, VECTOR_LENGTH));
   double cos = denominator / nominator;
   gsl_vector_free(temp);
   gsl_vector_free(v_copy);
@@ -389,7 +390,7 @@ double projection_cos(gsl_vector* v, gsl_vector* w) {
 }
 
 gsl_vector* ave(gsl_vector* v, gsl_vector* w) {
-  gsl_vector* res = gsl_vector_calloc(3);
+  gsl_vector* res = gsl_vector_calloc(VECTOR_LENGTH);
   gsl_vector_add(res, v);
   gsl_vector_add(res, w);
   gsl_vector_scale(res, 0.5);
@@ -416,11 +417,11 @@ void normalize_vector(gsl_vector* v, int size) {
 }
 
 double point_dist(gsl_vector *v, gsl_vector *w) {
-  gsl_vector* copy = gsl_vector_alloc(3);
+  gsl_vector* copy = gsl_vector_alloc(VECTOR_LENGTH);
   gsl_vector_memcpy(copy, v);
   gsl_vector_sub(copy, w);
   gsl_vector_mul(copy, copy);
-  GLfloat dist = gsl_vector_get(copy, 0) + gsl_vector_get(copy, 1) + gsl_vector_get(copy, 2);
+  GLfloat dist = gsl_vector_get(copy, X) + gsl_vector_get(copy, Y) + gsl_vector_get(copy, Z);
   dist = sqrt(dist);
   gsl_vector_free(copy);
   return dist;
@@ -473,11 +474,13 @@ void free_boid(Boid* b) {
 
 void free_boids() {
   Node* current = head->next;
-  while(current != NULL) {
+  while(current->type == VAL) {
     Node* temp = current;
     current = current->next;
-    Boid* b = (Boid*)temp->data;
-    free_boid(b);
+    if (current->type == VAL) {
+      Boid* b = (Boid*)temp->data;
+      free_boid(b);
+    }
     free_node(temp);
   }  
 }
