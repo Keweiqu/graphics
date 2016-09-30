@@ -20,7 +20,7 @@ Boid* init_boid(int count) {
   gsl_vector_set(b->velocity, Y, vy);
   gsl_vector_set(b->velocity, Z, vz);
   b->angle = rand() % 360;
-  b->wing_angle = rand() % 10;
+  b->wing_angle = rand() % 25;
   b->wing_direction = UP;
   b->z_angle = 0;
 
@@ -443,6 +443,13 @@ double max_boid_goal_dist(Boid**bs, int size, Goal g) {
     max = dist > max? dist : max;
   }
   return max;
+}
+
+double get_vector_length(gsl_vector *v) {
+  gsl_vector* origin = gsl_vector_calloc(VECTOR_LENGTH);
+  double length = point_dist(v, origin);
+  gsl_vector_free(origin);
+  return length;
 }
 
 void world_scale_vector(gsl_vector *v){

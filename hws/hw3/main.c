@@ -106,6 +106,12 @@ void update_boid(Boid* b, Boid** neighbors, Goal g) {
   gsl_vector_scale(b->velocity, 0.99);
   gsl_vector_scale(g_s, 4);
   gsl_vector_add(b->velocity, g_s);
+
+  double speed = get_vector_length(b->velocity);
+  if(speed > 50) {
+    normalize_vector(b->velocity, VECTOR_LENGTH);
+    gsl_vector_scale(b->velocity, 50);
+  }
   gsl_vector_free(s);
   gsl_vector_free(c);
   gsl_vector_free(a);

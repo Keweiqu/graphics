@@ -34,7 +34,7 @@
 #define GOAL_SEEKING_SCALE 0.00003
 #define MATRIX_SIZE 16
 #define MAX_WING_ANGLE 30
-#define WING_DELTA 1
+#define WING_DELTA 2
 
 enum VIEW_MODE {CENTER, TRAILING, SIDE};
 typedef struct _boid {
@@ -153,6 +153,7 @@ double sum_vector(gsl_vector *v, int size);
 double point_dist(gsl_vector *v, gsl_vector *w);
 double get_xy_angle(Boid *b);
 double get_z_angle(Boid *b);
+double get_vector_length(gsl_vector* v);
 
 void lookAt(GLdouble eyeX, GLdouble eyeY, GLdouble eyeZ, GLdouble centerX, GLdouble centerY, GLdouble centerZ, GLdouble upX, GLdouble upY, GLdouble upZ);
 void perspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
