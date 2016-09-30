@@ -531,6 +531,5 @@ void delete_boid() {
     free(temp->next);
     temp->next = tail;
     tail->prev = temp;
-    
   }
 }

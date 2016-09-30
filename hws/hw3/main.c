@@ -410,6 +410,17 @@ void testCP() {
   printf("x: %f, y: %f, z: %f\n", gsl_vector_get(r, 0), gsl_vector_get(r, 1), gsl_vector_get(r, 2));
 }
 
+void reshape(GLFWwindow *w, int width, int height) {
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  perspective(40, 1, 0.000001, 10);
+  glMatrixMode(GL_MODELVIEW); 
+}
+
+void framebuffer_resize(GLFWwindow *w, int width, int height) {
+  glViewport(0, 0, width, height);
+}
+
 int main(int argc, char **argv) {
   v_mode = CENTER;
   init_boids();
@@ -431,8 +442,8 @@ int main(int argc, char **argv) {
   }
   
   glfwMakeContextCurrent(window);
-  /* glfwSetWindowSizeCallback(window, reshape); */
-  /* glfwSetFramebufferSizeCallback(window, framebuffer_resize); */
+  glfwSetWindowSizeCallback(window, reshape);
+  glfwSetFramebufferSizeCallback(window, framebuffer_resize);
   glfwSetKeyCallback(window, keyboard);
   glfwSetCursorPosCallback(window, cursor);
 

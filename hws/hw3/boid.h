@@ -150,6 +150,8 @@ void normalize_vector(gsl_vector* v, int size);
 void world_scale_vector(gsl_vector *v);
 void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods);
 void cursor(GLFWwindow* w, double xpos, double ypos);
+void reshape(GLFWwindow *w, int width, int height);
+void framebuffer_resize(GLFWwindow *w, int width, int height);
 
 double max_boid_goal_dist(Boid** bs, int size, Goal g);
 double projection_cos(gsl_vector *v, gsl_vector *);
