@@ -108,9 +108,9 @@ void update_boid(Boid* b, Boid** neighbors, Goal g) {
   gsl_vector_add(b->velocity, g_s);
 
   double speed = get_vector_length(b->velocity);
-  if(speed > 50) {
+  if(speed > 30) {
     normalize_vector(b->velocity, VECTOR_LENGTH);
-    gsl_vector_scale(b->velocity, 50);
+    gsl_vector_scale(b->velocity, 30);
   }
   gsl_vector_free(s);
   gsl_vector_free(c);
@@ -241,6 +241,13 @@ void keyboard(GLFWwindow *w, int key, int scancode,  int action, int mods) {
       isPaused = 1;
       update_goal(&g);
       update_boids();
+      printf("=====================DEBUGING INFO====================\n");
+      gsl_vector* boid_center = calc_middleway(cache, count, g);
+      printf("Center of the boids is: \n");
+      print_vector(boid_center);
+      gsl_vector_free(boid_center);
+      printf("Location of goal: \n");
+      print_vector(g.trans);
       break;
     case GLFW_KEY_Q:
     case GLFW_KEY_ESCAPE:
@@ -399,7 +406,6 @@ int main(int argc, char **argv) {
   /* glfwSetWindowSizeCallback(window, reshape); */
   /* glfwSetFramebufferSizeCallback(window, framebuffer_resize); */
   glfwSetKeyCallback(window, keyboard);
-  /* glfwSetMouseButtonCallback(window, mouse); */
   glfwSetCursorPosCallback(window, cursor);
 
   init();
@@ -416,11 +422,6 @@ int main(int argc, char **argv) {
     
     glLoadIdentity();
     camera_look();
-    /* gluLookAt( */
-    /* 	      0.2, 0.01, 1.2, */
-    /* 	      -0.2, -0.1, 0, */
-    /* 	      0, 1, 0 */
-    /* 	      ); */
 
     update_view();
     glfwSwapBuffers(window);
@@ -429,6 +430,5 @@ int main(int argc, char **argv) {
   free_linkedlist(head);
   free_views();
   glfwTerminate();
-  //free_boids();
   exit(EXIT_SUCCESS);
 }

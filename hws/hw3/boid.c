@@ -255,7 +255,7 @@ void print_boids_array(Boid** bs, int size) {
   int i;
   for(i = 0; i < size; i++) {
     Boid* b = bs[i];
-    printf("Array Boid No.%d\n", b->id);
+    printf("Array Boid No.%d, at location: \n", b->id);
     print_vector(b->location);
   }
 }
