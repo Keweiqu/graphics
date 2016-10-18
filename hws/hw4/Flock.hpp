@@ -20,10 +20,12 @@ public:
   vector<GLfloat> *v_z;
   vector<int> *group;
   GLfloat center[NUM_GROUP][3];
-  GLfloat ave_v[3];
+  GLfloat ave_v[NUM_GROUP][3];
   GLfloat goal[3];
   GLfloat radius;
   int count;
+  void update_centers();
+  void update_ave_v();
   //vector<GLfloat> seperate();
   //vector<GLfloat> cohere();
   //vector<GLfloat> align();
@@ -31,6 +33,6 @@ public:
   void add_boid();
   void remove_boid();
   void print_boids();
-  void update_centers();
+
 };
 #endif

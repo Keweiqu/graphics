@@ -121,10 +121,6 @@ int main(int argc, char** argv) {
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glBindVertexArray(goal_vao);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, goal_idx);
-    //glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(project));
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*) 0);
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
 

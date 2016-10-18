@@ -48,8 +48,8 @@ void Flock::remove_boid() {
 }
 
 void Flock::update_centers() {
-  GLfloat x1 = 0, y1 = 0, z1 = 0, x2 = 0, y2 = 0, z2 = 0;
   int count1 = 0, count2 = 0;
+  GLfloat x1 = 0, y1 = 0, z1 = 0, x2 = 0, y2 = 0, z2 = 0;
   for(int i = 0; i < count; i++) {
     if((*group)[i] == 0) {
       count1++;
@@ -71,7 +71,46 @@ void Flock::update_centers() {
   y2 /= count2;
   z2 /= count2;
 
-  
+  center[0][0] = x1;
+  center[0][1] = y1;
+  center[0][2] = z1;
+  center[1][0] = x2;
+  center[1][1] = y2;
+  center[1][2] = z2;
+}
+
+void Flock::update_ave_v() {
+ int count1 = 0, count2 = 0;
+  GLfloat x1 = 0, y1 = 0, z1 = 0, x2 = 0, y2 = 0, z2 = 0;
+  for(int i = 0; i < count; i++) {
+    if((*group)[i] == 0) {
+      count1++;
+      x1 += (*v_x)[i];
+      y1 += (*v_y)[i];
+      z1 += (*v_z)[i];
+    } else {
+      count2++;
+      x2 += (*v_x)[i];
+      y2 += (*v_y)[i];
+      z2 += (*v_z)[i];
+    }
+  }
+
+  x1 /= count1;
+  y1 /= count1;
+  z1 /= count1;
+  x2 /= count2;
+  y2 /= count2;
+  z2 /= count2;
+
+  cout << x1 << " " << y1 << endl;
+
+  ave_v[0][0] = x1;
+  ave_v[0][1] = y1;
+  ave_v[0][2] = z1;
+  ave_v[1][0] = x2;
+  ave_v[1][1] = y2;
+  ave_v[1][2] = z2;
 }
 
 void Flock::print_boids() {
