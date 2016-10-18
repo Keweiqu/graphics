@@ -75,6 +75,8 @@ void init() {
 int main(int argc, char** argv) {
   Flock f;
   f.print_boids();
+  f.remove_boid();
+  f.print_boids();
   glm::vec3 trans = glm::vec3(0.0, 0.0, 0.0);
   glm::mat4 foo = glm::translate(model, trans);
   glm::mat4 bar = glm::mat4(1.0);
@@ -119,11 +121,11 @@ int main(int argc, char** argv) {
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, NULL);
     //glm::mat4 bar = glm::mat4(1.0);
     //glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(bar));
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, (void*)3);
+
+      glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, (void*)3);
     glfwSwapBuffers(window);
     glfwPollEvents();
     foo = glm::mat4(1.0);
   }
   glfwTerminate();
-  exit(EXIT_SUCCESS);
 }
