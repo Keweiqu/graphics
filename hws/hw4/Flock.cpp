@@ -14,7 +14,7 @@ Flock::Flock() {
   radius = 250;
   
   center[0][0] = 0.0; center[0][1] = 0.0; center[0][2] = 500.0;
-  center[2][0] = 200.0; center[1][1] = 200.0; center[1][2] = 500.0;
+  center[1][0] = 200.0; center[1][1] = 200.0; center[1][2] = 500.0;
   
   goal[0] = 200.0; goal[1] = 200.0; goal[2] = 500.0;
   
@@ -45,6 +45,33 @@ void Flock::remove_boid() {
   v_y->pop_back();
   v_z->pop_back();
   group->pop_back();
+}
+
+void Flock::update_centers() {
+  GLfloat x1 = 0, y1 = 0, z1 = 0, x2 = 0, y2 = 0, z2 = 0;
+  int count1 = 0, count2 = 0;
+  for(int i = 0; i < count; i++) {
+    if((*group)[i] == 0) {
+      count1++;
+      x1 += (*pos_x)[i];
+      y1 += (*pos_y)[i];
+      z1 += (*pos_z)[i];
+    } else {
+      count2++;
+      x2 += (*pos_x)[i];
+      y2 += (*pos_y)[i];
+      z2 += (*pos_z)[i];
+    }
+  }
+
+  x1 /= count1;
+  y1 /= count1;
+  z1 /= count1;
+  x2 /= count2;
+  y2 /= count2;
+  z2 /= count2;
+
+  
 }
 
 void Flock::print_boids() {

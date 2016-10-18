@@ -11,7 +11,10 @@ using namespace std;
 glm::mat4 view = glm::mat4(1.0);
 glm::mat4 project = glm::mat4(1.0);
 glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 0.001);
-GLfloat vertices[4][3] = {
+extern GLfloat goal_vertices[24];
+extern GLfloat goal_colors[8][4];
+extern GLubyte goal_indices[36];
+GLfloat boid_vertices[4][3] = {
   {0.0, 0.0, 0.75},
   {0.0, 10, 0.75},  
   {-10, -4, 0.75},
@@ -24,7 +27,7 @@ GLfloat colors[6][4] = {
   {0.0, 0.0, 1.0, 1.0},
   {1.0, 1.0, 0.0, 1.0},
   {1.0, 0.0, 1.0, 1.0},
-  {0.0, 1.0, 1.0, 1.0}
+  {0.0, 1.0, 1.0, 1.0},
 };
 
 GLubyte boid_indices[] = {
@@ -32,7 +35,8 @@ GLubyte boid_indices[] = {
   3, 1, 0, // left wing
 };
 
-GLuint vbo1, vbo2, vao, idx, program, pos, color, modelView;
+GLuint boid_vbo1, boid_vbo2, goal_vbo1, goal_vbo2, boid_vao, goal_vao, boid_idx, goal_idx;
+GLuint program, pos, color, modelView;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -44,36 +48,51 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
 
 void init() {
   glEnable(GL_DEPTH_TEST);
-  vbo1 = make_bo(GL_ARRAY_BUFFER, vertices, sizeof(vertices));
-  vbo2 = make_bo(GL_ARRAY_BUFFER, colors, sizeof(colors));
-  idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, boid_indices, sizeof(boid_indices));
+  boid_vbo1 = make_bo(GL_ARRAY_BUFFER, boid_vertices, sizeof(boid_vertices));
+  boid_vbo2 = make_bo(GL_ARRAY_BUFFER, colors, sizeof(colors));
+  goal_vbo1 = make_bo(GL_ARRAY_BUFFER, goal_vertices, sizeof(goal_vertices));
+  goal_vbo2 = make_bo(GL_ARRAY_BUFFER, goal_colors, sizeof(goal_colors));
+  boid_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, boid_indices, sizeof(boid_indices));
+  goal_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, goal_indices, sizeof(goal_indices));
   program = initshader("hw4_vs.glsl", "hw4_fs.glsl");
   glUseProgram(program);
-  glGenVertexArrays(1, &vao);
+  glGenVertexArrays(1, &boid_vao);
 
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo1);
+  glBindVertexArray(boid_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo1);
   pos = glGetAttribLocation(program, "vPos");
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-  glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo2);
   color = glGetAttribLocation(program, "vColor");
   glEnableVertexAttribArray(color);
   glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  glGenVertexArrays(1, &goal_vao);
+  glBindVertexArray(goal_vao);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
+  glEnableVertexAttribArray(pos);
+  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo2);
+  glEnableVertexAttribArray(color);
+  glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo2);
+  glEnableVertexAttribArray(color);
 
   modelView = glGetUniformLocation(program, "M");
+
   glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 
 
 int main(int argc, char** argv) {
   Flock f;
-  //f.print_boids();
-  //f.remove_boid();
-  //f.print_boids();
   glm::mat4 bar = glm::mat4(1.0);
-  lookat(0, 0, 800, 0, 0, 0, 0, 1, 0, &view, &project);
+  lookat(0, 0, 800.0, 0, 0, 0, 0, 1, 0, &view, &project);
   //scalef(world_scale[0], world_scale[1], world_scale[2], &view);
   project = glm::perspective(30.0 / 180.0 * 3.1415, 1.0, 0.0000001, 10.0);
   print_mat(view);
@@ -102,8 +121,12 @@ int main(int argc, char** argv) {
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    draw_flock(&f, modelView, vao, idx);
+    //glBindVertexArray(goal_vao);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, goal_idx);
+    //glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(project));
+    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*) 0);
+    draw_goal(&f, modelView, goal_vao, goal_idx);
+    draw_flock(&f, modelView, boid_vao, boid_idx);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
