@@ -6,7 +6,7 @@
 #include <cmath>
 
 #define VECTOR_LENGTH 3
-#define SIDES 2
+#define SIDES 1
 #define NUM_SQUARE_VERTICES 4
 
 void calc_checkerboard_indices(int n);
