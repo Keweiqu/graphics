@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include "common.hpp"
-
+#define NUM_GROUP 2
 using namespace std;
 
 class Flock {
@@ -19,7 +19,7 @@ public:
   vector<GLfloat> *v_y;
   vector<GLfloat> *v_z;
   vector<int> *group;
-  GLfloat center[3];
+  GLfloat center[NUM_GROUP][3];
   GLfloat ave_v[3];
   GLfloat goal[3];
   GLfloat radius;

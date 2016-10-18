@@ -13,7 +13,9 @@ Flock::Flock() {
   count = 0;
   radius = 250;
   
-  center[0] = 0.0; center[1] = 0.0; center[2] = 500.0;
+  center[0][0] = 0.0; center[0][1] = 0.0; center[0][2] = 500.0;
+  center[2][0] = 200.0; center[1][1] = 200.0; center[1][2] = 500.0;
+  
   goal[0] = 200.0; goal[1] = 200.0; goal[2] = 500.0;
   
   for(int i = 0; i < INITIAL_NUM; i++) {
@@ -23,20 +25,31 @@ Flock::Flock() {
 
 void Flock::add_boid() {
   count++;
-  pos_x->push_back(center[0] + rand() % DELTA);
-  pos_y->push_back(center[1] + rand() % DELTA);
-  pos_z->push_back(center[2] + rand() % DELTA);
+
+  int id = rand() - (RAND_MAX >> 1) > 0 ? 1 : 0;
+  group->push_back(id);
+  pos_x->push_back(center[id][0] + rand() % DELTA);
+  pos_y->push_back(center[id][1] + rand() % DELTA);
+  pos_z->push_back(center[id][2] + rand() % DELTA);
   v_x->push_back(0.0);
   v_y->push_back(0.0);
   v_z->push_back(0.0);
-  int id = rand() - (RAND_MAX >> 1) > 0 ? 1 : 0;
-  group->push_back(id);
 }
 
+void Flock::remove_boid() {
+  count--;
+  pos_x->pop_back();
+  pos_y->pop_back();
+  pos_z->pop_back();
+  v_x->pop_back();
+  v_y->pop_back();
+  v_z->pop_back();
+  group->pop_back();
+}
 
 void Flock::print_boids() {
   for(int i = 0; i < count; i++) {
-    cout << "Boid No." << i << " @ pos_x" << (*pos_x)[i] << " pos_y " << (*pos_y)[i] << " pos_z " << (*pos_z)[i] << endl;
+    cout << "Boid No." << i <<"(Group) " << (*group)[i] << " @ pos_x " << (*pos_x)[i] << " pos_y " << (*pos_y)[i] << " pos_z " << (*pos_z)[i] << endl;
   }
 }
 
@@ -49,3 +62,4 @@ Flock::~Flock() {
   delete v_z;
   delete group;
 }
+
