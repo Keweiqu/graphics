@@ -5,13 +5,15 @@
 #include "gl_replace.hpp"
 #include "Flock.hpp"
 
+#define VECTOR_LENGTH 3
+#define SIDES 50
+#define NUM_SQUARE_VERTICES 4
 
 using namespace std;
 glm::mat4 model = glm::mat4(1.0);
 glm::mat4 view = glm::mat4(1.0);
 glm::mat4 project = glm::mat4(1.0);
-glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 1);
-GLfloat vertices[4][3] = {
+glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 1);GLfloat vertices[4][3] = {
   {0.0, 0.0, 0.75},
   {0.0, 10, 0.75},  
   {-10, -4, 0.75},
@@ -33,6 +35,10 @@ GLubyte boid_indices[] = {
 };
 
 GLuint vbo1, vbo2, vao, idx, program, pos, color, modelView;
+GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_color;
+GLfloat board_vertices[(SIDES+1)*(SIDE+1)][VECTOR_LENGTH];
+GLfloat board_color[(SIDES+1)*(SIDE+1)][VECTOR_LENGTH];
+Glfloat board_idx[SIDES * SIDES * NUM_SQUARE_VERTICES];
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -65,7 +71,6 @@ void init() {
   modelView = glGetUniformLocation(program, "M");
   glClearColor(1.0, 1.0, 1.0, 1.0);
 }
-
 
 int main(int argc, char** argv) {
   Flock f;
