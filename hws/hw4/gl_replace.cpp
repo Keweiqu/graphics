@@ -27,7 +27,7 @@ void scalef(GLfloat x, GLfloat y, GLfloat z, glm::mat4 *res) {
 void lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
 	    GLfloat centerX, GLfloat centerY, GLfloat centerZ,
 	    GLfloat upX, GLfloat upY, GLfloat upZ,
-	    glm::mat4 * view) {
+	    glm::mat4 * view, glm::mat4 * project) {
   /*
   glm::vec3 forward = glm::vec3(centerX - eyeX, centerY - eyeY, centerZ - eyeZ);
   forward = glm::normalize(forward);
@@ -40,11 +40,16 @@ void lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
   (*view)[1] = glm::vec4(side[1], up[1], forward[1], 0);
   (*view)[2] = glm::vec4(side[2], up[2], forward[2], 0);
   (*view)[3] = glm::vec4(0, 0, 0, 1);
+  *view = *project * *view;
+  translatef(-eyeX, -eyeY, -eyeZ, view);
+  print_mat(*view);
   */
+  ///*
   glm::vec3 eye = glm::vec3(eyeX, eyeY, eyeZ);
   glm::vec3 center = glm::vec3(centerX, centerY, centerZ);
   glm::vec3 up = glm::vec3(upX, upY, upZ);
   *view = glm::lookAt(eye, center, up);
+  // */
 }
 void print_mat(glm::mat4 mat) {
   for(int i = 0; i < 4; i++) {

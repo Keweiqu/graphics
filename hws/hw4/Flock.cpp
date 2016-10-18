@@ -1,5 +1,5 @@
 #include "Flock.hpp"
-#define DELTA 20
+#define DELTA 40
 #define INITIAL_NUM 20
 Flock::Flock() {
   srand(time(NULL));

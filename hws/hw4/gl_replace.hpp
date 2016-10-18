@@ -15,5 +15,5 @@ void scalef(GLfloat x, GLfloat y, GLfloat z, glm::mat4 *res);
 void lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
 	    GLfloat centerX, GLfloat centerY, GLfloat centerZ,
 	    GLfloat upX, GLfloat upY, GLfloat upZ,
-	    glm::mat4 * view);
+	    glm::mat4 * view, glm::mat4 *project);
 void print_mat(glm::mat4 mat);

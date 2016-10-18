@@ -7,10 +7,10 @@
 #include "util.hpp"
 
 using namespace std;
-glm::mat4 model = glm::mat4(1.0);
 glm::mat4 view = glm::mat4(1.0);
 glm::mat4 project = glm::mat4(1.0);
-glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 1);GLfloat vertices[4][3] = {
+glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 0.001);
+GLfloat vertices[4][3] = {
   {0.0, 0.0, 0.75},
   {0.0, 10, 0.75},  
   {-10, -4, 0.75},
@@ -110,13 +110,12 @@ void init() {
 
 int main(int argc, char** argv) {
   Flock f;
-  f.print_boids();
-  f.remove_boid();
-  f.print_boids();
-  glm::vec3 trans = glm::vec3(0.0, 0.0, 0.0);
-  glm::mat4 foo = glm::translate(model, trans);
+  //f.print_boids();
+  //f.remove_boid();
+  //f.print_boids();
   glm::mat4 bar = glm::mat4(1.0);
-  lookat(0, 0, 0.8, 0, 0, 0, 0, 1, 0, &view);
+  lookat(0, 0, 800, 0, 0, 0, 0, 1, 0, &view, &project);
+  //scalef(world_scale[0], world_scale[1], world_scale[2], &view);
   project = glm::perspective(30.0 / 180.0 * 3.1415, 1.0, 0.0000001, 10.0);
   print_mat(view);
   if(!glfwInit()) {
@@ -144,27 +143,12 @@ int main(int argc, char** argv) {
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    foo = project * view * foo;
-    //translatef(xx, yy, zz, &foo);
 
-    //rotatef(angle, x, y, z, &foo);
-
-    scalef(world_scale[0], world_scale[1], world_scale[2], &foo);
-
-    glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(foo));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx);
-    // glDrawArrays(GL_TRIANGLES, 0, 6);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, NULL);
-    //glm::mat4 bar = glm::mat4(1.0);
-    //glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(bar));
-
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, (void*)3);
-    
-    //draw_checkerboard();
+    draw_flock(&f, modelView, vao, idx);
+    draw_checkerboard();
     
     glfwSwapBuffers(window);
     glfwPollEvents();
-    foo = glm::mat4(1.0);
   }
   glfwTerminate();
 }
