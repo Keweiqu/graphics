@@ -24,7 +24,6 @@ public:
   GLfloat goal[3];
   GLfloat radius;
   int count;
-  //vector<int> collect_neighbours(int i);
   //vector<GLfloat> seperate();
   //vector<GLfloat> cohere();
   //vector<GLfloat> align();
@@ -32,5 +31,6 @@ public:
   void add_boid();
   void remove_boid();
   void print_boids();
+  void update_centers();
 };
 #endif

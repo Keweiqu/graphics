@@ -14,4 +14,5 @@ void calc_checkerboard_colors(int n);
 void calc_checkerboard_vertices(int n, GLfloat len);
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index);
+void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 #endif
