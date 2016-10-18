@@ -4,10 +4,7 @@
 #include "common.hpp"
 #include "gl_replace.hpp"
 #include "Flock.hpp"
-
-#define VECTOR_LENGTH 3
-#define SIDES 50
-#define NUM_SQUARE_VERTICES 4
+#include "util.hpp"
 
 using namespace std;
 glm::mat4 model = glm::mat4(1.0);
@@ -35,10 +32,11 @@ GLubyte boid_indices[] = {
 };
 
 GLuint vbo1, vbo2, vao, idx, program, pos, color, modelView;
-GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_color;
-GLfloat board_vertices[(SIDES+1)*(SIDE+1)][VECTOR_LENGTH];
-GLfloat board_color[(SIDES+1)*(SIDE+1)][VECTOR_LENGTH];
-Glfloat board_idx[SIDES * SIDES * NUM_SQUARE_VERTICES];
+GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_c;
+
+extern GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
+extern GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
+extern GLfloat board_indices[SIDES * SIDES * NUM_SQUARE_VERTICES];
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -46,6 +44,42 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   glBindBuffer(type, bufnum);
   glBufferData(type, buf_size, buf, GL_STATIC_DRAW);
   return bufnum;
+}
+
+void init_checkerboard() {
+  calc_checkerboard_vertices(SIDES, 2 * 10000);
+  calc_checkerboard_indices(SIDES);
+  calc_checkerboard_colors(SIDES);
+  
+  vbo3 = make_bo(GL_ARRAY_BUFFER, board_vertices, sizeof(board_vertices));
+  vbo4 = make_bo(GL_ARRAY_BUFFER, board_colors, sizeof(board_colors));
+  board_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, board_indices, sizeof(board_indices));
+  
+  glGenVertexArrays(1, &vao2);
+  
+  board_pos = glGetAttribLocation(program, "vPos");
+  board_c = glGetAttribLocation(program, "vColor");
+  
+  for (int i = 0; i < 50; i++) {
+    for (int j = 0; j < 4; j++) {
+      cout << board_vertices[i][j] << " ";
+    }
+    cout << endl;
+  }
+}
+
+void draw_checkerboard() {
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, board_idx);
+  glBindVertexArray(vao2);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo3);
+  glEnableVertexAttribArray(board_pos);
+  glVertexAttribPointer(board_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, vbo4);
+  glEnableVertexAttribArray(board_c);
+  glVertexAttribPointer(board_c, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  glDrawElements(GL_QUADS, SIDES*SIDES*4, GL_UNSIGNED_SHORT, board_indices);
 }
 
 void init() {
@@ -67,6 +101,8 @@ void init() {
   color = glGetAttribLocation(program, "vColor");
   glEnableVertexAttribArray(color);
   glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  init_checkerboard();
 
   modelView = glGetUniformLocation(program, "M");
   glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -122,7 +158,10 @@ int main(int argc, char** argv) {
     //glm::mat4 bar = glm::mat4(1.0);
     //glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(bar));
 
-      glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, (void*)3);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, (void*)3);
+    
+    //draw_checkerboard();
+    
     glfwSwapBuffers(window);
     glfwPollEvents();
     foo = glm::mat4(1.0);
