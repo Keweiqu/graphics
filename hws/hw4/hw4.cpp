@@ -4,13 +4,14 @@
 #include "common.hpp"
 #include "gl_replace.hpp"
 #include "Flock.hpp"
+#include "util.hpp"
 
 
 using namespace std;
 glm::mat4 model = glm::mat4(1.0);
 glm::mat4 view = glm::mat4(1.0);
 glm::mat4 project = glm::mat4(1.0);
-glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 1);
+glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 0.001);
 GLfloat vertices[4][3] = {
   {0.0, 0.0, 0.75},
   {0.0, 10, 0.75},  
@@ -103,24 +104,26 @@ int main(int argc, char** argv) {
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    foo = project * view * foo;
-    //translatef(xx, yy, zz, &foo);
 
-    //rotatef(angle, x, y, z, &foo);
-
-    scalef(world_scale[0], world_scale[1], world_scale[2], &foo);
-
-    glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(foo));
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx);
+    //glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(foo));
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx);
     // glDrawArrays(GL_TRIANGLES, 0, 6);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, NULL);
-    //glm::mat4 bar = glm::mat4(1.0);
-    //glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(bar));
-
-      glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, (void*)3);
+    //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_BYTE, NULL);
+    //draw_flock(f, modelView, vao, idx);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx);
+    for(int i = 0; i < f.count; i++) {
+      //glm::mat4 model = glm::mat4(1.0);
+      model = project * view * model;
+      scalef(world_scale[0], world_scale[1], world_scale[2], &model);
+      translatef((*f.pos_x)[i], (*f.pos_y)[i], (*f.pos_z)[i], &model);
+      
+      glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(model));
+      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
+      model = glm::mat4(1.0);
+  }
     glfwSwapBuffers(window);
     glfwPollEvents();
-    foo = glm::mat4(1.0);
   }
   glfwTerminate();
 }
