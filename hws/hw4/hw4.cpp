@@ -191,8 +191,8 @@ int main(int argc, char** argv) {
   glm::mat4 bar = glm::mat4(1.0);
   vec3<GLfloat> v = vec3<GLfloat>(1.0);
   cout << v;
-  lookat(0, 0, 800.0, 0, 0, 0, 0, 1, 0, &view, &project);
-  project = glm::perspective(glm::radians(30.0), 1.0, 0.1, 10.0);
+  lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, &view, &project);
+  project = glm::perspective(glm::radians(60.0), 1.0, 5.0, 1200.0);
   print_mat(view);
   if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
