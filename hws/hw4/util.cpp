@@ -105,7 +105,7 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
     result = result * project;
     
     result = result * view;
-    translatef((*f->pos_x)[i], (*f->pos_y)[i], (*f->pos_z)[i], &result);
+    translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2], &result);
     glUniformMatrix4fv(matrix, 1, GL_FALSE, glm::value_ptr(result));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
 

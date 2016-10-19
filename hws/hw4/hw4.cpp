@@ -5,7 +5,6 @@
 #include "gl_replace.hpp"
 #include "Flock.hpp"
 #include "util.hpp"
-#include "vec3.hpp"
 
 using namespace std;
 
@@ -223,7 +222,7 @@ int main(int argc, char** argv) {
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    draw_checkerboard(&f, modelView, vao2, board_idx);
+    //draw_checkerboard(&f, modelView, vao2, board_idx);
 
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);

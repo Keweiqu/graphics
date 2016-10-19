@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include "vec3.hpp"
 #include "common.hpp"
 #include <cmath>
 #define NUM_GROUP 2
@@ -14,31 +15,25 @@ class Flock {
 public:
   Flock();
   ~Flock();
-  vector<GLfloat> *pos_x;
-  vector<GLfloat> *pos_y;
-  vector<GLfloat> *pos_z;
-  vector<GLfloat> *v_x;
-  vector<GLfloat> *v_y;
-  vector<GLfloat> *v_z;
-  //vector<GLfloat> *pos[3];
-  // vector<GLfloat> *velocity[3];
+  vector<vec3> *pos;
+  vector<vec3> *vel;
   vector<int> *group;
-  GLfloat center[NUM_GROUP][3];
-  GLfloat ave_v[NUM_GROUP][3];
-  GLfloat goal[3];
-  GLfloat goal_v[3];
+  vec3 center[NUM_GROUP];
+  vec3 ave_v[NUM_GROUP];
+  vec3 goal;
+  vec3 goal_v;
   GLfloat radius;
   int count;
   void update_goal();
   void update_centers();
   void update_ave_v();
   void update_boids();
-  vector<GLfloat> v_to_center(int i);
-  vector<GLfloat> v_to_goal(int i);
-  vector<GLfloat> v_to_separate(int i);
-  vector<GLfloat> v_to_align(int i);
-  vector<GLfloat> get_pos(int i);
-  vector<GLfloat> limit_speed(vector<GLfloat> v);
+  vec3 v_to_center(int i);
+  vec3 v_to_goal(int i);
+  vec3 v_to_separate(int i);
+  vec3 v_to_align(int i);
+  vec3 get_pos(int i);
+  vec3 limit_speed(vec3 v);
  
   void add_boid();
   void remove_boid();
