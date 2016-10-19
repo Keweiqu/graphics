@@ -5,6 +5,7 @@
 #include "gl_replace.hpp"
 #include "Flock.hpp"
 #include "util.hpp"
+#include "vec3.hpp"
 
 
 using namespace std;
@@ -92,6 +93,8 @@ void init() {
 int main(int argc, char** argv) {
   Flock f;
   glm::mat4 bar = glm::mat4(1.0);
+  vec3<GLfloat> v = vec3<GLfloat>(1.0);
+  cout << v;
   lookat(0, 0, 800.0, 0, 0, 0, 0, 1, 0, &view, &project);
   project = glm::perspective(glm::radians(30.0), 1.0, 0.1, 10.0);
   print_mat(view);
