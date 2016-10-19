@@ -177,6 +177,16 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   }
 }
 
+void reshape(GLFWwindow *w, int width, int height) {
+  glm::mat4 result = glm::mat4(1.0);
+  result = project;
+  glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(result));
+}
+
+void framebuffer_resize(GLFWwindow *w, int width, int height) {
+  glViewport(0, 0, width, height);
+}
+
 int main(int argc, char** argv) {
   glm::mat4 bar = glm::mat4(1.0);
   vec3<GLfloat> v = vec3<GLfloat>(1.0);
@@ -207,6 +217,8 @@ int main(int argc, char** argv) {
   glewInit();
   
   glfwSetKeyCallback(window, keyboard);
+  glfwSetWindowSizeCallback(window, reshape);
+  glfwSetFramebufferSizeCallback(window, framebuffer_resize);
   
   init();
   while(!glfwWindowShouldClose(window)) {
