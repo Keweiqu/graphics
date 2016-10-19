@@ -8,6 +8,8 @@
 #include "vec3.hpp"
 
 using namespace std;
+
+Flock f;
 glm::mat4 view = glm::mat4(1.0);
 glm::mat4 project = glm::mat4(1.0);
 glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 0.001);
@@ -114,28 +116,6 @@ void init_checkerboard() {
   board_c = glGetAttribLocation(program, "vColor");
   glEnableVertexAttribArray(board_c);
   glVertexAttribPointer(board_c, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-  
-//  cout << "board vertices" << endl;
-//  for (int i = 0; i < (SIDES+1)*(SIDES+1); i++) {
-//    for (int j = 0; j < 3; j++) {
-//      cout << board_vertices[i][j] << " ";
-//    }
-//    cout << endl;
-//  }
-//  
-//  cout << "board colors" << endl;
-//  for (int i = 0; i < (SIDES+1)*(SIDES+1); i++) {
-//    for (int j = 0; j < 4; j++) {
-//      cout << board_colors[i][j] << " ";
-//    }
-//    cout << endl;
-//  }
-//  
-//  cout << "board indices" << endl;
-//  for (int i = 0; i < SIDES*SIDES*6; i++) {
-//    cout << board_indices[i] << " ";
-//  }
-//  cout << endl;
 }
 
 void init() {
@@ -180,8 +160,24 @@ void init() {
   glClearColor(1.0, 1.0, 1.0, 1.0);
 }
 
+void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
+  if (action == GLFW_PRESS) {
+    switch(key) {
+      case GLFW_KEY_EQUAL:
+        f.add_boid();
+        break;
+      case GLFW_KEY_BACKSPACE:
+        f.remove_boid();
+        break;
+      case GLFW_KEY_Q:
+      case GLFW_KEY_ESCAPE:
+        glfwSetWindowShouldClose(w, true);
+        break;
+    }
+  }
+}
+
 int main(int argc, char** argv) {
-  Flock f;
   glm::mat4 bar = glm::mat4(1.0);
   vec3<GLfloat> v = vec3<GLfloat>(1.0);
   cout << v;
@@ -209,6 +205,8 @@ int main(int argc, char** argv) {
 
   glewExperimental = GL_TRUE;
   glewInit();
+  
+  glfwSetKeyCallback(window, keyboard);
   
   init();
   while(!glfwWindowShouldClose(window)) {
