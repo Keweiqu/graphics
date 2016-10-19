@@ -12,7 +12,6 @@ using namespace std;
 Flock f;
 glm::mat4 view = glm::mat4(1.0);
 glm::mat4 project = glm::mat4(1.0);
-glm::vec3 world_scale = glm::vec3(0.0001, 0.0001, 0.001);
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
 extern GLubyte goal_indices[36];
@@ -189,8 +188,9 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   glm::mat4 bar = glm::mat4(1.0);
-  vec3<GLfloat> v = vec3<GLfloat>(1.0);
-  cout << v;
+  vec3 v = vec3(1.0, 2.0, 3.0);
+  vec3 v1 = v;
+  cout << v.len();
   lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, &view, &project);
   project = glm::perspective(glm::radians(60.0), 1.0, 5.0, 1200.0);
   print_mat(view);
