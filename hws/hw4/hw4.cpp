@@ -5,6 +5,7 @@
 #include "gl_replace.hpp"
 #include "Flock.hpp"
 #include "util.hpp"
+#include "vec3.hpp"
 
 using namespace std;
 glm::mat4 view = glm::mat4(1.0);
@@ -182,9 +183,10 @@ void init() {
 int main(int argc, char** argv) {
   Flock f;
   glm::mat4 bar = glm::mat4(1.0);
+  vec3<GLfloat> v = vec3<GLfloat>(1.0);
+  cout << v;
   lookat(0, 0, 800.0, 0, 0, 0, 0, 1, 0, &view, &project);
-  //scalef(world_scale[0], world_scale[1], world_scale[2], &view);
-  project = glm::perspective(30.0 / 180.0 * 3.1415, 1.0, 0.0000001, 10.0);
+  project = glm::perspective(glm::radians(30.0), 1.0, 0.1, 10.0);
   print_mat(view);
   if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
@@ -213,13 +215,12 @@ int main(int argc, char** argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     draw_checkerboard(&f, modelView, vao2, board_idx);
 
-    //glBindVertexArray(goal_vao);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, goal_idx);
-    //glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(project));
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*) 0);
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
-
+    f.update_centers();
+    f.update_ave_v();
+    f.update_goal();
+    f.update_boids();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
