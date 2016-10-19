@@ -26,7 +26,10 @@ void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   result = project;
   scalef(world_scale[0], world_scale[1], world_scale[2], &result);
   result = result * view;
+
   translatef(f->goal[0], f->goal[1], f->goal[2], &result);
   glUniformMatrix4fv(matrix, 1, GL_FALSE, glm::value_ptr(result));
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
 }
+
+

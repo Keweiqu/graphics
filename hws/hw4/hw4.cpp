@@ -93,8 +93,7 @@ int main(int argc, char** argv) {
   Flock f;
   glm::mat4 bar = glm::mat4(1.0);
   lookat(0, 0, 800.0, 0, 0, 0, 0, 1, 0, &view, &project);
-  //scalef(world_scale[0], world_scale[1], world_scale[2], &view);
-  project = glm::perspective(30.0 / 180.0 * 3.1415, 1.0, 0.0000001, 10.0);
+  project = glm::perspective(glm::radians(30.0), 1.0, 0.1, 10.0);
   print_mat(view);
   if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
@@ -123,7 +122,10 @@ int main(int argc, char** argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
-
+    f.update_centers();
+    f.update_ave_v();
+    f.update_goal();
+    f.update_boids();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
