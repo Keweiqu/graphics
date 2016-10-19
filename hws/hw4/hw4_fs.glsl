@@ -1,6 +1,6 @@
 #version 150
 
-in vec4 color;
+flat in vec4 color;
 out vec4 fColor;
 
 void main() {
