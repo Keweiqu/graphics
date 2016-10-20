@@ -1,14 +1,5 @@
 #include "gl_replace.hpp"
 using namespace std;
-void print_vec2(glm::vec2 v) {
-  cout << v[0] << endl;
-}
-
-void translatef(GLfloat x, GLfloat y, GLfloat z, glm::mat4 *res) {
-  glm::vec3 trans = glm::vec3(x, y, z);
-  *res = glm::translate(*res, trans);
-}
-
 
 void my_translatef(GLfloat x, GLfloat y, GLfloat z, mat4 &m) {
   mat4 trans_mat;
@@ -18,16 +9,6 @@ void my_translatef(GLfloat x, GLfloat y, GLfloat z, mat4 &m) {
   m = m * trans_mat;
 }
 
-
-/*
- * angles in degree
- */
-void rotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z, glm::mat4 *res) {
-  angle = angle / 180 * M_PI;
-  glm::vec3 axis = glm::vec3(x, y, z);
-  axis = glm::normalize(axis);
-  *res = glm::rotate(*res, angle, axis);
-}
 
 /*
  * angles in degree
@@ -58,27 +39,12 @@ void my_rotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z, mat4& m) {
   m = m * rot_mat;
 }
 
-void scalef(GLfloat x, GLfloat y, GLfloat z, glm::mat4 *res) {
-  glm::vec3 scale = glm::vec3(x, y, z);
-  *res = glm::scale(*res, scale);
-}
-
 void my_scalef(GLfloat x, GLfloat y, GLfloat z, mat4 &m) {
   mat4 scale_mat;
   scale_mat[0] = x;
   scale_mat[5] = y;
   scale_mat[10] = z;
   m = m * scale_mat;
-}
-
-void lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
-	    GLfloat centerX, GLfloat centerY, GLfloat centerZ,
-	    GLfloat upX, GLfloat upY, GLfloat upZ,
-	    glm::mat4 * view) {
-  glm::vec3 eye = glm::vec3(eyeX, eyeY, eyeZ);
-  glm::vec3 center = glm::vec3(centerX, centerY, centerZ);
-  glm::vec3 up = glm::vec3(upX, upY, upZ);
-  *view = glm::lookAt(eye, center, up);
 }
 
 void my_lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
@@ -158,14 +124,4 @@ void my_frustum(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloa
   m[14] = (-temp * zFar) / temp4;
   m[15] = 0.0;
 
-}
-
-
-void print_mat(glm::mat4 mat) {
-  for(int i = 0; i < 4; i++) {
-    for(int j = 0; j < 4; j++) {
-      cout << mat[j][i] << " ";
-    }
-    cout << endl;
-  }
 }

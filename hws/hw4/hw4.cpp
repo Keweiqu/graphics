@@ -8,9 +8,7 @@
 using namespace std;
 
 Flock f;
-glm::mat4 view = glm::mat4(1.0);
-glm::mat4 project = glm::mat4(1.0);
-mat4 view1, project1;
+mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
 extern GLubyte goal_indices[36];
@@ -176,9 +174,9 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 }
 
 void reshape(GLFWwindow *w, int width, int height) {
-  glm::mat4 result = glm::mat4(1.0);
+  mat4 result;
   result = project;
-  glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(result));
+  glUniformMatrix4fv(modelView, 1, GL_FALSE, result.data);
 }
 
 void framebuffer_resize(GLFWwindow *w, int width, int height) {
@@ -186,12 +184,9 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 }
 
 int main(int argc, char** argv) {
-   lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, &view);
-   my_lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, view1);
-   project = glm::perspective(glm::radians(60.0), 1.0, 5.0, 1200.0);
-   print_mat(view);
-   my_perspective(60.0, 1.0, 5.0, 1200.0, project1);
-   mat4::print(view1);
+   my_lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, view);
+   my_perspective(60.0, 1.0, 5.0, 1200.0, project);
+   mat4::print(view);
 
 if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
