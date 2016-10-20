@@ -154,8 +154,13 @@ vec3 Flock::v_to_separate(int i) {
 
 void Flock::print_boids() {
   for(int i = 0; i < count; i++) {
-    cout << "Boid No." << i <<"(Group) " << (*group)[i] << " @ pos_x " << (*pos)[i] << endl;
+    cout << "Boid No." << i <<"(Group) " << (*group)[i] << endl;
+    cout << " @ location " << (*pos)[i] << " w/ velocity " << (*vel)[i] << endl;
   }
+}
+
+void Flock::print_goal() {
+  cout << "Goal @location " << goal << " w/ velocity: " << goal_v << endl;
 }
 
 GLfloat Flock::get_dist(int i, int j) {

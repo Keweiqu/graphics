@@ -126,3 +126,11 @@ void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
 }
+
+void print_step_msg(Flock* f) {
+  cout << "*******************************************************************************" << endl;
+  f->print_boids();
+  cout << "-------------------------------------------------------------------------------" << endl;
+  f->print_goal();
+  cout << "*******************************************************************************" << endl;
+}

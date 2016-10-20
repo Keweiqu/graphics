@@ -38,6 +38,7 @@ public:
   void add_boid();
   void remove_boid();
   void print_boids();
+  void print_goal();
   GLfloat get_dist(int i, int j);
  
 
