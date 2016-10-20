@@ -14,7 +14,7 @@ Flock::Flock() {
   center[1][0] = 200.0; center[1][1] = 200.0; center[1][2] = 500.0;
   
   goal[0] = 400.0; goal[1] = 0.0; goal[2] = 500.0;
-  goal_v[0] = -1.0; goal_v[1] = 0.0; goal_v[2] = 0.0;
+  goal_v[0] = -5.0; goal_v[1] = 0.0; goal_v[2] = 0.0;
  
   for(int i = 0; i < INITIAL_NUM; i++) {
     add_boid();
@@ -89,14 +89,15 @@ void Flock::update_ave_v() {
 void Flock::update_boids() {
   for(int i = 0; i < count; i++) {
     vec3 v1 = v_to_goal(i) * 0.0005;
-    vec3 v2 = v_to_center(i) * 0.0001;
+    vec3 v2 = v_to_center(i) * 0.0005;
     vec3 v3 = v_to_align(i) * 0.0001;
-    vec3 v4 = v_to_separate(i) * 0.0001;
+    vec3 v4 = v_to_separate(i) * 0.0005;
     vec3 v = v1 + v2;
     v = v + v3;
     v = v + v4;
-    v = limit_speed(v);
+    // v = limit_speed(v);
     (*vel)[i] = (*vel)[i] + v;
+    (*vel)[i] = limit_speed((*vel)[i]);
     (*pos)[i] = (*pos)[i] + (*vel)[i];
   }
 }
@@ -133,7 +134,7 @@ vec3 Flock::v_to_separate(int i) {
   vec3 result = vec3();
   int num = 0;
   for(int j = 0; j < count; j++) {
-    if(get_dist(i, j) < radius) {
+    if(j != i && get_dist(i, j) < radius) {
       num++;
       vec3 pos_j = (*pos)[j];
       result = result + pos_j;

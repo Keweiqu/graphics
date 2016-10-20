@@ -184,8 +184,8 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 }
 
 int main(int argc, char** argv) {
-   my_lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, view);
-   my_perspective(60.0, 1.0, 5.0, 1200.0, project);
+   my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
+   my_perspective(60.0, 1.0, 5.0, 2100.0, project);
    mat4::print(view);
 
 if(!glfwInit()) {
@@ -221,12 +221,10 @@ if(!glfwInit()) {
 
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
-    /*
     f.update_centers();
     f.update_ave_v();
     f.update_goal();
     f.update_boids();
-    */
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
