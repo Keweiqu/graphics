@@ -2,6 +2,7 @@
 #define DELTA 40
 #define INITIAL_NUM 20
 #define WORLD_SIZE 10000
+extern int up, down;
 Flock::Flock() {
   srand(time(NULL));
   pos = new vector<vec3>();
@@ -49,6 +50,14 @@ void Flock::update_goal() {
     goal_v[1] = goal_v[1] * -1.0;
   }
   goal = goal + goal_v;
+  if(up > 0) {
+    goal[2] += 1;
+    up--;
+  }
+  if(down > 0) {
+    goal[2] -= 1;
+    down--;
+  }
 }
 
 void Flock::update_centers() {

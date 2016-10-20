@@ -8,7 +8,8 @@
 using namespace std;
 
 Flock f;
-int pause = FALSE;
+int pause = FALSE, LEFT = FALSE, RIGHT = FALSE;
+int up = 0, down = 0;
 mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -182,6 +183,14 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 	f.update_goal();
 	f.update_boids();
       }
+      break;
+    case GLFW_KEY_UP:
+      up = 50;
+      down = 0;
+      break;
+    case GLFW_KEY_DOWN:
+      down = 50;
+      up = 0;
       break;
       case GLFW_KEY_Q:
       case GLFW_KEY_ESCAPE:
