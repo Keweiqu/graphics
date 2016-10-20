@@ -8,6 +8,7 @@
 using namespace std;
 
 Flock f;
+int pause = FALSE;
 mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -165,6 +166,21 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       case GLFW_KEY_BACKSPACE:
         f.remove_boid();
         break;
+    case 'P':
+    case 'p':
+      pause = !pause;
+      break;
+    case 'd':
+    case 'D':
+      if(!pause) {
+	pause = TRUE;
+      } else {
+	f.update_centers();
+	f.update_ave_v();
+	f.update_goal();
+	f.update_boids();
+      }
+      break;
       case GLFW_KEY_Q:
       case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(w, true);
@@ -221,10 +237,12 @@ if(!glfwInit()) {
 
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
-    f.update_centers();
-    f.update_ave_v();
-    f.update_goal();
-    f.update_boids();
+    if(!pause) {
+      f.update_centers();
+      f.update_ave_v();
+      f.update_goal();
+      f.update_boids();
+    }
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

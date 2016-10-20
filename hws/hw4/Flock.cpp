@@ -1,6 +1,7 @@
 #include "Flock.hpp"
 #define DELTA 40
 #define INITIAL_NUM 20
+#define WORLD_SIZE 10000
 Flock::Flock() {
   srand(time(NULL));
   pos = new vector<vec3>();
@@ -41,6 +42,12 @@ void Flock::remove_boid() {
 }
 
 void Flock::update_goal() {
+  if(goal[0] < WORLD_SIZE * -1.0 || goal[0] > WORLD_SIZE) {
+    goal_v[0] = goal_v[0] * -1.0;
+  }
+  if(goal[1] < WORLD_SIZE * -1.0 || goal[1] > WORLD_SIZE) {
+    goal_v[1] = goal_v[1] * -1.0;
+  }
   goal = goal + goal_v;
 }
 
