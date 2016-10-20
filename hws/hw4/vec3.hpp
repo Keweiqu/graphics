@@ -71,7 +71,7 @@ public:
   vec3 operator-(const vec3 &v2) {
     vec3 result = vec3();
      for(int i = 0; i < 3; i++) {
-      result.data[i] = this->data[i] - v2.data[i];
+       result.data[i] = (double)this->data[i] - (double)v2.data[i];
     }
     return result;
   }

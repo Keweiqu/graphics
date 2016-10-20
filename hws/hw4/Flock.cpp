@@ -1,5 +1,5 @@
 #include "Flock.hpp"
-#define DELTA 40
+#define DELTA 200
 #define INITIAL_NUM 20
 #define WORLD_SIZE 10000
 extern int up, down;
@@ -10,7 +10,7 @@ Flock::Flock() {
   group = new vector<int>();
   
   count = 0;
-  radius = 250;
+  radius = 300;
   
   center[0][0] = 0.0; center[0][1] = 0.0; center[0][2] = 500.0;
   center[1][0] = 200.0; center[1][1] = 200.0; center[1][2] = 500.0;
@@ -50,11 +50,11 @@ void Flock::update_goal() {
     goal_v[1] = goal_v[1] * -1.0;
   }
   goal = goal + goal_v;
-  if(up > 0) {
+  if(up > 0 && goal[2] < 1000) {
     goal[2] += 1;
     up--;
   }
-  if(down > 0) {
+  if(down > 0 && goal[2] > 500) {
     goal[2] -= 1;
     down--;
   }
@@ -75,7 +75,6 @@ void Flock::update_centers() {
 
   pos_1 = pos_1 / (count1 * 1.0);
   pos_2 = pos_2 / (count2 * 1.0);
-  
   center[0] = pos_1;
   center[1] = pos_2;
 }
@@ -104,14 +103,24 @@ void Flock::update_ave_v() {
 
 void Flock::update_boids() {
   for(int i = 0; i < count; i++) {
-    vec3 v1 = v_to_goal(i) * 0.0005;
-    vec3 v2 = v_to_center(i) * 0.0005;
+    vec3 v1 = v_to_goal(i) * 0.005;
+    vec3 v2 = v_to_center(i);
+    if(v2.len() > 0) {
+      v2 = v2 / v2.len() * 1.0 / v2.len() * 10;
+    }
     vec3 v3 = v_to_align(i) * 0.0001;
-    vec3 v4 = v_to_separate(i) * 0.0005;
+    vec3 v4 = v_to_separate(i);
+    if(v4.len() > 0) {
+      v4 = v4 / v4.len() * pow(1.0 / v4.len(), 2) * 50.0;
+    }
+    vec3 v5 = v_to_other_flock(i);
+    if(v5.len() > 0) { 
+      v5 = v5 / v5.len() * 1.0 / v5.len() * 500;
+    }
     vec3 v = v1 + v2;
     v = v + v3;
     v = v + v4;
-    // v = limit_speed(v);
+    v = v + v5;
     (*vel)[i] = (*vel)[i] + v;
     (*vel)[i] = limit_speed((*vel)[i]);
     (*pos)[i] = (*pos)[i] + (*vel)[i];
@@ -149,14 +158,30 @@ vec3 Flock::v_to_center(int i) {
 vec3 Flock::v_to_separate(int i) {
   vec3 result = vec3();
   int num = 0;
+  int group_id = (*group)[i];
   for(int j = 0; j < count; j++) {
-    if(j != i && get_dist(i, j) < radius) {
+    int group_j =(*group)[j];
+    if(j != i  && group_id == group_j && get_dist(i, j) < radius) {
       num++;
       vec3 pos_j = (*pos)[j];
       result = result + pos_j;
     }
   }
+  if(num == 0) {
+    return vec3();
+  }
   result = (result / (num * 1.0)) * -1.0;
+  return result;
+}
+
+vec3 Flock::v_to_other_flock(int i) {
+  vec3 other_center;
+  if((*group)[i] == 0) {
+    other_center = center[1];
+  } else {
+    other_center = center[0];
+  }
+  vec3 result = (*pos)[i] - other_center;
   return result;
 }
 
