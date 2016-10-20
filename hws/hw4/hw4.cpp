@@ -12,7 +12,7 @@ Flock f;
 
 int pause = FALSE, LEFT = FALSE, RIGHT = FALSE;
 int up = 0, down = 0;
-int v_mode;
+enum VIEW_TYPE v_mode;
 mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -254,12 +254,11 @@ if(!glfwInit()) {
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
   
-  init_views();
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    camera_look();
-    update_view();
+    //camera_look();
+    update_view(view, f);
     draw_checkerboard(&f, modelView, vao2, board_idx);
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);

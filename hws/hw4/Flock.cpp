@@ -1,7 +1,7 @@
 #include "Flock.hpp"
 #define DELTA 200
 #define INITIAL_NUM 20
-#define WORLD_SIZE 10000
+#define WORLD_SIZE 5000
 extern int up, down;
 Flock::Flock() {
   srand(time(NULL));
