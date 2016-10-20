@@ -2,10 +2,8 @@
 #include <string>
 #include <stdio.h>
 #include "common.hpp"
-#include "gl_replace.hpp"
 #include "Flock.hpp"
 #include "util.hpp"
-#include "mat4.hpp"
 
 using namespace std;
 
@@ -188,12 +186,18 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   glm::mat4 bar = glm::mat4(1.0);
+  bar[1][0] = 25;
+  bar[2][0] = 46;
+  scalef(1.0, 2.0, 3.0, &bar);
+  cout << "glm: " << endl;
+  print_mat(bar);
   mat4 m;
-  m[0] = 1234;
-  mat4 m1;
-  mat4 z = m * m1;
-  mat4::print(z);
-  lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, &view, &project);
+  m[4] = 25;
+  m[8] = 46;
+  my_scalef(1.0, 2.0, 3.0, m);
+  cout << "mat4: " << endl;
+  mat4::print(m);
+  lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, &view);
   project = glm::perspective(glm::radians(60.0), 1.0, 5.0, 1200.0);
   print_mat(view);
   if(!glfwInit()) {

@@ -1,8 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
-#include "gl_replace.hpp"
 #include "common.hpp"
 #include "Flock.hpp"
+#include "gl_replace.hpp"
 #include <cmath>
 
 #define VECTOR_LENGTH 3

@@ -1,3 +1,5 @@
+#ifndef VEC_3
+#define VEC_3
 #include <cstddef>
 #include <iostream>
 #include <cmath>
@@ -120,4 +122,4 @@ public:
 
 };
 
-
+#endif

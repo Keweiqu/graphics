@@ -1,3 +1,6 @@
+#ifndef MAT_4
+#define MAT_4
+
 #include <cstddef>
 #include <iostream>
 using namespace std;
@@ -23,7 +26,6 @@ public:
 	for(int k = 0; k < 4; k++) {
 	  sum += row[k] * col[k];
 	}
-	//cout << "result index:" << r + c * 4 << "is " << sum << endl;
 	result[i + j * 4] = sum;
       }
     }
@@ -44,9 +46,17 @@ public:
     return data[i];
   }
 
+  void operator=(const mat4 &m) {
+    for(int i = 0; i < 16; i++) {
+      this->data[i] = m.data[i];
+    }
+  }
+
   static void print(const mat4 &m) {
     for(int i = 0; i < 4; i++) {
       cout << m[i] << " " << m[i + 4] << " " << m[i + 8] << " " << m[i + 12] << endl;
     }
   }
 };
+
+#endif
