@@ -32,10 +32,12 @@ void Flock::add_boid() {
 }
 
 void Flock::remove_boid() {
-  count--;
-  pos->pop_back();
-  vel->pop_back();
-  group->pop_back();
+  if(count > 0) {
+    count--;
+    pos->pop_back();
+    vel->pop_back();
+    group->pop_back();
+  }
 }
 
 void Flock::update_goal() {

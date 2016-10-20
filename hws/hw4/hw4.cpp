@@ -221,10 +221,12 @@ if(!glfwInit()) {
 
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
+    /*
     f.update_centers();
     f.update_ave_v();
     f.update_goal();
     f.update_boids();
+    */
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
