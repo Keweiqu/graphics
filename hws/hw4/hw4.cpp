@@ -8,8 +8,10 @@
 using namespace std;
 
 Flock f;
+
 int pause = FALSE, LEFT = FALSE, RIGHT = FALSE;
 int up = 0, down = 0;
+int v_mode;
 mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -196,6 +198,15 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(w, true);
         break;
+      case GLFW_KEY_C:
+        v_mode = CENTER;
+        break;
+      case GLFW_KEY_T:
+        v_mode = TRAILING;
+        break;
+      case GLFW_KEY_S:
+        v_mode = SIDE;
+        break;
     }
   }
 }
@@ -211,8 +222,9 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 }
 
 int main(int argc, char** argv) {
-   my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
-   my_perspective(60.0, 1.0, 5.0, 2100.0, project);
+  v_mode = SIDE;
+     my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
+   my_perspective(60.0, 1.0, 5.0, 21000.0, project);
    mat4::print(view);
 
 if(!glfwInit()) {
@@ -241,11 +253,13 @@ if(!glfwInit()) {
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
   
+  init_views();
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    camera_look();
+    update_view();
     draw_checkerboard(&f, modelView, vao2, board_idx);
-
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
     if(!pause) {
