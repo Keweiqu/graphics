@@ -231,7 +231,7 @@ vec3 side_position() {
   p = vec3::normalize(p);
   p = p * (r + 2 * d) * 1.2;
   p = m + p;
-  p[2] = p[2] + d + r;
+  p[2] = p[2] + (d + r) * 0.9;
   return p;
 }
 
