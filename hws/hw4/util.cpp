@@ -3,6 +3,10 @@
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
 GLshort board_indices[SIDES * SIDES * 6];
+View v;
+View center_view, trailing_view, side_view;
+extern Flock f;
+extern int v_mode;
 
 /*
  * calculate all vertices coordinates for checkerboard.
@@ -125,4 +129,127 @@ void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   translatef(f->goal[0], f->goal[1], f->goal[2], &result);
   glUniformMatrix4fv(matrix, 1, GL_FALSE, glm::value_ptr(result));
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
+}
+
+void init_views() {
+  init_center_view();
+  init_trailing_view();
+  init_side_view();
+  v = center_view;
+}
+
+void update_view() {
+  switch(v_mode) {
+    case CENTER:
+      update_center_view();
+      break;
+    case TRAILING:
+      update_trailing_view();
+      break;
+    case SIDE:
+      update_side_view();
+      break;
+  }
+}
+
+void init_center_view() {
+  center_view.pos = vec3(0.0, 0.0, 700);
+  center_view.up = vec3(0.0, 0.0, 1.0);
+  center_view.look = calc_middleway();
+}
+
+void init_trailing_view() {
+  trailing_view.pos = trailing_position();
+  trailing_view.look = calc_middleway();
+  trailing_view.up = vec3(0.0, 0.0, 1.0);
+}
+
+void init_side_view() {
+  side_view.pos = side_position();
+  side_view.look = calc_middleway();
+  side_view.up = vec3(0.0, 0.0, 1.0);
+}
+
+void update_center_view() {
+  center_view.look = calc_middleway();
+  v = center_view;
+}
+
+void update_trailing_view() {
+  trailing_view.pos = trailing_position();
+  trailing_view.look = calc_middleway();
+}
+
+void update_side_view() {
+//  side_view
+}
+
+void camera_look() {
+  lookat(
+    v.pos[0], v.pos[1], v.pos[2],
+    v.look[0], v.look[1], v.look[2],
+    v.up[0], v.up[1], v.up[2],
+    &view
+  );
+}
+
+vec3 calc_middleway() {
+  vec3 ave_center = ave_flock_center();
+  return (ave_center + f.goal) / 2;
+}
+
+vec3 trailing_position() {
+  vec3 res = ave_flock_center();;
+  vec3 z = vec3(0.0, 0.0, 1.0);
+  vec3 c = ave_flock_center();
+  vec3 u = f.goal - c;
+  GLfloat d = center_goal_dist();
+  GLfloat r = max_boid_goal_dist();
+  res = res + u * -1 * (d + 5 * r);
+  res = res + z * (d + r);
+  return res;
+}
+
+vec3 side_position() {
+  vec3 m = calc_middleway();
+  vec3 c = ave_flock_center();
+  vec3 u = f.goal - c;
+  vec3 z = vec3(0.0, 0.0, 1.0);
+  vec3 p = vec3::cross(u * -1, z);
+  GLfloat d = center_goal_dist();
+  GLfloat r = max_boid_goal_dist();
+  p = vec3::normalize(p);
+  p = p * (d + 2 * r);
+  p = m + p;
+  p = p + vec3(0.0, 0.0, d + r);
+  return p;
+}
+
+GLfloat max_boid_goal_dist() {
+  GLfloat max = 0;
+  for (int i = 0; i < f.count; i++) {
+    GLfloat dist = ((*(f.pos))[i] - f.goal).len();
+    if (dist > max) {
+      max = dist;
+    }
+  }
+  return max;
+}
+
+vec3 ave_flock_center() {
+  int num1 = 0, num2 = 0;
+  for (int i = 0 ; i < f.group->size(); i++) {
+    if ((*(f.group))[i] == 0) {
+      num1++;
+    } else {
+      num2++;
+    }
+  }
+  vec3 center = (f.center[0] * num1 + f.center[1] * num2) / (num1 + num2);
+  return center;
+}
+
+GLfloat center_goal_dist() {
+  vec3 center = ave_flock_center();
+  return (center - f.goal).len();
 }

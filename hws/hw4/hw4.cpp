@@ -8,6 +8,7 @@
 using namespace std;
 
 Flock f;
+int v_mode;
 glm::mat4 view = glm::mat4(1.0);
 glm::mat4 project = glm::mat4(1.0);
 extern GLfloat goal_vertices[24];
@@ -170,6 +171,9 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(w, true);
         break;
+      case GLFW_KEY_C:
+        update_center_view();
+        break;
     }
   }
 }
@@ -185,6 +189,7 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 }
 
 int main(int argc, char** argv) {
+  v_mode = CENTER;
   glm::mat4 bar = glm::mat4(1.0);
   bar[1][0] = 25;
   bar[2][0] = 46;
@@ -226,11 +231,13 @@ int main(int argc, char** argv) {
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
   
+  init_views();
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //draw_checkerboard(&f, modelView, vao2, board_idx);
-
+    camera_look();
+    update_view();
+    draw_checkerboard(&f, modelView, vao2, board_idx);
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
     f.update_centers();
