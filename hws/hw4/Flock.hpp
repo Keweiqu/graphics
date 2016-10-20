@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <cmath>
 #define NUM_GROUP 2
-#define SPEED_LIMIT 10
+#define SPEED_LIMIT 15
 using namespace std;
 
 class Flock {
@@ -32,6 +32,7 @@ public:
   vec3 v_to_goal(int i);
   vec3 v_to_separate(int i);
   vec3 v_to_align(int i);
+  vec3 v_to_other_flock(int i);
   vec3 get_pos(int i);
   vec3 limit_speed(vec3 v);
  

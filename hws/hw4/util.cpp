@@ -213,10 +213,10 @@ vec3 trailing_position() {
   GLfloat d = center_goal_dist();
   GLfloat r = max_boid_goal_dist();
   cout << "d = " << d << " " << "r = " << r << endl;
-  u = u * -1 * (d + 5 * r) * 0.003;
+  u = u * -1 * (d + 5 * r) * 0.006;
   cout << "u: " << u[0] << " " << u[1] << " " << u[2] << endl;
   c = c + u;
-  c = c + z * (d + r) * 0.003;
+  c = c + z * (d + r) * 0.3;
   return c;
 }
 

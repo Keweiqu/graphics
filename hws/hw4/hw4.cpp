@@ -5,11 +5,14 @@
 #include "Flock.hpp"
 #include "util.hpp"
 
+#define GOAL_DELTA 50;
 using namespace std;
 
 Flock f;
+
+int pause = FALSE, LEFT = FALSE, RIGHT = FALSE;
+int up = 0, down = 0;
 int v_mode;
-int pause = FALSE;
 mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -183,6 +186,14 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 	f.update_goal();
 	f.update_boids();
       }
+      break;
+    case GLFW_KEY_UP:
+      up = GOAL_DELTA;
+      down = 0;
+      break;
+    case GLFW_KEY_DOWN:
+      down = GOAL_DELTA;
+      up = 0;
       break;
       case GLFW_KEY_Q:
       case GLFW_KEY_ESCAPE:
