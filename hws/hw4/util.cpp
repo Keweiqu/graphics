@@ -91,23 +91,23 @@ extern mat4 view, project;
 void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-  
+
   mat4 result;
   result = project;
   result = result * view;
   glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
- 
+
   glDrawElements(GL_TRIANGLES, SIDES * SIDES * 6, GL_UNSIGNED_SHORT, (void*)0);
 }
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-  
+
   for(int i = 0; i < f->count; i++) {
     mat4 result;
     result = result * project;
-    
+
     result = result * view;
     my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2], result);
     GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
@@ -204,7 +204,7 @@ vec3 calc_middleway() {
 
 vec3 trailing_position() {
   cout << "trailing pos: " << trailing_view.pos[0] << " " << trailing_view.pos[1] << " " << trailing_view.pos[2] << endl;
-  
+
   vec3 z = vec3(0.0, 0.0, 1.0);
   vec3 c = ave_flock_center();
   cout << "flock center: " << c[0] << " " << c[1] << " " << c[2] << endl;
@@ -216,7 +216,7 @@ vec3 trailing_position() {
   u = u * -1 * (d + 5 * r) * 0.006;
   cout << "u: " << u[0] << " " << u[1] << " " << u[2] << endl;
   c = c + u;
-  c = c + z * (d + r) * 0.3;
+  c = c + z * (d + r) * 0.6;
   return c;
 }
 
@@ -229,7 +229,7 @@ vec3 side_position() {
   GLfloat d = center_goal_dist();
   GLfloat r = max_boid_goal_dist();
   p = vec3::normalize(p);
-  p = p * (r + 2 * d);
+  p = p * (r + 2 * d) * 1.2;
   p = m + p;
   p[2] = p[2] + d + r;
   return p;
@@ -272,4 +272,3 @@ void print_step_msg(Flock* f) {
   f->print_goal();
   cout << "*******************************************************************************" << endl;
 }
-
