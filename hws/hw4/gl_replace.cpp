@@ -75,22 +75,6 @@ void lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
 	    GLfloat centerX, GLfloat centerY, GLfloat centerZ,
 	    GLfloat upX, GLfloat upY, GLfloat upZ,
 	    glm::mat4 * view) {
-  /*
-  glm::vec3 forward = glm::vec3(centerX - eyeX, centerY - eyeY, centerZ - eyeZ);
-  forward = glm::normalize(forward);
-  glm::vec3 up = glm::vec3(upX, upY, upZ);
-  glm::vec3 side = glm::cross(forward, up);
-  glm::normalize(side);
-  up = glm::cross(side, up);
-  forward = forward * -1.0f;
-  (*view)[0] = glm::vec4(side[0], up[0], forward[0], 0);
-  (*view)[1] = glm::vec4(side[1], up[1], forward[1], 0);
-  (*view)[2] = glm::vec4(side[2], up[2], forward[2], 0);
-  (*view)[3] = glm::vec4(0, 0, 0, 1);
-  *view = *project * *view;
-  translatef(-eyeX, -eyeY, -eyeZ, view);
-  print_mat(*view);
-  */
   glm::vec3 eye = glm::vec3(eyeX, eyeY, eyeZ);
   glm::vec3 center = glm::vec3(centerX, centerY, centerZ);
   glm::vec3 up = glm::vec3(upX, upY, upZ);
@@ -106,7 +90,7 @@ void my_lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
   vec3 up = vec3(upX, upY, upZ);
   vec3 side = vec3::cross(forward, up);
   side = vec3::normalize(side);
-  up = vec3::cross(side, up);
+  up = vec3::cross(side, forward);
   forward = forward * -1.0f;
 
   m[0] = side[0];
@@ -130,6 +114,53 @@ void my_lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
   m[15] = 1;
   my_translatef(-eyeX, -eyeY, -eyeZ, m);
 }
+
+/*
+ * fovy in degree
+ * source: https://www.opengl.org/wiki/GluPerspective_code
+ */
+void my_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar, mat4& m) {
+  GLfloat ymax = zNear * tan(fovy * M_PI / 360.0);
+  GLfloat ymin = -ymax;
+  GLfloat xmax = ymax * aspect;
+  GLfloat xmin = ymin * aspect;
+  
+  my_frustum(xmin, xmax, ymin, ymax, zNear, zFar, m);
+}
+
+/*
+ * source: https://www.opengl.org/wiki/GluPerspective_code
+ */
+void my_frustum(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar, mat4& m) {
+  GLfloat temp, temp2, temp3, temp4;
+  temp = 2.0 * zNear;
+  temp2 = right - left;
+  temp3 = top - bottom;
+  temp4 = zFar - zNear;
+
+  m[0] = temp / temp2;
+  m[1] = 0.0;
+  m[2] = 0.0;
+  m[3] = 0.0;
+
+  m[4] = 0.0;
+  m[5] = temp / temp3;
+  m[6] = 0.0;
+  m[7] = 0.0;
+
+  m[8] = (right + left) / temp2;
+  m[9] = (top + bottom) / temp3;
+  m[10] = (-zFar - zNear) / temp4;
+  m[11] = -1.0;
+  
+  m[12] = 0.0;
+  m[13] = 0.0;
+  m[14] = (-temp * zFar) / temp4;
+  m[15] = 0.0;
+
+}
+
+
 void print_mat(glm::mat4 mat) {
   for(int i = 0; i < 4; i++) {
     for(int j = 0; j < 4; j++) {

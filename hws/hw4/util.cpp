@@ -83,16 +83,25 @@ void calc_checkerboard_colors(int n) {
 }
 
 extern glm::mat4 view, project;
-extern glm::vec3 world_scale;
+extern mat4 view1, project1;
 
 void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-
   glm::mat4 result = glm::mat4(1.0);
   result = project;
   result = result * view;
-  glUniformMatrix4fv(matrix, 1, GL_FALSE, glm::value_ptr(result));
+  //  cout << "================" << endl;
+  //print_mat(result);
+  //glUniformMatrix4fv(matrix, 1, GL_FALSE, glm::value_ptr(result));
+  
+  mat4 result1;
+  result1 = project1;
+  result1 = result1 * view1;
+  //cout << "-----------------" << endl;
+  //mat4::print(result1);
+  glUniformMatrix4fv(matrix, 1, GL_FALSE, result1.data);
+ 
   glDrawElements(GL_TRIANGLES, SIDES * SIDES * 6, GL_UNSIGNED_SHORT, (void*)0);
 }
 
