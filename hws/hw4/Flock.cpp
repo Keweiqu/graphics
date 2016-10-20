@@ -16,7 +16,7 @@ Flock::Flock() {
   center[1][0] = 200.0; center[1][1] = 200.0; center[1][2] = 500.0;
   
   goal[0] = 400.0; goal[1] = 0.0; goal[2] = 500.0;
-  goal_v[0] = -5.0; goal_v[1] = 0.0; goal_v[2] = 0.0;
+  goal_v[0] = -7.5; goal_v[1] = 0.0; goal_v[2] = 0.0;
  
   for(int i = 0; i < INITIAL_NUM; i++) {
     add_boid();
