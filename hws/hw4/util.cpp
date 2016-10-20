@@ -86,17 +86,17 @@ void calc_checkerboard_colors(int n) {
   }
 }
 
-extern glm::mat4 view, project;
-extern glm::vec3 world_scale;
+extern mat4 view, project;
 
 void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-
-  glm::mat4 result = glm::mat4(1.0);
+  
+  mat4 result;
   result = project;
   result = result * view;
-  glUniformMatrix4fv(matrix, 1, GL_FALSE, glm::value_ptr(result));
+  glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
+ 
   glDrawElements(GL_TRIANGLES, SIDES * SIDES * 6, GL_UNSIGNED_SHORT, (void*)0);
 }
 
@@ -105,14 +105,14 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
   
   for(int i = 0; i < f->count; i++) {
-    glm::mat4 result = glm::mat4(1.0);
+    mat4 result;
     result = result * project;
     
     result = result * view;
-    translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2], &result);
+    my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2], result);
     GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
-    rotatef(xy_angle, 0, 0, 1, &result);
-    glUniformMatrix4fv(matrix, 1, GL_FALSE, glm::value_ptr(result));
+    my_rotatef(xy_angle, 0, 0, 1, result);
+    glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
 
   }
@@ -122,12 +122,12 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
 void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-  glm::mat4 result = glm::mat4(1.0);
+  mat4 result;
   result = project;
   result = result * view;
 
-  translatef(f->goal[0], f->goal[1], f->goal[2], &result);
-  glUniformMatrix4fv(matrix, 1, GL_FALSE, glm::value_ptr(result));
+  my_translatef(f->goal[0], f->goal[1], f->goal[2], result);
+  glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
 }
 
@@ -135,7 +135,7 @@ void init_views() {
   init_center_view();
   init_trailing_view();
   init_side_view();
-  v = center_view;
+  v = side_view;
 }
 
 void update_view() {
@@ -153,7 +153,7 @@ void update_view() {
 }
 
 void init_center_view() {
-  center_view.pos = vec3(0.0, 0.0, 700);
+  center_view.pos = vec3(0.0, 0.0, 1000);
   center_view.up = vec3(0.0, 0.0, 1.0);
   center_view.look = calc_middleway();
 }
@@ -178,18 +178,21 @@ void update_center_view() {
 void update_trailing_view() {
   trailing_view.pos = trailing_position();
   trailing_view.look = calc_middleway();
+  v = trailing_view;
 }
 
 void update_side_view() {
-//  side_view
+  side_view.look = calc_middleway();
+  side_view.pos = side_position();
+  v = side_view;
 }
 
 void camera_look() {
-  lookat(
+  my_lookat(
     v.pos[0], v.pos[1], v.pos[2],
     v.look[0], v.look[1], v.look[2],
     v.up[0], v.up[1], v.up[2],
-    &view
+    view
   );
 }
 
@@ -205,8 +208,8 @@ vec3 trailing_position() {
   vec3 u = f.goal - c;
   GLfloat d = center_goal_dist();
   GLfloat r = max_boid_goal_dist();
-  res = res + u * -1 * (d + 5 * r);
-  res = res + z * (d + r);
+  res = res + u * -1 * (d + 5 * r) * 0.3;
+  res = res + z * (d + r) * 0.3;
   return res;
 }
 
@@ -220,8 +223,8 @@ vec3 side_position() {
   GLfloat r = max_boid_goal_dist();
   p = vec3::normalize(p);
   p = p * (d + 2 * r);
-  p = m + p;
-  p = p + vec3(0.0, 0.0, d + r);
+  m = m + p;
+  m = m + vec3(0.0, 0.0, (d + r));
   return p;
 }
 

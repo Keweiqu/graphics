@@ -9,8 +9,8 @@ using namespace std;
 
 Flock f;
 int v_mode;
-glm::mat4 view = glm::mat4(1.0);
-glm::mat4 project = glm::mat4(1.0);
+int pause = FALSE;
+mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
 extern GLubyte goal_indices[36];
@@ -167,21 +167,42 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       case GLFW_KEY_BACKSPACE:
         f.remove_boid();
         break;
+    case 'P':
+    case 'p':
+      pause = !pause;
+      break;
+    case 'd':
+    case 'D':
+      if(!pause) {
+	pause = TRUE;
+      } else {
+	f.update_centers();
+	f.update_ave_v();
+	f.update_goal();
+	f.update_boids();
+      }
+      break;
       case GLFW_KEY_Q:
       case GLFW_KEY_ESCAPE:
         glfwSetWindowShouldClose(w, true);
         break;
       case GLFW_KEY_C:
-        update_center_view();
+        v_mode = CENTER;
+        break;
+      case GLFW_KEY_T:
+        v_mode = TRAILING;
+        break;
+      case GLFW_KEY_S:
+        v_mode = SIDE;
         break;
     }
   }
 }
 
 void reshape(GLFWwindow *w, int width, int height) {
-  glm::mat4 result = glm::mat4(1.0);
+  mat4 result;
   result = project;
-  glUniformMatrix4fv(modelView, 1, GL_FALSE, glm::value_ptr(result));
+  glUniformMatrix4fv(modelView, 1, GL_FALSE, result.data);
 }
 
 void framebuffer_resize(GLFWwindow *w, int width, int height) {
@@ -189,23 +210,12 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 }
 
 int main(int argc, char** argv) {
-  v_mode = CENTER;
-  glm::mat4 bar = glm::mat4(1.0);
-  bar[1][0] = 25;
-  bar[2][0] = 46;
-  lookat(1.0, 2.0, 3.0, 0.0, 0.5, 0.5, 0.0, 1.0, 0.0,&bar);
-  cout << "glm: " << endl;
-  print_mat(bar);
-  mat4 m;
-  m[4] = 25;
-  m[8] = 46;
-  my_lookat(1.0, 2.0, 3.0, 0.0, 0.5, 0.5, 0.0, 1.0, 0.0, m);
-  cout << "mat4: " << endl;
-  mat4::print(m);
-  lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, &view);
-  project = glm::perspective(glm::radians(60.0), 1.0, 5.0, 1200.0);
-  print_mat(view);
-  if(!glfwInit()) {
+  v_mode = SIDE;
+     my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
+   my_perspective(60.0, 1.0, 5.0, 21000.0, project);
+   mat4::print(view);
+
+if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
     glfwTerminate();
     exit(EXIT_FAILURE);
@@ -240,10 +250,12 @@ int main(int argc, char** argv) {
     draw_checkerboard(&f, modelView, vao2, board_idx);
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
-    f.update_centers();
-    f.update_ave_v();
-    f.update_goal();
-    f.update_boids();
+    if(!pause) {
+      f.update_centers();
+      f.update_ave_v();
+      f.update_goal();
+      f.update_boids();
+    }
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

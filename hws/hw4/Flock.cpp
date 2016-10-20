@@ -1,6 +1,7 @@
 #include "Flock.hpp"
 #define DELTA 40
 #define INITIAL_NUM 20
+#define WORLD_SIZE 10000
 Flock::Flock() {
   srand(time(NULL));
   pos = new vector<vec3>();
@@ -14,7 +15,7 @@ Flock::Flock() {
   center[1][0] = 200.0; center[1][1] = 200.0; center[1][2] = 500.0;
   
   goal[0] = 400.0; goal[1] = 0.0; goal[2] = 500.0;
-  goal_v[0] = -1.0; goal_v[1] = 0.0; goal_v[2] = 0.0;
+  goal_v[0] = -5.0; goal_v[1] = 0.0; goal_v[2] = 0.0;
  
   for(int i = 0; i < INITIAL_NUM; i++) {
     add_boid();
@@ -32,13 +33,21 @@ void Flock::add_boid() {
 }
 
 void Flock::remove_boid() {
-  count--;
-  pos->pop_back();
-  vel->pop_back();
-  group->pop_back();
+  if(count > 0) {
+    count--;
+    pos->pop_back();
+    vel->pop_back();
+    group->pop_back();
+  }
 }
 
 void Flock::update_goal() {
+  if(goal[0] < WORLD_SIZE * -1.0 || goal[0] > WORLD_SIZE) {
+    goal_v[0] = goal_v[0] * -1.0;
+  }
+  if(goal[1] < WORLD_SIZE * -1.0 || goal[1] > WORLD_SIZE) {
+    goal_v[1] = goal_v[1] * -1.0;
+  }
   goal = goal + goal_v;
 }
 
@@ -87,14 +96,15 @@ void Flock::update_ave_v() {
 void Flock::update_boids() {
   for(int i = 0; i < count; i++) {
     vec3 v1 = v_to_goal(i) * 0.0005;
-    vec3 v2 = v_to_center(i) * 0.0001;
+    vec3 v2 = v_to_center(i) * 0.0005;
     vec3 v3 = v_to_align(i) * 0.0001;
-    vec3 v4 = v_to_separate(i) * 0.0001;
+    vec3 v4 = v_to_separate(i) * 0.0005;
     vec3 v = v1 + v2;
     v = v + v3;
     v = v + v4;
-    v = limit_speed(v);
+    // v = limit_speed(v);
     (*vel)[i] = (*vel)[i] + v;
+    (*vel)[i] = limit_speed((*vel)[i]);
     (*pos)[i] = (*pos)[i] + (*vel)[i];
   }
 }
@@ -131,7 +141,7 @@ vec3 Flock::v_to_separate(int i) {
   vec3 result = vec3();
   int num = 0;
   for(int j = 0; j < count; j++) {
-    if(get_dist(i, j) < radius) {
+    if(j != i && get_dist(i, j) < radius) {
       num++;
       vec3 pos_j = (*pos)[j];
       result = result + pos_j;

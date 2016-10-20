@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <cmath>
 #define NUM_GROUP 2
-#define SPEED_LIMIT 1
+#define SPEED_LIMIT 10
 using namespace std;
 
 class Flock {
