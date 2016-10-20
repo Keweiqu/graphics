@@ -8,7 +8,7 @@
 #include "common.hpp"
 #include <cmath>
 #define NUM_GROUP 2
-#define SPEED_LIMIT 20
+#define SPEED_LIMIT 1
 using namespace std;
 
 class Flock {
@@ -43,11 +43,4 @@ public:
 
 };
 
-vector<GLfloat> operator*(const vector<GLfloat> &l, double f);
-vector<GLfloat> operator/(const vector<GLfloat> &l, double f);
-vector<GLfloat> operator+(const vector<GLfloat> &l, const vector<GLfloat> &r);
-vector<GLfloat> operator-(const vector<GLfloat> &l, const vector<GLfloat> &r);
-
-vector<GLfloat> normalize(vector<GLfloat> v);
-GLfloat vector_len(vector<GLfloat> v);
 #endif

@@ -46,6 +46,14 @@ public:
     return result / len;
   }
 
+  static vec3 cross(const vec3 &u, const vec3 &v) {
+    GLfloat d0 = u[1] * v[2] - u[2] * v[1];
+    GLfloat d1 = u[2] * v[0] - u[0] * v[2];
+    GLfloat d2 = u[0] * v[1] - u[1] * v[0];
+    vec3 result = vec3(d0, d1, d2);
+    return result;
+  }
+
   friend ostream& operator<<(ostream &strm, const vec3 &v) {
     return strm << v.data[0] << " " << v.data[1] << " " << v.data[2];
   }
