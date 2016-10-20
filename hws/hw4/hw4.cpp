@@ -170,9 +170,11 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case 'P':
     case 'p':
       pause = !pause;
+      print_step_msg(&f);
       break;
     case 'd':
     case 'D':
+      print_step_msg(&f);
       if(!pause) {
 	pause = TRUE;
       } else {

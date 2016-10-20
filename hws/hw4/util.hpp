@@ -41,6 +41,5 @@ vec3 side_position();
 vec3 ave_flock_center();
 void world_scale_vector(vec3 *v);
 GLfloat max_boid_goal_dist();
-GLfloat center_goal_dist();
-
+GLfloat center_goal_dist();void print_step_msg(Flock* f);
 #endif
