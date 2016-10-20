@@ -160,6 +160,7 @@ void init_center_view() {
 
 void init_trailing_view() {
   trailing_view.pos = trailing_position();
+  cout << "trailing pos: " << trailing_view.pos[0] << " " << trailing_view.pos[1] << " " << trailing_view.pos[2] << endl;
   trailing_view.look = calc_middleway();
   trailing_view.up = vec3(0.0, 0.0, 1.0);
 }
@@ -202,15 +203,21 @@ vec3 calc_middleway() {
 }
 
 vec3 trailing_position() {
-  vec3 res = ave_flock_center();;
+  cout << "trailing pos: " << trailing_view.pos[0] << " " << trailing_view.pos[1] << " " << trailing_view.pos[2] << endl;
+  
   vec3 z = vec3(0.0, 0.0, 1.0);
   vec3 c = ave_flock_center();
+  cout << "flock center: " << c[0] << " " << c[1] << " " << c[2] << endl;
+  cout << "goal: " << f.goal[0] << " " << f.goal[1] << " " << f.goal[2] << endl;
   vec3 u = f.goal - c;
   GLfloat d = center_goal_dist();
   GLfloat r = max_boid_goal_dist();
-  res = res + u * -1 * (d + 5 * r) * 0.3;
-  res = res + z * (d + r) * 0.3;
-  return res;
+  cout << "d = " << d << " " << "r = " << r << endl;
+  u = u * -1 * (d + 5 * r) * 0.003;
+  cout << "u: " << u[0] << " " << u[1] << " " << u[2] << endl;
+  c = c + u;
+  c = c + z * (d + r) * 0.003;
+  return c;
 }
 
 vec3 side_position() {
@@ -222,16 +229,17 @@ vec3 side_position() {
   GLfloat d = center_goal_dist();
   GLfloat r = max_boid_goal_dist();
   p = vec3::normalize(p);
-  p = p * (d + 2 * r);
-  m = m + p;
-  m = m + vec3(0.0, 0.0, (d + r));
+  p = p * (r + 2 * d);
+  p = m + p;
+  p[2] = p[2] + d + r;
   return p;
 }
 
 GLfloat max_boid_goal_dist() {
+  vec3 center = ave_flock_center();
   GLfloat max = 0;
   for (int i = 0; i < f.count; i++) {
-    GLfloat dist = ((*(f.pos))[i] - f.goal).len();
+    GLfloat dist = ((*(f.pos))[i] - center).len();
     if (dist > max) {
       max = dist;
     }
