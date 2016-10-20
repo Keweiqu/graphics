@@ -21,4 +21,8 @@ void lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
 	    GLfloat centerX, GLfloat centerY, GLfloat centerZ,
 	    GLfloat upX, GLfloat upY, GLfloat upZ,
 	    glm::mat4 * view);
+void my_lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
+	       GLfloat centerX, GLfloat centerY, GLfloat centerZ,
+	       GLfloat upX, GLfloat upY, GLfloat upZ,
+	       mat4& m);
 void print_mat(glm::mat4 mat);

@@ -91,12 +91,44 @@ void lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
   translatef(-eyeX, -eyeY, -eyeZ, view);
   print_mat(*view);
   */
-  ///*
   glm::vec3 eye = glm::vec3(eyeX, eyeY, eyeZ);
   glm::vec3 center = glm::vec3(centerX, centerY, centerZ);
   glm::vec3 up = glm::vec3(upX, upY, upZ);
   *view = glm::lookAt(eye, center, up);
-  // */
+}
+
+void my_lookat(GLfloat eyeX, GLfloat eyeY, GLfloat eyeZ,
+	       GLfloat centerX, GLfloat centerY, GLfloat centerZ,
+	       GLfloat upX, GLfloat upY, GLfloat upZ,
+	       mat4& m) {
+  vec3 forward = vec3(centerX - eyeX, centerY - eyeY, centerZ - eyeZ);
+  forward = vec3::normalize(forward);
+  vec3 up = vec3(upX, upY, upZ);
+  vec3 side = vec3::cross(forward, up);
+  side = vec3::normalize(side);
+  up = vec3::cross(side, up);
+  forward = forward * -1.0f;
+
+  m[0] = side[0];
+  m[1] = up[0];
+  m[2] = forward[0];
+  m[3] = 0;
+  
+  m[4] = side[1];
+  m[5] = up[1];
+  m[6] = forward[1];
+  m[7] = 0;
+
+  m[8] = side[2];
+  m[9] = up[2];
+  m[10] = forward[2];
+  m[11] = 0;
+  
+  m[12] = 0;
+  m[13] = 0;
+  m[14] = 0;
+  m[15] = 1;
+  my_translatef(-eyeX, -eyeY, -eyeZ, m);
 }
 void print_mat(glm::mat4 mat) {
   for(int i = 0; i < 4; i++) {

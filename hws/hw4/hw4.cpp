@@ -188,13 +188,13 @@ int main(int argc, char** argv) {
   glm::mat4 bar = glm::mat4(1.0);
   bar[1][0] = 25;
   bar[2][0] = 46;
-  scalef(1.0, 2.0, 3.0, &bar);
+  lookat(1.0, 2.0, 3.0, 0.0, 0.5, 0.5, 0.0, 1.0, 0.0,&bar);
   cout << "glm: " << endl;
   print_mat(bar);
   mat4 m;
   m[4] = 25;
   m[8] = 46;
-  my_scalef(1.0, 2.0, 3.0, m);
+  my_lookat(1.0, 2.0, 3.0, 0.0, 0.5, 0.5, 0.0, 1.0, 0.0, m);
   cout << "mat4: " << endl;
   mat4::print(m);
   lookat(0, 0, 1000.0, 0, 0, 0, 0, 1, 0, &view);
