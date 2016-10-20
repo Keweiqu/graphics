@@ -72,11 +72,15 @@ void Flock::update_centers() {
       pos_2 = pos_2 + (*pos)[i];
     }
   }
-
-  pos_1 = pos_1 / (count1 * 1.0);
-  pos_2 = pos_2 / (count2 * 1.0);
-  center[0] = pos_1;
-  center[1] = pos_2;
+  
+  if(count1 > 0) {
+    pos_1 = pos_1 / (count1 * 1.0);
+    center[0] = pos_1;
+  }
+  if(count2 > 0) {
+    pos_2 = pos_2 /(count2 * 1.0);
+    center[1] = pos_2;
+  }
 }
 
 void Flock::update_ave_v() {
