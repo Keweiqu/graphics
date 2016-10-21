@@ -171,22 +171,7 @@ void trailing_view(mat4& view, Flock &f) {
 }
 
 vec3 ave_flock_center(Flock& f) {
-  int num1 = 0, num2 = 0;
-  for (int i = 0 ; i < f.group->size(); i++) {
-    if ((*(f.group))[i] == 0) {
-      num1++;
-    } else {
-      num2++;
-    }
-  }
-  
-  vec3 center;
-  if(num1 + num2 <= 0) {
-    center = f.goal;
-  } else {
-    center = (f.center[0] * (GLfloat) num1 + f.center[1] * (GLfloat) num2) / (GLfloat)(num1 + num2);
-  }
-  return center;
+  return f.center;
 }
 
 

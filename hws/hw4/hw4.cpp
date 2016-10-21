@@ -9,8 +9,8 @@
 using namespace std;
 
 Flock f;
-int pause = FALSE, LEFT = FALSE, RIGHT = FALSE;
-int up = 0, down = 0;
+int pause = FALSE, to_left = FALSE, to_right = FALSE;
+int up = FALSE, down = FALSE;
 float glTime;
 enum VIEW_TYPE v_mode;
 
@@ -117,7 +117,7 @@ void update_time() {
 void init_checkerboard() {
   glShadeModel(GL_FLAT);
 
-  calc_checkerboard_vertices(SIDES, 10000);
+  calc_checkerboard_vertices(SIDES, 20000);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
   
@@ -233,6 +233,14 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case GLFW_KEY_DOWN:
       down = GOAL_DELTA;
       up = 0;
+      break;
+    case GLFW_KEY_LEFT:
+      to_left = TRUE;
+      to_right = FALSE;
+      break;
+    case GLFW_KEY_RIGHT:
+      to_right = TRUE;
+      to_left= FALSE;
       break;
       case GLFW_KEY_Q:
       case GLFW_KEY_ESCAPE:
