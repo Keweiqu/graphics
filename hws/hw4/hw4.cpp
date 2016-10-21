@@ -41,6 +41,15 @@ GLfloat colors[6][4] = {
   {0.0, 1.0, 1.0, 1.0},
 };
 
+GLfloat shadow_colors[6][4] = {
+  {0.0, 0.0, 0.0, 1.0},
+  {0.0, 0.0, 0.0, 1.0},
+  {0.0, 0.0, 0.0, 1.0},
+  {0.0, 0.0, 0.0, 1.0},
+  {0.0, 0.0, 0.0, 1.0},
+  {0.0, 0.0, 0.0, 1.0},
+};
+
 GLubyte boid_indices[] = {
   0, 1, 2, // right wing
   3, 1, 0, // left wing
@@ -91,8 +100,8 @@ GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_pos1, board_c;
 extern GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
 extern GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
 extern GLshort board_indices[SIDES * SIDES * 6];
-GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, boid_vao, goal_vao, boid_idx, goal_idx;
-GLuint program, pos, pos1, goal_pos, goal_pos1, color, modelView;
+GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, shadow_vbo, shadow_vao, boid_vao, goal_vao, boid_idx, goal_idx;
+GLuint program, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, modelView;
 GLuint t;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
@@ -149,6 +158,8 @@ void init() {
   boid_vbo2 = make_bo(GL_ARRAY_BUFFER, colors, sizeof(colors));
   boid_vbo3 = make_bo(GL_ARRAY_BUFFER, boid_flap_vertices, sizeof(boid_flap_vertices));
   
+  shadow_vbo = make_bo(GL_ARRAY_BUFFER, shadow_colors, sizeof(shadow_colors));
+  
   goal_vbo1 = make_bo(GL_ARRAY_BUFFER, goal_vertices, sizeof(goal_vertices));
   goal_vbo2 = make_bo(GL_ARRAY_BUFFER, goal_colors, sizeof(goal_colors));
   boid_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, boid_indices, sizeof(boid_indices));
@@ -173,6 +184,21 @@ void init() {
   color = glGetAttribLocation(program, "vColor");
   glEnableVertexAttribArray(color);
   glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  // Shadow
+  glGenVertexArrays(1, &shadow_vao);
+  glBindVertexArray(shadow_vao);
+  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo1);
+  glEnableVertexAttribArray(pos);
+  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo3);
+  glEnableVertexAttribArray(pos1);
+  glVertexAttribPointer(pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, shadow_vbo);
+  shadow_color = glGetAttribLocation(program, "vColor");
+  glEnableVertexAttribArray(shadow_color);
+  glVertexAttribPointer(shadow_color, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
   //Goal
   glGenVertexArrays(1, &goal_vao);
@@ -197,7 +223,7 @@ void init() {
   
   modelView = glGetUniformLocation(program, "M");
 
-  glClearColor(1.0, 1.0, 1.0, 1.0);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
@@ -301,6 +327,7 @@ if(!glfwInit()) {
     draw_checkerboard(&f, modelView, vao2, board_idx);
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
+    draw_shadows(&f, modelView, shadow_vao, boid_idx);
     if(!pause) {
       f.update_centers();
       f.update_ave_v();

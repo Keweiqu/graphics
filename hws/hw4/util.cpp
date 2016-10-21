@@ -118,6 +118,23 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   }
 }
 
+void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
+  
+  for (int i = 0; i < f->count; i++) {
+    mat4 result;
+    result = project;
+    result = result * view;
+    
+    my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2] * 0, result);
+    GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
+    my_rotatef(xy_angle, 0, 0, 1, result);
+    glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
+  }
+}
+
 
 void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
