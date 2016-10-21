@@ -132,22 +132,18 @@ void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
 }
 
 void update_view(mat4 &view, Flock& f) {
-  //center_view(view, f);
-  side_view(view, f);
-  //trailing_view(view, f);
-  /*
+
   switch(v_mode) {
     case CENTER:
-      center_view();
+      center_view(view, f);
       break;
     case TRAILING:
-      update_trailing_view();
+      trailing_view(view, f);
       break;
     case SIDE:
-      update_side_view();
+      side_view(view, f);
       break;
   }
-  */
 }
 
 void center_view(mat4& view, Flock &f) {
