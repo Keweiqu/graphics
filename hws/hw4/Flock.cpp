@@ -31,6 +31,7 @@ void Flock::add_boid() {
   vec3 boid_pos = vec3(center[id][0] + rand() % DELTA,center[id][1] + rand() % DELTA, center[id][2] + rand() % DELTA);
   pos->push_back(boid_pos);
   vel->push_back(vec3(0.0));
+  seed->push_back(rand());
 }
 
 void Flock::remove_boid() {
@@ -233,4 +234,5 @@ Flock::~Flock() {
   delete pos;
   delete vel;
   delete group;
+  delete seed;
 }

@@ -17,6 +17,7 @@ public:
   ~Flock();
   vector<vec3> *pos;
   vector<vec3> *vel;
+  vector<int> *seed;
   vector<int> *group;
   vec3 center[NUM_GROUP];
   vec3 ave_v[NUM_GROUP];
