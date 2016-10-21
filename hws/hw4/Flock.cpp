@@ -1,7 +1,7 @@
 #include "Flock.hpp"
 #define DELTA 200
 #define INITIAL_NUM 20
-#define WORLD_SIZE 10000
+#define WORLD_SIZE 5000
 extern int up, down;
 Flock::Flock() {
   srand(time(NULL));
@@ -73,10 +73,19 @@ void Flock::update_centers() {
     }
   }
 
-  pos_1 = pos_1 / (count1 * 1.0);
-  pos_2 = pos_2 / (count2 * 1.0);
-  center[0] = pos_1;
-  center[1] = pos_2;
+  if (count1 == 0) {
+    center[0] = goal;
+  } else {
+    pos_1 = pos_1 / (count1 * 1.0);
+    center[0] = pos_1;
+  }
+  
+  if (count2 == 0) {
+    center[1] = goal ;
+  } else {
+    pos_2 = pos_2 / (count2 * 1.0);
+    center[1] = pos_2;
+  }
 }
 
 void Flock::update_ave_v() {
@@ -92,12 +101,19 @@ void Flock::update_ave_v() {
     }
   }
 
-  v_1 = v_1 / (count1 * 1.0);
-  v_2 = v_2 / (count2 * 1.0);
+  if (count1 == 0) {
+    ave_v[0] = goal_v;
+  } else {
+    v_1 = v_1 / (count1 * 1.0);
+    ave_v[0] = v_1;
+  }
   
-  ave_v[0] = v_1;
-  ave_v[1] = v_2;
-
+  if (count2 == 0) {
+    ave_v[1] = goal_v;
+  } else {
+    v_2 = v_2 / (count2 * 1.0);
+    ave_v[1] = v_2;
+  }
 }
 
 

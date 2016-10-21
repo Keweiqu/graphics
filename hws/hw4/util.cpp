@@ -4,9 +4,9 @@ GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
 GLshort board_indices[SIDES * SIDES * 6];
 View v;
-View center_view, trailing_view, side_view;
+extern mat4 view;
 extern Flock f;
-extern int v_mode;
+extern enum VIEW_TYPE v_mode;
 
 /*
  * calculate all vertices coordinates for checkerboard.
@@ -131,17 +131,14 @@ void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
 }
 
-void init_views() {
-  init_center_view();
-  init_trailing_view();
-  init_side_view();
-  v = side_view;
-}
-
-void update_view() {
+void update_view(mat4 &view, Flock& f) {
+  //center_view(view, f);
+  side_view(view, f);
+  //trailing_view(view, f);
+  /*
   switch(v_mode) {
     case CENTER:
-      update_center_view();
+      center_view();
       break;
     case TRAILING:
       update_trailing_view();
@@ -150,104 +147,34 @@ void update_view() {
       update_side_view();
       break;
   }
+  */
 }
 
-void init_center_view() {
-  center_view.pos = vec3(0.0, 0.0, 1000);
-  center_view.up = vec3(0.0, 0.0, 1.0);
-  center_view.look = calc_middleway();
+void center_view(mat4& view, Flock &f) {
+  View v;
+  v.pos = vec3(0.0, 0.0, 1000);
+  v.up = vec3(0.0, 0.0, 1.0);
+  v.look = calc_middleway(f);
+  my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
 }
 
-void init_trailing_view() {
-  trailing_view.pos = trailing_position();
-  cout << "trailing pos: " << trailing_view.pos[0] << " " << trailing_view.pos[1] << " " << trailing_view.pos[2] << endl;
-  trailing_view.look = calc_middleway();
-  trailing_view.up = vec3(0.0, 0.0, 1.0);
+void side_view(mat4& view, Flock &f) {
+  View v;
+  v.pos = get_side_pos(f);
+  v.look = calc_middleway(f);
+  v.up = vec3(0.0, 0.0, 1.0);
+  my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
 }
 
-void init_side_view() {
-  side_view.pos = side_position();
-  side_view.look = calc_middleway();
-  side_view.up = vec3(0.0, 0.0, 1.0);
+void trailing_view(mat4& view, Flock &f) {
+  View v;
+  v.pos = get_trailing_pos(f);
+  v.look = calc_middleway(f);
+  v.up = vec3(0.0, 0.0, 1.0);
+  my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
 }
 
-void update_center_view() {
-  center_view.look = calc_middleway();
-  v = center_view;
-}
-
-void update_trailing_view() {
-  trailing_view.pos = trailing_position();
-  trailing_view.look = calc_middleway();
-  v = trailing_view;
-}
-
-void update_side_view() {
-  side_view.look = calc_middleway();
-  side_view.pos = side_position();
-  v = side_view;
-}
-
-void camera_look() {
-  my_lookat(
-    v.pos[0], v.pos[1], v.pos[2],
-    v.look[0], v.look[1], v.look[2],
-    v.up[0], v.up[1], v.up[2],
-    view
-  );
-}
-
-vec3 calc_middleway() {
-  vec3 ave_center = ave_flock_center();
-  return (ave_center + f.goal) / 2;
-}
-
-vec3 trailing_position() {
-  cout << "trailing pos: " << trailing_view.pos[0] << " " << trailing_view.pos[1] << " " << trailing_view.pos[2] << endl;
-
-  vec3 z = vec3(0.0, 0.0, 1.0);
-  vec3 c = ave_flock_center();
-  cout << "flock center: " << c[0] << " " << c[1] << " " << c[2] << endl;
-  cout << "goal: " << f.goal[0] << " " << f.goal[1] << " " << f.goal[2] << endl;
-  vec3 u = f.goal - c;
-  GLfloat d = center_goal_dist();
-  GLfloat r = max_boid_goal_dist();
-  cout << "d = " << d << " " << "r = " << r << endl;
-  u = u * -1 * (d + 5 * r) * 0.006;
-  cout << "u: " << u[0] << " " << u[1] << " " << u[2] << endl;
-  c = c + u;
-  c = c + z * (d + r) * 0.6;
-  return c;
-}
-
-vec3 side_position() {
-  vec3 m = calc_middleway();
-  vec3 c = ave_flock_center();
-  vec3 u = f.goal - c;
-  vec3 z = vec3(0.0, 0.0, 1.0);
-  vec3 p = vec3::cross(u * -1, z);
-  GLfloat d = center_goal_dist();
-  GLfloat r = max_boid_goal_dist();
-  p = vec3::normalize(p);
-  p = p * (r + 2 * d) * 1.2;
-  p = m + p;
-  p[2] = p[2] + (d + r) * 0.9;
-  return p;
-}
-
-GLfloat max_boid_goal_dist() {
-  vec3 center = ave_flock_center();
-  GLfloat max = 0;
-  for (int i = 0; i < f.count; i++) {
-    GLfloat dist = ((*(f.pos))[i] - center).len();
-    if (dist > max) {
-      max = dist;
-    }
-  }
-  return max;
-}
-
-vec3 ave_flock_center() {
+vec3 ave_flock_center(Flock& f) {
   int num1 = 0, num2 = 0;
   for (int i = 0 ; i < f.group->size(); i++) {
     if ((*(f.group))[i] == 0) {
@@ -256,13 +183,73 @@ vec3 ave_flock_center() {
       num2++;
     }
   }
-  vec3 center = (f.center[0] * num1 + f.center[1] * num2) / (num1 + num2);
+  
+  vec3 center;
+  if(num1 + num2 <= 0) {
+    center = f.goal;
+  } else {
+    center = (f.center[0] * (GLfloat) num1 + f.center[1] * (GLfloat) num2) / (GLfloat)(num1 + num2);
+  }
   return center;
 }
 
-GLfloat center_goal_dist() {
-  vec3 center = ave_flock_center();
+
+vec3 calc_middleway(Flock& f) {
+  vec3 ave_center = ave_flock_center(f);
+  return (ave_center + f.goal) / 2;
+}
+
+vec3 get_side_pos(Flock& f) {
+  vec3 z = vec3(0.0, 0.0, 1.0);
+  vec3 u, m;
+  if(f.count == 0 ) {
+    m = f.goal;
+    u = f.goal;
+  } else {
+    m = calc_middleway(f);
+    vec3 c = ave_flock_center(f);
+    u = f.goal - c;
+  }
+  vec3 p = vec3::cross(u, z);
+  p = vec3::normalize(p);
+  p = p * 400.0;
+  m = m + p;
+  m = m + vec3(0.0, 0.0, 800.0);
+  return m;
+}
+
+vec3 get_trailing_pos(Flock& f) {
+  vec3 m;
+  if(f.count == 0) {
+    m = f.goal;
+    m = f.goal - (f.goal_v) * 50;
+    m[2] = m[2] + 400;
+  } else {
+    m = calc_middleway(f);
+    vec3 c = ave_flock_center(f);
+    vec3 u = f.goal - c;
+    m = m - vec3::normalize(u) * 500.0;
+    m[2] = m[2] + 1000;
+  }
+  return m;
+}
+
+
+GLfloat center_goal_dist(Flock& f) {
+  vec3 center = ave_flock_center(f);
   return (center - f.goal).len();
+}
+
+GLfloat max_boid_goal_dist(Flock& f) {
+  GLfloat max = 0;
+  vec3 center = ave_flock_center(f);
+  for (int i = 0; i < f.count; i++) {
+    GLfloat dist = ((*(f.pos))[i] - center).len();
+    if (dist > max) {
+      max = dist;
+    }
+  }
+  return max;
 }
 
 void print_step_msg(Flock* f) {

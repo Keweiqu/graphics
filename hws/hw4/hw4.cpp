@@ -11,8 +11,9 @@ using namespace std;
 Flock f;
 int pause = FALSE, LEFT = FALSE, RIGHT = FALSE;
 int up = 0, down = 0;
-int v_mode;
 float glTime;
+enum VIEW_TYPE v_mode;
+
 mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -27,8 +28,8 @@ GLfloat boid_vertices[4][3] = {
 GLfloat boid_flap_vertices[4][3] = {
   {0.0, 0.0, 0.75},
   {0.0, 10, 0.75},
-  {-8, -3.5, 10.75},
-  {8, -3.5, 10.75}
+  {-8, -3.5, 14.75},
+  {8, -3.5, 14.75}
 };
 
 GLfloat colors[6][4] = {
@@ -292,12 +293,11 @@ if(!glfwInit()) {
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
   
-  init_views();
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    camera_look();
-    update_view();
+    //camera_look();
+    update_view(view, f);
     draw_checkerboard(&f, modelView, vao2, board_idx);
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
@@ -307,7 +307,6 @@ if(!glfwInit()) {
       f.update_goal();
       f.update_boids();
       update_time();
-      cout << "time: " << glTime << endl;
     }
     glfwSwapBuffers(window);
     glfwPollEvents();
