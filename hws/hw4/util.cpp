@@ -168,7 +168,7 @@ void update_view(mat4 &view, Flock& f) {
 
 void center_view(mat4& view, Flock &f) {
   View v;
-  v.pos = vec3(0.0, 0.0, 1000);
+  v.pos = vec3(0.0, 0.0, 1800);
   v.up = vec3(0.0, 0.0, 1.0);
   v.look = calc_middleway(f);
   my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
@@ -203,24 +203,32 @@ vec3 calc_middleway(Flock& f) {
 vec3 get_side_pos(Flock& f) {
   vec3 z = vec3(0.0, 0.0, 1.0);
   vec3 u, m;
+  GLfloat d;
+  GLfloat r;
   if(f.count == 0 ) {
     m = f.goal;
     u = f.goal;
+    d = 400;
+    r = 200;
   } else {
+    d = center_goal_dist(f);
+    r = max_boid_goal_dist(f);
     m = calc_middleway(f);
     vec3 c = ave_flock_center(f);
     u = f.goal - c;
   }
   vec3 p = vec3::cross(u, z);
   p = vec3::normalize(p);
-  p = p * 400.0;
+  p = p * (d + 2 * r);
   m = m + p;
-  m = m + vec3(0.0, 0.0, 800.0);
+  m = m + vec3(0.0, 0.0, d + r);
   return m;
 }
 
 vec3 get_trailing_pos(Flock& f) {
   vec3 m;
+  GLfloat d = center_goal_dist(f);
+  GLfloat r = max_boid_goal_dist(f);
   if(f.count == 0) {
     m = f.goal;
     m = f.goal - (f.goal_v) * 50;
@@ -229,8 +237,8 @@ vec3 get_trailing_pos(Flock& f) {
     m = calc_middleway(f);
     vec3 c = ave_flock_center(f);
     vec3 u = f.goal - c;
-    m = m - vec3::normalize(u) * 500.0;
-    m[2] = m[2] + 1000;
+    m = m - vec3::normalize(u) * (d + 5 * r);
+    m[2] = m[2] + d + r;
   }
   return m;
 }

@@ -248,7 +248,6 @@ int main(int argc, char** argv) {
   v_mode = SIDE;
      my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
    my_perspective(60.0, 1.0, 5.0, 21000.0, project);
-   mat4::print(view);
 
 if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
