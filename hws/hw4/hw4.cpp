@@ -5,7 +5,7 @@
 #include "Flock.hpp"
 #include "util.hpp"
 
-#define GOAL_DELTA 50;
+#define GOAL_DELTA 100;
 using namespace std;
 
 Flock f;
@@ -230,6 +230,16 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       case GLFW_KEY_S:
         v_mode = SIDE;
         break;
+    case GLFW_KEY_COMMA:
+      if(f.speed > 5) {
+	f.speed -= 1.0;
+      }
+      break;
+    case GLFW_KEY_PERIOD:
+      if(f.speed < 20) {
+	f.speed += 1.0;
+      }
+      break;
     }
   }
 }

@@ -26,6 +26,7 @@ public:
   vec3 goal;
   vec3 goal_v;
   GLfloat radius;
+  GLfloat speed;
   int count;
   void update_goal();
   void update_centers();

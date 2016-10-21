@@ -11,11 +11,11 @@ Flock::Flock() {
   seed = new vector<int>();
   count = 0;
   radius = 300;
-  
+  speed = 15;
   center[0] = 2375.0; center[1] = 125.0; center[2] = 1175.0;
   
   goal[0] = 2000.0; goal[1] = 1500.0; goal[2] = 1000.0;
-  goal_v[0] = GOAL_SPEED; goal_v[1] = 0.0; goal_v[2] = 0.0;
+  goal_v[0] = 0.0; goal_v[1] = GOAL_SPEED; goal_v[2] = 0.0;
  
   for(int i = 0; i < INITIAL_NUM; i++) {
     add_boid();
@@ -63,9 +63,7 @@ void Flock::update_goal() {
     to_right = FALSE;
   }
 
-  if(goal_v.len() > GOAL_SPEED) {
-    goal_v = vec3::normalize(goal_v) * GOAL_SPEED;
-  }
+  goal_v = vec3::normalize(goal_v) * speed;
   goal = goal + goal_v;
 
   if(up > 0 && goal[2] < 1700) {
