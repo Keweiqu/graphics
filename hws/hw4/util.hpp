@@ -42,4 +42,6 @@ vec3 get_trailing_pos(Flock &f);
 GLfloat center_goal_dist(Flock& f);
 GLfloat max_boid_goal_dist(Flock& f);
 void print_step_msg(Flock* f);
+void init_time();
+void update_time(int index);
 #endif

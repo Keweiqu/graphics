@@ -7,6 +7,8 @@ View v;
 extern mat4 view;
 extern Flock f;
 extern enum VIEW_TYPE v_mode;
+extern GLuint t, program;
+extern float glTime;
 
 /*
  * calculate all vertices coordinates for checkerboard.
@@ -114,6 +116,7 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
     my_rotatef(xy_angle, 0, 0, 1, result);
     glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
+    update_time(i);
 
   }
 }
@@ -188,22 +191,7 @@ void trailing_view(mat4& view, Flock &f) {
 }
 
 vec3 ave_flock_center(Flock& f) {
-  int num1 = 0, num2 = 0;
-  for (int i = 0 ; i < f.group->size(); i++) {
-    if ((*(f.group))[i] == 0) {
-      num1++;
-    } else {
-      num2++;
-    }
-  }
-  
-  vec3 center;
-  if(num1 + num2 <= 0) {
-    center = f.goal;
-  } else {
-    center = (f.center[0] * (GLfloat) num1 + f.center[1] * (GLfloat) num2) / (GLfloat)(num1 + num2);
-  }
-  return center;
+  return f.center;
 }
 
 
@@ -263,6 +251,17 @@ GLfloat max_boid_goal_dist(Flock& f) {
     }
   }
   return max;
+}
+
+void init_time() {
+  glTime = (sin(glfwGetTime() * 10) + 1) / 2;
+  t = glGetUniformLocation(program, "time");
+  glUniform1f(t, glTime);
+}
+
+void update_time(int index) {
+  glTime = (sin(glfwGetTime() * 10 + (*(f.seed))[index]) + 1) / 2;
+  glUniform1f(t, glTime);
 }
 
 void print_step_msg(Flock* f) {
