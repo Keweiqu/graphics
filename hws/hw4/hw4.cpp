@@ -9,10 +9,10 @@
 using namespace std;
 
 Flock f;
-
 int pause = FALSE, LEFT = FALSE, RIGHT = FALSE;
 int up = 0, down = 0;
 int v_mode;
+float glTime;
 mat4 view, project;
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -22,6 +22,13 @@ GLfloat boid_vertices[4][3] = {
   {0.0, 10, 0.75},  
   {-10, -4, 0.75},
   {10, -4, 0.75}
+};
+
+GLfloat boid_flap_vertices[4][3] = {
+  {0.0, 0.0, 0.75},
+  {0.0, 10, 0.75},
+  {-8, -3.5, 10.75},
+  {8, -3.5, 10.75}
 };
 
 GLfloat colors[6][4] = {
@@ -78,13 +85,14 @@ GLubyte b_indices[] = {
   15, 11, 14
 };
 
-GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_c;
+GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_pos1, board_c;
 
 extern GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
 extern GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
 extern GLshort board_indices[SIDES * SIDES * 6];
-GLuint boid_vbo1, boid_vbo2, goal_vbo1, goal_vbo2, boid_vao, goal_vao, boid_idx, goal_idx;
-GLuint program, pos, color, modelView;
+GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, boid_vao, goal_vao, boid_idx, goal_idx;
+GLuint program, pos, pos1, goal_pos, goal_pos1, color, modelView;
+GLuint t;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -92,6 +100,17 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   glBindBuffer(type, bufnum);
   glBufferData(type, buf_size, buf, GL_STATIC_DRAW);
   return bufnum;
+}
+
+void init_time() {
+  glTime = (sin(glfwGetTime() * 10) + 1) / 2;
+  t = glGetUniformLocation(program, "time");
+  glUniform1f(t, glTime);
+}
+
+void update_time() {
+  glTime = (sin(glfwGetTime() * 10) + 1) / 2;
+  glUniform1f(t, glTime);
 }
 
 void init_checkerboard() {
@@ -109,9 +128,13 @@ void init_checkerboard() {
   glBindVertexArray(vao2);
   
   glBindBuffer(GL_ARRAY_BUFFER, vbo3);
-  board_pos = glGetAttribLocation(program, "vPos");
+  board_pos = glGetAttribLocation(program, "vPos0");
   glEnableVertexAttribArray(board_pos);
   glVertexAttribPointer(board_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  board_pos1 = glGetAttribLocation(program, "vPos1");
+  glEnableVertexAttribArray(board_pos1);
+  glVertexAttribPointer(board_pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
   
   glBindBuffer(GL_ARRAY_BUFFER, vbo4);
   board_c = glGetAttribLocation(program, "vColor");
@@ -123,38 +146,53 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   boid_vbo1 = make_bo(GL_ARRAY_BUFFER, boid_vertices, sizeof(boid_vertices));
   boid_vbo2 = make_bo(GL_ARRAY_BUFFER, colors, sizeof(colors));
+  boid_vbo3 = make_bo(GL_ARRAY_BUFFER, boid_flap_vertices, sizeof(boid_flap_vertices));
+  
   goal_vbo1 = make_bo(GL_ARRAY_BUFFER, goal_vertices, sizeof(goal_vertices));
   goal_vbo2 = make_bo(GL_ARRAY_BUFFER, goal_colors, sizeof(goal_colors));
   boid_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, boid_indices, sizeof(boid_indices));
   goal_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, goal_indices, sizeof(goal_indices));
   program = initshader("hw4_vs.glsl", "hw4_fs.glsl");
   glUseProgram(program);
+  
+  //Boid
   glGenVertexArrays(1, &boid_vao);
-
   glBindVertexArray(boid_vao);
   glBindBuffer(GL_ARRAY_BUFFER, boid_vbo1);
-  pos = glGetAttribLocation(program, "vPos");
+  pos = glGetAttribLocation(program, "vPos0");
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo3);
+  pos1 = glGetAttribLocation(program, "vPos1");
+  glEnableVertexAttribArray(pos1);
+  glVertexAttribPointer(pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, boid_vbo2);
   color = glGetAttribLocation(program, "vColor");
   glEnableVertexAttribArray(color);
   glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-
+  //Goal
   glGenVertexArrays(1, &goal_vao);
   glBindVertexArray(goal_vao);
   
   glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
-  glEnableVertexAttribArray(pos);
-  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  goal_pos = glGetAttribLocation(program, "vPos0");
+  glEnableVertexAttribArray(goal_pos);
+  glVertexAttribPointer(goal_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
+  goal_pos1 = glGetAttribLocation(program, "vPos1");
+  glEnableVertexAttribArray(goal_pos1);
+  glVertexAttribPointer(goal_pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, goal_vbo2);
   glEnableVertexAttribArray(color);
   glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
   
   init_checkerboard();
+  init_time();
   
   modelView = glGetUniformLocation(program, "M");
 
@@ -268,6 +306,8 @@ if(!glfwInit()) {
       f.update_ave_v();
       f.update_goal();
       f.update_boids();
+      update_time();
+      cout << "time: " << glTime << endl;
     }
     glfwSwapBuffers(window);
     glfwPollEvents();
