@@ -181,7 +181,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       if(!pause) {
 	pause = TRUE;
       } else {
-	f.update_centers();
+	f.update_center();
 	f.update_ave_v();
 	f.update_goal();
 	f.update_boids();
@@ -263,7 +263,7 @@ if(!glfwInit()) {
     draw_goal(&f, modelView, goal_vao, goal_idx);
     draw_flock(&f, modelView, boid_vao, boid_idx);
     if(!pause) {
-      f.update_centers();
+      f.update_center();
       f.update_ave_v();
       f.update_goal();
       f.update_boids();

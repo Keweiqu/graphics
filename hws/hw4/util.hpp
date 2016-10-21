@@ -34,7 +34,7 @@ void center_view(mat4 &v, Flock& f);
 void side_view(mat4 &v, Flock& f);
 void update_view(mat4 &view, Flock& f);
 void trailing_view(mat4 &view, Flock& f);
-vec3 ave_flocks_center(Flock& f);
+vec3 ave_flock_center(Flock& f);
 vec3 calc_middleway(Flock& f);
 vec3 get_side_pos(Flock& f);
 vec3 get_trailing_pos(Flock &f);

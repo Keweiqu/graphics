@@ -133,8 +133,8 @@ void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
 
 void update_view(mat4 &view, Flock& f) {
   //center_view(view, f);
-  //side_view(view, f);
-  trailing_view(view, f);
+  side_view(view, f);
+  //trailing_view(view, f);
   /*
   switch(v_mode) {
     case CENTER:
@@ -174,28 +174,13 @@ void trailing_view(mat4& view, Flock &f) {
   my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
 }
 
-vec3 ave_flocks_center(Flock& f) {
-  int num1 = 0, num2 = 0;
-  for (int i = 0 ; i < f.group->size(); i++) {
-    if ((*(f.group))[i] == 0) {
-      num1++;
-    } else {
-      num2++;
-    }
-  }
-
-  vec3 center;
-  if(num1 + num2 <= 0) {
-    center = f.goal;
-  } else {
-    center = (f.center[0] * (GLfloat) num1 + f.center[1] * (GLfloat) num2) / (GLfloat)(num1 + num2);
-  }
-  return center;
+vec3 ave_flock_center(Flock& f) {
+  return f.center;
 }
 
 
 vec3 calc_middleway(Flock& f) {
-  vec3 ave_center = ave_flocks_center(f);
+  vec3 ave_center = ave_flock_center(f);
   return (ave_center + f.goal) / 2;
 }
 
@@ -207,14 +192,14 @@ vec3 get_side_pos(Flock& f) {
     u = f.goal;
   } else {
     m = calc_middleway(f);
-    vec3 c = ave_flocks_center(f);
+    vec3 c = ave_flock_center(f);
     u = f.goal - c;
   }
   vec3 p = vec3::cross(u, z);
   p = vec3::normalize(p);
-  p = p * 300.0;
+  p = p * 400.0;
   m = m + p;
-  m = m + vec3(0.0, 0.0, 400.0);
+  m = m + vec3(0.0, 0.0, 800.0);
   return m;
 }
 
@@ -226,22 +211,23 @@ vec3 get_trailing_pos(Flock& f) {
     m[2] = m[2] + 400;
   } else {
     m = calc_middleway(f);
-    vec3 c = ave_flocks_center(f);
+    vec3 c = ave_flock_center(f);
     vec3 u = f.goal - c;
     m = m - vec3::normalize(u) * 500.0;
-    m[2] = m[2] + 500;
+    m[2] = m[2] + 1000;
   }
   return m;
 }
 
 
 GLfloat center_goal_dist(Flock& f) {
-  vec3 center = ave_flocks_center(f);
+  vec3 center = ave_flock_center(f);
   return (center - f.goal).len();
 }
 
 GLfloat max_boid_goal_dist(Flock& f) {
   GLfloat max = 0;
+  vec3 center = ave_flock_center(f);
   for (int i = 0; i < f.count; i++) {
     GLfloat dist = ((*(f.pos))[i] - center).len();
     if (dist > max) {
