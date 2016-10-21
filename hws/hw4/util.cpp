@@ -44,14 +44,14 @@ void calc_checkerboard_colors(int n) {
   if (n % 2 == 0) {
     for (int i = 0; i < (n+1)*(n+1); i++) {
       if (i % 2 == 1) {
-        board_colors[i][0] = 1.0;
-        board_colors[i][1] = 1.0;
-        board_colors[i][2] = 1.0;
+        board_colors[i][0] = 0.8;
+        board_colors[i][1] = 0.8;
+        board_colors[i][2] = 0.8;
         board_colors[i][3] = 1.0;
       } else {
-        board_colors[i][0] = 0.0;
-        board_colors[i][1] = 0.0;
-        board_colors[i][2] = 0.0;
+        board_colors[i][0] = 0.2;
+        board_colors[i][1] = 0.2;
+        board_colors[i][2] = 0.2;
         board_colors[i][3] = 1.0;
       }
     }
@@ -59,26 +59,26 @@ void calc_checkerboard_colors(int n) {
     for (int i = 0; i < (n+1)*(n+1); i++) {
       if ((i / (n+1)) % 2 == 1) {
         if (i % 2 == 0) {
-          board_colors[i][0] = 1.0;
-          board_colors[i][1] = 1.0;
-          board_colors[i][2] = 1.0;
+          board_colors[i][0] = 0.8;
+          board_colors[i][1] = 0.8;
+          board_colors[i][2] = 0.8;
           board_colors[i][3] = 1.0;
         } else {
-          board_colors[i][0] = 0.0;
-          board_colors[i][1] = 0.0;
-          board_colors[i][2] = 0.0;
+          board_colors[i][0] = 0.2;
+          board_colors[i][1] = 0.2;
+          board_colors[i][2] = 0.2;
           board_colors[i][3] = 1.0;
         }
       } else {
         if (i % 2 == 1) {
-          board_colors[i][0] = 1.0;
-          board_colors[i][1] = 1.0;
-          board_colors[i][2] = 1.0;
+          board_colors[i][0] = 0.8;
+          board_colors[i][1] = 0.8;
+          board_colors[i][2] = 0.8;
           board_colors[i][3] = 1.0;
         } else {
-          board_colors[i][0] = 0.0;
-          board_colors[i][1] = 0.0;
-          board_colors[i][2] = 0.0;
+          board_colors[i][0] = 0.2;
+          board_colors[i][1] = 0.2;
+          board_colors[i][2] = 0.2;
           board_colors[i][3] = 1.0;
         }
       }
@@ -115,6 +115,23 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
     glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
 
+  }
+}
+
+void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
+  
+  for (int i = 0; i < f->count; i++) {
+    mat4 result;
+    result = project;
+    result = result * view;
+    
+    my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2] * 0, result);
+    GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
+    my_rotatef(xy_angle, 0, 0, 1, result);
+    glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
   }
 }
 

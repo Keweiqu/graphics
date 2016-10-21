@@ -202,7 +202,6 @@ vector<int> Flock::get_knn(int i) {
   }
 
   sort(my_group.begin(), my_group.begin() + count - 1);
-  cout << endl;
   GLfloat cutoff = my_group[KNN - 1] + 0.01 /*epislon*/;
   for(int k = 0; k <count; k++) {
     if(get_dist(i,k) < cutoff) {
