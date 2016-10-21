@@ -33,3 +33,6 @@ Default view is side view
 - Matrix implemented in mat4.hpp
 - glTranslate, glRotate, glScale, gluLookat, glPerspective all implemented in gl_replace.cpp
 - util.hpp contains all drawing and viewing related auciliary functions
+
+## misc
+- The video seems to be not streaming smoothly. But it actually runs smoothly on the machine. 
