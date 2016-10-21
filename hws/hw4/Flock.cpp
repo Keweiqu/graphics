@@ -1,7 +1,6 @@
 #include "Flock.hpp"
 #define DELTA 51
 #define INITIAL_NUM 20
-#define WORLD_SIZE 10000
 extern int up, down, to_left, to_right;
 
 Flock::Flock() {

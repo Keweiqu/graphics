@@ -75,7 +75,7 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
 void init_checkerboard() {
   glShadeModel(GL_FLAT);
 
-  calc_checkerboard_vertices(SIDES, 20000);
+  calc_checkerboard_vertices(SIDES, WORLD_SIZE * 2);
   calc_checkerboard_indices(SIDES);
   calc_checkerboard_colors(SIDES);
   
@@ -256,8 +256,8 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   v_mode = SIDE;
-     my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
-   my_perspective(60.0, 1.0, 5.0, 21000.0, project);
+  my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
+  my_perspective(60.0, 1.0, 5.0, 21000.0, project);
 
 if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
