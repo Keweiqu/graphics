@@ -9,7 +9,7 @@
 #include <cmath>
 #define NUM_GROUP 2
 #define SPEED_LIMIT 30
-#define GOAL_SPEED 20
+#define GOAL_SPEED 15
 #define KNN 5
 using namespace std;
 
