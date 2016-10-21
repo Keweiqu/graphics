@@ -198,7 +198,7 @@ void init() {
   glBindBuffer(GL_ARRAY_BUFFER, shadow_vbo);
   shadow_color = glGetAttribLocation(program, "vColor");
   glEnableVertexAttribArray(shadow_color);
-  glVertexAttribPointer(shadow_color, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  glVertexAttribPointer(shadow_color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
   //Goal
   glGenVertexArrays(1, &goal_vao);

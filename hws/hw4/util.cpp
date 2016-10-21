@@ -44,14 +44,14 @@ void calc_checkerboard_colors(int n) {
   if (n % 2 == 0) {
     for (int i = 0; i < (n+1)*(n+1); i++) {
       if (i % 2 == 1) {
-        board_colors[i][0] = 1.0;
-        board_colors[i][1] = 1.0;
-        board_colors[i][2] = 1.0;
+        board_colors[i][0] = 0.8;
+        board_colors[i][1] = 0.8;
+        board_colors[i][2] = 0.8;
         board_colors[i][3] = 1.0;
       } else {
-        board_colors[i][0] = 0.0;
-        board_colors[i][1] = 0.0;
-        board_colors[i][2] = 0.0;
+        board_colors[i][0] = 0.2;
+        board_colors[i][1] = 0.2;
+        board_colors[i][2] = 0.2;
         board_colors[i][3] = 1.0;
       }
     }
@@ -59,26 +59,26 @@ void calc_checkerboard_colors(int n) {
     for (int i = 0; i < (n+1)*(n+1); i++) {
       if ((i / (n+1)) % 2 == 1) {
         if (i % 2 == 0) {
-          board_colors[i][0] = 1.0;
-          board_colors[i][1] = 1.0;
-          board_colors[i][2] = 1.0;
+          board_colors[i][0] = 0.8;
+          board_colors[i][1] = 0.8;
+          board_colors[i][2] = 0.8;
           board_colors[i][3] = 1.0;
         } else {
-          board_colors[i][0] = 0.0;
-          board_colors[i][1] = 0.0;
-          board_colors[i][2] = 0.0;
+          board_colors[i][0] = 0.2;
+          board_colors[i][1] = 0.2;
+          board_colors[i][2] = 0.2;
           board_colors[i][3] = 1.0;
         }
       } else {
         if (i % 2 == 1) {
-          board_colors[i][0] = 1.0;
-          board_colors[i][1] = 1.0;
-          board_colors[i][2] = 1.0;
+          board_colors[i][0] = 0.8;
+          board_colors[i][1] = 0.8;
+          board_colors[i][2] = 0.8;
           board_colors[i][3] = 1.0;
         } else {
-          board_colors[i][0] = 0.0;
-          board_colors[i][1] = 0.0;
-          board_colors[i][2] = 0.0;
+          board_colors[i][0] = 0.2;
+          board_colors[i][1] = 0.2;
+          board_colors[i][2] = 0.2;
           board_colors[i][3] = 1.0;
         }
       }
