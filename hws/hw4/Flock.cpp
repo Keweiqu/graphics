@@ -123,7 +123,7 @@ void Flock::update_boids() {
 vec3 Flock::v_to_align(int i) {
   vec3 result;
   vector<int> knn = get_knn(i);
-  for(int j = 0; j < knn.size(); j++) {
+  for(unsigned int j = 0; j < knn.size(); j++) {
     result = result + (*vel)[knn[j]];
   }
   result = result * (1.0 / (KNN * 1.0)) * 0.001;
@@ -145,7 +145,7 @@ vec3 Flock::v_to_center(int i) {
 vec3 Flock::v_to_separate(int i) {
   vector<int> knn = get_knn(i);
   vec3 result;
-  for(int j = 0; j < knn.size(); j++) {
+  for(unsigned int j = 0; j < knn.size(); j++) {
     result = (*pos)[knn[j]] - (*pos)[i];
   }
   GLfloat sum = pow(result.len(), 2);
@@ -214,7 +214,7 @@ vector<int> Flock::get_knn(int i) {
 
 vec3 Flock::neighbour_center(vector<int> knn) {
   vec3 result;
-  for(int i = 0; i < knn.size(); i++) {
+  for(unsigned int i = 0; i < knn.size(); i++) {
     result = result + (*pos)[knn[i]];
   }
   if(knn.size() > 0) {

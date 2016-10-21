@@ -3,6 +3,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include "vec3.hpp"
 #include "common.hpp"
