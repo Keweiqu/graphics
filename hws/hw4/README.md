@@ -32,7 +32,9 @@ Default view is side view
 - vector implemeted in vec3.hpp
 - Matrix implemented in mat4.hpp
 - glTranslate, glRotate, glScale, gluLookat, glPerspective all implemented in gl_replace.cpp
-- util.hpp contains all drawing and viewing related auciliary functions
+- util.hpp contains all drawing and viewing related auxiliary functions
 
-## misc
+## Notes and questions
 - The video seems to be not streaming smoothly. But it actually runs smoothly on the machine. 
+- We did not #define 3 in vec3 or 16 in mat4 because we can't think of any reason to change these numbers. And we believe leave them as raw ints increases code readability.
+- [question] After implementing flapping using linear interpolation, we need to create additional vbo and uniform for things that do not need it such as checkerboard and goal. Is it more recommended to create two shader programs or use one shader program and simply pass in dummy data for the objects that do not use these values? 
