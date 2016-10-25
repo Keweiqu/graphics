@@ -24,14 +24,15 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
     } else {
       cout << filename << " is OFF file" << endl;
       bool hasError = FALSE;
-      vector<GLfloat> v_tmp;
-      vector<GLuint> f_tmp;
+      vector<GLfloat> v_buffer;
+      vector<GLuint> f_buffer;
       getline(source, line);
       int num_vertices, num_faces, num_edges;
       stringstream stream(line);
       stream >> num_vertices >> num_faces >> num_edges;
       cout <<"num_vertices: " << num_vertices << " num_faces: " << num_faces << " num_edges: " << num_edges << endl;
       for(int i = 0; i < num_vertices && !hasError; i++) {
+        vector<GLfloat> vertex_tmp;
       	getline(source, line);
         if (source.fail()) {
           cout << "Warning: incorrent line number, discard " << filename << endl;
@@ -39,15 +40,25 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
           continue;
         }
       	stringstream stream(line);
-      	GLfloat x, y, z;
-      	stream >> x >> y >> z;
-      	cout << "x: " << x << " y: " << y << " z: " << z << endl;
-        v_tmp.push_back(x);
-        v_tmp.push_back(y);
-        v_tmp.push_back(z);
+        GLfloat tmp;
+        while (!stream.eof()) {
+          stream >> tmp;
+          vertex_tmp.push_back(tmp);
+        }
+        if (vertex_tmp.size() != 3) {
+          cout << "Malformed file" << endl;
+          hasError = TRUE;
+          continue;
+        }
+        for (unsigned int i = 0; i < vertex_tmp.size(); i++) {
+          cout << vertex_tmp[i] << " ";
+        }
+        cout << endl;
+        v_buffer.insert(v_buffer.end(), vertex_tmp.begin(), vertex_tmp.end());
       }
 
       for(int i = 0; i < num_faces && !hasError; i++) {
+        vector<GLuint> index_tmp;
       	getline(source, line);
         if (source.fail()) {
           cout << "Warning: incorrect line number, discard " << filename << endl;
@@ -55,31 +66,34 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
           continue;
         }
       	stringstream stream(line);
-      	int num;
-      	stream >> num;
-      	if(num == 3) {
-      	  int index1, index2, index3;
-      	  stream >> index1 >> index2 >> index3;
-      	  cout << "Face of triangle " << index1 << " : " << index2 << " : " << index3 << endl;
-          f_tmp.push_back(index1);
-          f_tmp.push_back(index2);
-          f_tmp.push_back(index3);
-      	} else if(num == 4) {
-      	  int index1, index2, index3, index4;
-      	  stream >> index1 >> index2 >> index3 >> index4;
-      	  cout << "Face of quad " << index1 << " : " << index2 << " : " << index3 << " : " << index4 << endl;
-          f_tmp.push_back(index1);
-          f_tmp.push_back(index2);
-          f_tmp.push_back(index3);
-          f_tmp.push_back(index4);
-      	}
+      	GLuint num;
+        while (!stream.eof()) {
+          stream >> num;
+          index_tmp.push_back(num);
+        }
+        if (index_tmp.size() != 4 && index_tmp.size() != 5) {
+          cout << "Malformed file" << endl;
+          hasError = TRUE;
+          continue;
+        }
+        if (index_tmp.size() == 4) {
+          cout << "Face of triangle ";
+        } else {
+          cout << "Face of quad ";
+        }
+        for (unsigned int i = 0; i < index_tmp.size(); i++) {
+          if (i != 0) cout << index_tmp[i];
+          if (i != 0 && i != index_tmp.size() - 1) cout << " : ";
+        }
+        cout << endl;
+        f_buffer.insert(f_buffer.end(), index_tmp.begin() + 1, index_tmp.end());
       }
       if (getline(source, line)) {
         cout << "Warning: extra lines in " << filename << " ignored" << endl;
       }
       if (!hasError) {
-        mesh->vertices->insert(mesh->vertices->end(), v_tmp.begin(), v_tmp.end());
-        mesh->indices->insert(mesh->indices->end(), f_tmp.begin(), f_tmp.end());
+        mesh->vertices->insert(mesh->vertices->end(), v_buffer.begin(), v_buffer.end());
+        mesh->indices->insert(mesh->indices->end(), f_buffer.begin(), f_buffer.end());
       }
     }
   }
