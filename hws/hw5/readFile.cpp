@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     cout << mesh.vertices->at(i) << " ";
   }
   cout << endl;
-  
+
   cout << "Mesh indices: ";
   for (int i = 0; i < mesh.indices->size(); i++) {
     cout << mesh.indices->at(i) << " ";

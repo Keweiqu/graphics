@@ -22,19 +22,21 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
       cout << "File format incorrect" << endl;
       continue;
     } else {
-      cout << "is OFF file" << endl;
+      cout << filename << " is OFF file" << endl;
+      bool hasError = FALSE;
       vector<GLfloat> v_tmp;
       vector<GLuint> f_tmp;
       getline(source, line);
       int num_vertices, num_faces, num_edges;
       stringstream stream(line);
       stream >> num_vertices >> num_faces >> num_edges;
-      cout <<"num_vertices: " << num_vertices << " num_faces: " << num_faces << " num_edges" << num_edges << endl;
-      for(int i = 0; i < num_vertices; i++) {
+      cout <<"num_vertices: " << num_vertices << " num_faces: " << num_faces << " num_edges: " << num_edges << endl;
+      for(int i = 0; i < num_vertices && !hasError; i++) {
       	getline(source, line);
         if (source.fail()) {
-          cout << "Input error" << endl;
-          return -1;
+          cout << "Warning: incorrent line number, discard " << filename << endl;
+          hasError = TRUE;
+          continue;
         }
       	stringstream stream(line);
       	GLfloat x, y, z;
@@ -45,11 +47,12 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
         v_tmp.push_back(z);
       }
 
-      for(int i = 0; i < num_faces; i++) {
+      for(int i = 0; i < num_faces && !hasError; i++) {
       	getline(source, line);
         if (source.fail()) {
-          cout << "Input error" << endl;
-          return -1;
+          cout << "Warning: incorrect line number, discard " << filename << endl;
+          hasError = TRUE;
+          continue;
         }
       	stringstream stream(line);
       	int num;
@@ -71,8 +74,13 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
           f_tmp.push_back(index4);
       	}
       }
-      mesh->vertices->insert(mesh->vertices->end(), v_tmp.begin(), v_tmp.end());
-      mesh->indices->insert(mesh->indices->end(), f_tmp.begin(), f_tmp.end());
+      if (getline(source, line)) {
+        cout << "Warning: extra lines in " << filename << " ignored" << endl;
+      }
+      if (!hasError) {
+        mesh->vertices->insert(mesh->vertices->end(), v_tmp.begin(), v_tmp.end());
+        mesh->indices->insert(mesh->indices->end(), f_tmp.begin(), f_tmp.end());
+      }
     }
   }
   return 0;
