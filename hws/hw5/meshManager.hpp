@@ -10,7 +10,7 @@ using namespace std;
 typedef struct _metadata {
   GLuint num_of_vertices;
   GLuint num_of_indices;
-  GLuint offset;
+  GLuint offset; // offset for vertices and normals
   GLuint flat_offset;
   GLuint indices_offset;
 } metadata;

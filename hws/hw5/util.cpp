@@ -148,11 +148,11 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
       	stringstream stream(line);
         GLuint n;
         stream >> n;
-	if (n < 3 || n > 4) {
-	  cout << "bad line ignored.. will draw crazily" << endl;
-	  num_faces--;
-	} else if (n == 3) {
-	  GLuint n1, n2, n3;
+      	if (n < 3 || n > 4) {
+      	  cout << "bad line ignored.. will draw crazily" << endl;
+      	  num_faces--;
+      	} else if (n == 3) {
+      	  GLuint n1, n2, n3;
           stream >> n1 >> n2 >> n3;
           mesh->indices->push_back(n1);
           mesh->indices->push_back(n2);
@@ -164,12 +164,18 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
           mesh->indices->push_back(n2);
           mesh->indices->push_back(n3);
 
-	  mesh->indices->push_back(n1);
-	  mesh->indices->push_back(n3);
+      	  mesh->indices->push_back(n1);
+      	  mesh->indices->push_back(n3);
           mesh->indices->push_back(n4);
-	  num_faces++;
+      	  num_faces++;
         }
       }
+      meshdata md;
+      md.num_of_vertices = num_vertices;
+      md.num_of_faces = num_faces;
+      mesh.metadata.num_of_vertices = num_vertices;
+      mesh.metadata.num_of_faces = num_faces;
+      mesh.metadata.vertices_offset
       if (getline(source, line)) {
         cout << "Warning: extra lines in " << filename << " ignored" << endl;
       }
