@@ -98,7 +98,7 @@
 //   return 0;
 // }
 
-int readFile(meshManager* mesh, int argc, char* argv[]) {
+int readFiles(meshManager* mesh, int argc, char* argv[]) {
   if(argc <= 1) {
     cout << "No file, no render, goodbye." << endl;
     return -1;
