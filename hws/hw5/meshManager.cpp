@@ -15,7 +15,7 @@ void meshManager::readFiles(int num_files, char* argv[]) {
   for(int i = 0; i < num_files; i++) {
     char* filename = argv[i];
     this->readFile(filename);
-    this->calc_normal(this->idx_offset, this->vn_offset, filename);
+    //this->calc_normal(this->idx_offset, this->vn_offset, filename);
   }
 }
 
@@ -23,6 +23,7 @@ void meshManager::readFile(char* filename) {
   string f_string = string(filename);
   (*filename_metadata)[f_string].vn_offset = this->vn_offset;
   (*filename_metadata)[f_string].indices_offset = this->idx_offset;
+  (*filename_metadata)[f_string].flat_offset = this->flat_offset;
 
   ifstream source;
   source.open(filename);
@@ -42,7 +43,7 @@ void meshManager::readFile(char* filename) {
     int num_vertices, num_faces, num_edges;
     stringstream stream(line);
     stream >> num_vertices >> num_faces >> num_edges;
-    (*filename_metadata)[f_string].num_of_vertices = num_vertices;
+  
     cout <<"num_vertices: " << num_vertices << " num_faces: " << num_faces << " num_edges: " << num_edges << endl;
     cout << "Reading vertices..." << endl;
     for(int i = 0; i < num_vertices; i++) {
@@ -100,7 +101,10 @@ void meshManager::readFile(char* filename) {
 	face_index++;
       }
     }
-    this->idx_offset = this->idx_offset + face_index * 3;
+
+    (*filename_metadata)[f_string].num_of_vertices = num_vertices;
+    (*this->filename_metadata)[f_string].num_of_indices = face_index * 3;
+
     if (getline(source, line)) {
       cout << "Warning: extra lines in " << filename << " ignored" << endl;
     }

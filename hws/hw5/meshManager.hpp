@@ -36,7 +36,7 @@ public:
 private:
   vector<GLfloat> face_normals; // should be for per mesh
   void readFile(char* filename);// after readFile, all data in metadata should be available
-  void calc_normal(GLuint idx_offset, GLuint vn_offset, string filename);
+  void calc_normal(GLuint idx_offset, GLuint vn_offset, string filename);// next round of meshManager offsets should be available
 };
 
 
