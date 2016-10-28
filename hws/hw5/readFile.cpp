@@ -9,16 +9,16 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  cout << "Mesh vertice: ";
-  for (int i = 0; i < mesh.vertices->size(); i++) {
-    cout << mesh.vertices->at(i) << " ";
-  }
-  cout << endl;
+  // cout << "Mesh vertice: ";
+  // for (unsigned int i = 0; i < mesh.vertices->size(); i++) {
+  //   cout << mesh.vertices->at(i) << " ";
+  // }
+  // cout << endl;
 
-  cout << "Mesh indices: ";
-  for (int i = 0; i < mesh.indices->size(); i++) {
-    cout << mesh.indices->at(i) << " ";
-  }
+  // cout << "Mesh indices: ";
+  // for (unsigned int i = 0; i < mesh.indices->size(); i++) {
+  //   cout << mesh.indices->at(i) << " ";
+  // }
   cout << endl;
   return 0;
 }
