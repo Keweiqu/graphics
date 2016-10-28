@@ -19,10 +19,10 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
     getline(source, line);
 
     if(line != "OFF") {
-      cout << "File format incorrect" << endl;
+      cout << "File " << filename << " has incorrect format" << endl;
       continue;
     } else {
-      cout << filename << " is OFF file" << endl;
+      cout << "Reading data for " << filename << "..." << endl;
       bool hasError = FALSE;
       vector<GLfloat> v_buffer;
       vector<GLuint> f_buffer;
@@ -31,6 +31,7 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
       stringstream stream(line);
       stream >> num_vertices >> num_faces >> num_edges;
       cout <<"num_vertices: " << num_vertices << " num_faces: " << num_faces << " num_edges: " << num_edges << endl;
+      cout << "Reading vertices..." << endl;
       for(int i = 0; i < num_vertices && !hasError; i++) {
         vector<GLfloat> vertex_tmp;
       	getline(source, line);
