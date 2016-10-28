@@ -139,8 +139,8 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
         mesh->vertices->push_back(y);
         mesh->vertices->push_back(z);
       }
-
-      for(int i = 0; i < num_faces; i++) {
+      int num_original_faces = num_faces;
+      for(int i = 0; i < num_original_faces; i++) {
       	getline(source, line);
         if (source.fail()) {
           cout << "Warning: incorrect line number... will draw crazily with dummy values " << filename << endl;
