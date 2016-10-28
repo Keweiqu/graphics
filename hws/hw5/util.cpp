@@ -121,40 +121,38 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
       continue;
     } else {
       cout << "Reading data for " << filename << "..." << endl;
-      bool hasError = FALSE;
       getline(source, line);
       int num_vertices, num_faces, num_edges;
       stringstream stream(line);
       stream >> num_vertices >> num_faces >> num_edges;
       cout <<"num_vertices: " << num_vertices << " num_faces: " << num_faces << " num_edges: " << num_edges << endl;
       cout << "Reading vertices..." << endl;
-      for(int i = 0; i < num_vertices && !hasError; i++) {
+      for(int i = 0; i < num_vertices; i++) {
       	getline(source, line);
         if (source.fail()) { 
-          cout << "Warning: incorrent line number, discard " << filename << endl;
-          hasError = TRUE;
-          continue;
+          cout << "Warning: incorrent line number, will draw crazily..." << filename << endl;
         }
       	stringstream stream(line);
-        GLfloat v1, v2, v3;
-        stream >> v1 >> v2 >> v3;
-        mesh->vertices->push_back(v1);
-        mesh->vertices->push_back(v2);
-        mesh->vertices->push_back(v3);
+        GLfloat x, y, z;
+        stream >> x >> y >> z;
+        mesh->vertices->push_back(x);
+        mesh->vertices->push_back(y);
+        mesh->vertices->push_back(z);
       }
 
-      for(int i = 0; i < num_faces && !hasError; i++) {
+      for(int i = 0; i < num_faces; i++) {
       	getline(source, line);
         if (source.fail()) {
-          cout << "Warning: incorrect line number, discard " << filename << endl;
-          hasError = TRUE;
-          continue;
+          cout << "Warning: incorrect line number... will draw crazily with dummy values " << filename << endl;
         }
       	stringstream stream(line);
         GLuint n;
         stream >> n;
-        if (n == 3) {
-        	GLuint n1, n2, n3;
+	if (n < 3 || n > 4) {
+	  cout << "bad line ignored.. will draw crazily" << endl;
+	  num_faces--;
+	} else if (n == 3) {
+	  GLuint n1, n2, n3;
           stream >> n1 >> n2 >> n3;
           mesh->indices->push_back(n1);
           mesh->indices->push_back(n2);
@@ -165,7 +163,11 @@ int readFile(meshManager* mesh, int argc, char* argv[]) {
           mesh->indices->push_back(n1);
           mesh->indices->push_back(n2);
           mesh->indices->push_back(n3);
+
+	  mesh->indices->push_back(n1);
+	  mesh->indices->push_back(n3);
           mesh->indices->push_back(n4);
+	  num_faces++;
         }
       }
       if (getline(source, line)) {
