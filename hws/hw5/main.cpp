@@ -20,6 +20,7 @@ int main(int argc, char* argv[]) {
   }
   cout << endl;
   // int i = (*mesh.filename_metadata)["extralarge/dragon.off"].num_of_indices;
+  int i = (*mesh.filename_metadata)["tetra.off"].num_of_indices;
 
   // cout << "Mesh vertice: ";
   // for (unsigned int i = 0; i < mesh.vertices->size(); i++) {
