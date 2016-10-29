@@ -11,7 +11,6 @@ meshManager::meshManager() {
   index_faces = new map< GLuint, vector<GLuint> >();
   filename_metadata = new map< string, metadata>();
   flat_vertices = new vector<GLfloat>();
-  face_normals = new vector<GLfloat>();
   draw_sequence = new vector<string>();
 }
 
@@ -28,7 +27,7 @@ void meshManager::readFile(char* filename) {
   string f_string = string(filename);
   (*filename_metadata)[f_string].vn_offset = this->vn_offset;
   (*filename_metadata)[f_string].indices_offset = this->idx_offset;
-  (*filename_metadata)[f_string].flat_vn_offset = this->flat_offset;
+  (*filename_metadata)[f_string].flat_offset = this->flat_offset;
 
   ifstream source;
   source.open(filename);
@@ -85,9 +84,9 @@ void meshManager::readFile(char* filename) {
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);	
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n1]);
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n2]);
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n3]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n2]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3]);
 	glm::vec3 face_normal = this->calc_face_normal(n1 + this->vn_offset, n2 + this->vn_offset, n3 + this->vn_offset);
 	this->face_normals->push_back(face_normal);
 	face_index++;
@@ -101,9 +100,9 @@ void meshManager::readFile(char* filename) {
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n1]);
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n2]);
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n3]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n2]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3]);
 	glm::vec3 face_normal1 = this->calc_face_normal(n1 + this->vn_offset, n2 + this->vn_offset, n3 + this->vn_offset);
 	this->face_normals->push_back(face_normal1);
 	face_index++;
@@ -114,9 +113,9 @@ void meshManager::readFile(char* filename) {
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
 	(*this->index_faces)[n4].push_back(face_index);	
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n1]);
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n3]);
-	this->flat_vertices->push_back((*this->vertices_normals)[this->vn_offset + n4]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3]);
+	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n4]);
 	glm::vec3 face_normal2 = this->calc_face_normal(n1 + this->vn_offset, n3 + this->vn_offset, n4 + this->vn_offset);
 	this->face_normals->push_back(face_normal2);
 	face_index++;
@@ -125,7 +124,7 @@ void meshManager::readFile(char* filename) {
 
     (*filename_metadata)[f_string].num_of_vertices = num_vertices;
     (*this->filename_metadata)[f_string].num_of_indices = face_index * 3;
-    this->vn_offset = this->vertices_normals->size();
+    this->vn_offset = this->vertices->size();
     this->idx_offset = this->indices->size();
     this->flat_offset += face_index * 6;
 
