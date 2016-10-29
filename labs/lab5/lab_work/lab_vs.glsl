@@ -11,15 +11,15 @@ uniform mat4 ModelView;
 uniform mat4 Project;
 
 void main() {
-     vec4 LightPosition = vec4(0.0, 5.0, 0.0, 1.0);
-   
+     vec4 LightPosition = ModelView * vec4(0.0, 5.0, 0.0, 1.0);
+     vec4 pos = ModelView * vPos;
 
-     fN = vNormal;
-     fE = vPos.xyz;
+     fN = (ModelView * vec4(vNormal, 0.0)).xyz;
+     fE = pos.xyz;
      fL = LightPosition.xyz;
 
      if( LightPosition.w != 0.0) {
-     	 fL = LightPosition.xyz - vPos.xyz;
+     	 fL = LightPosition.xyz - pos.xyz;
      }
      gl_Position = Project * ModelView * vPos;
 }

@@ -29,6 +29,7 @@ void main() {
      if(dot(L, N) < 0.0)
      	       specular = vec4(0.0, 0.0, 0.0, 0.0);
      gl_Position = Project * ModelView * vec4(vPos, 1.0);
-     color = ambient + diffuse + specular;	    
+     color = ambient + diffuse + specular;
      color.a = 1.0;
+     color = vec4(0.0, 0.0, 0.0, 1.0);
 }

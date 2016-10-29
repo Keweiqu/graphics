@@ -161,7 +161,7 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
 
 void init() {
   glEnable(GL_DEPTH_TEST);
-  program = initshader("lab_vs.glsl", "lab_fs.glsl");
+  program = initshader("smooth_lab_vs.glsl", "smooth_lab_fs.glsl");
   glUseProgram(program);
 
   vbo_pos = make_bo(GL_ARRAY_BUFFER, vertices, sizeof(vertices));
@@ -210,6 +210,7 @@ glm::vec3 get_face_normal(int i0, int i1, int i2) {
 }
 
 void calc_normals() {
+  /*
   for(int i = 0; i < 8; i++) {
     glm::vec3 normal = glm::vec3(0.0);
     vector<int> faces = index_faces[i];
@@ -230,56 +231,47 @@ void calc_normals() {
     normals[3 * i + 1] = normal[1];
     normals[3 * i + 2] = normal[2];
   }
-  /*
+  */
   //0
-  normals[0] = -0.333;
-  normals[1] = 0.333;
-  normals[2] = 0.333;
-  normals[3] = 0;
+  int i = 0;
+  normals[i++] = -0.333;
+  normals[i++] = 0.333;
+  normals[i++] = 0.333;
 
   //1
-  normals[4] = 0.333;
-  normals[5] = 0.333;
-  normals[6] = 0.333;
-  normals[7] = 0;
+  normals[i++] = 0.333;
+  normals[i++] = 0.333;
+  normals[i++] = 0.333;
 
-  int i = 8;
   //2
   normals[i++] = -0.333;
   normals[i++] = -0.333;
   normals[i++] = 0.333;
-  normals[i++] = 0.0;
 
   //3
   normals[i++] = 0.333;
   normals[i++] = -0.333;
   normals[i++] = 0.333;
-  normals[i++] = 0.0;
 
   //4
   normals[i++] = -0.333;
   normals[i++] = 0.333;
   normals[i++] = -0.333;
-  normals[i++] = 0.0;
 
   //5
   normals[i++] = 0.333;
   normals[i++] = 0.333;
   normals[i++] = -0.333;
-  normals[i++] = 0.0;
 
   //6
   normals[i++] = -0.333;
   normals[i++] = -0.333;
   normals[i++] = -0.333;
-  normals[i++] = 0.0;
 
   //7
   normals[i++] = 0.333;
   normals[i++] = -0.333;
   normals[i++] = -0.333;
-  normals[i++] = 0.0;
-  */
  
 }
 
@@ -307,9 +299,9 @@ int main(int argc, char* argv[]) {
   glm::mat4 model_mat = glm::mat4(1.0);
   glm::mat4 view_mat = glm::mat4(1.0);
   glm::mat4 project_mat = glm::mat4(1.0);
-  glm::vec3 eye = glm::vec3(0.0, 1.7, 5.0);
+  glm::vec3 eye = glm::vec3(0.0, 6.0, 0.0);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
-  glm::vec3 up = glm::vec3(0, 1, 0);
+  glm::vec3 up = glm::vec3(0, 0, 1);
   view_mat = glm::lookAt(eye, center, up);
  
   project_mat = glm::perspective(45 * M_PI / 180.0, 1.0, 0.1, 10.0);
