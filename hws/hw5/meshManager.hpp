@@ -58,7 +58,7 @@ public:
   void readFiles(int num_files, char* argv[]);
   void init();
   void draw_vertex_mode();
-  void draw_edge_mode();
+  void draw_default();
 private:
   vector<glm::vec3> *face_normals; // should be for per mesh
   void readFile(char* filename);// after readFile, all data in metadata should be available

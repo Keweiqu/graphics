@@ -243,10 +243,14 @@ void meshManager::init() {
 
 }
 
-void meshManager::draw_edge_mode() {
+void meshManager::draw_default() {
   glBindVertexArray(this->vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
-    glDrawElements(GL_TRIANGLES, this->indices->size(), GL_UNSIGNED_INT, (void*) 0);
+  for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
+    string filename = this->draw_sequence[i];
+    metadata md = (*this->filename_metadata)[filename];
+    glDrawElements(GL_TRIANGLES, md.num_of_indices, GL_UNSIGNED_INT, (void*) (md.indices_offset * sizeof(GLuint)));
+  }
 }
 
 void meshManager::draw_vertex_mode() {

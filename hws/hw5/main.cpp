@@ -65,7 +65,7 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   fs_shader = initshader("fs_vs.glsl", "fs_fs.glsl");
   wire_shader = initshader("wire_vs.glsl", "wire_fs.glsl");
-  glUseProgram(wire_shader);
+  glUseProgram(fs_shader);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
 
@@ -93,6 +93,12 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       glUseProgram(wire_shader);
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       mode = EDGE;
+      break;
+    case 't':
+    case 'T':
+      glUseProgram(fs_shader);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      mode = FACE;
       break;
     case 'v':
     case 'V':
@@ -149,7 +155,8 @@ int main(int argc, char* argv[]) {
     glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
     switch(mode) {
     case EDGE:
-      mesh.draw_edge_mode();
+    case FACE:
+      mesh.draw_default();
       break;
     case VERTEX:
       mesh.draw_vertex_mode();

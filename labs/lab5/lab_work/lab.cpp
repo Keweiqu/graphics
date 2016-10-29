@@ -165,7 +165,7 @@ void init() {
   glUseProgram(program);
 
   vbo_pos = make_bo(GL_ARRAY_BUFFER, vertices, sizeof(vertices));
-  vbo_normal = make_bo(GL_ARRAY_BUFFER, normals, sizeof(normals));
+  //vbo_normal = make_bo(GL_ARRAY_BUFFER, normals, sizeof(normals));
   idx_vbo = make_bo(GL_ELEMENT_ARRAY_BUFFER, indices, sizeof(indices));
   glGenVertexArrays(1, &vao);
 
@@ -175,11 +175,12 @@ void init() {
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
+  /*
   glBindBuffer(GL_ARRAY_BUFFER, vbo_normal);
   normal = glGetAttribLocation(program, "vNormal");
   glEnableVertexAttribArray(normal);
   glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-
+  */
   modelview = glGetUniformLocation(program, "ModelView");
   project = glGetUniformLocation(program, "Project");
   glClearColor(1.0, 1.0, 1.0, 1.0);
