@@ -1,7 +1,7 @@
 #include "meshManager.hpp"
 
 meshManager::meshManager() {
-  vn_offset = 0;
+  v_offset = 0;
   idx_offset = 0;
   vertices_normals = new vector<GLfloat>();
   indices = new vector<GLuint>();
@@ -18,6 +18,7 @@ void meshManager::readFiles(int num_files, char* argv[]) {
 }
 
 void meshManager::readFile(char* filename) {
+  this->index_faces->clear();
   string f_string = string(filename);
   (*filename_metadata)[f_string].vn_offset = this->vn_offset;
   (*filename_metadata)[f_string].indices_offset = this->idx_offset;
@@ -71,31 +72,37 @@ void meshManager::readFile(char* filename) {
       } else if (n == 3) {
 	GLuint n1, n2, n3;
 	stream >> n1 >> n2 >> n3;
-	this->indices->push_back(n1);
-	this->indices->push_back(n2);
-	this->indices->push_back(n3);
+	this->indices->push_back(n1 + this->v_offset);
+	this->indices->push_back(n2 + this->v_offset);
+	this->indices->push_back(n3 + this->v_offset);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
+	glm::vec3 face_normal = this->calc_face_normal(n1 + this->v_offset, n2 + this->v_offset, n3 + this->v_offset);
+	this->face_normals->push_back(face_normal);
 	face_index++;
 	
       } else if (n == 4) {
 	GLuint n1, n2, n3, n4;
 	stream >> n1 >> n2 >> n3 >> n4;
-	this->indices->push_back(n1);
-	this->indices->push_back(n2);
-	this->indices->push_back(n3);
+	this->indices->push_back(n1 + this->v_offset);
+	this->indices->push_back(n2 + this->v_offset);
+	this->indices->push_back(n3 + this->v_offset);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
+	glm::vec3 face_normal = this->calc_face_normal(n1 + this->v_offset, n2 + this->v_offset, n3 + this->v_offset);
+	this->face_normals->push_back(face_normal);
 	face_index++;
 
-	this->indices->push_back(n1);
-	this->indices->push_back(n3);
-	this->indices->push_back(n4);
+	this->indices->push_back(n1 + this->v_offset);
+	this->indices->push_back(n3 + this->v_offset);
+	this->indices->push_back(n4 + this->v_offset);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
 	(*this->index_faces)[n4].push_back(face_index);
+	glm::vec3 face_normal = this->calc_face_normal(n1 + this->v_offset, n3 + this->v_offset, n4 + this->v_offset);
+	this->face_normals->push_back(face_normal);
 	face_index++;
       }
     }
@@ -108,3 +115,15 @@ void meshManager::readFile(char* filename) {
     }
   }
 }
+
+
+glm::vec3 meshManager::calc_face_normal(GLuint v0, GLuint v1, GLuint v2) {
+  glm::vec3 vertex_0 = glm::vec3(this->vertices[v0 * 3], this->vertices[v0 * 3 + 1], this->vertices[v0 * 3 + 2]);
+  glm::vec3 vertex_1 = glm::vec3(this->vertices[v1 * 3], this->vertices[v1 * 3 + 1], this->vertices[v1 * 3 + 2]);
+  glm::vec3 vertex_2 = glm::vec3(this->vertices[v2 * 3], this->vertices[v2 * 3 + 1], this->vertices[v2 * 3 + 2]);
+  glm::vec3 vector0 = vertex_2 - vertex_1;
+  glm::vec3 vector1 = vertex_0 - vertex_1;
+  return glm::normalize(glm::cross(vector0, vector1));
+}
+
+

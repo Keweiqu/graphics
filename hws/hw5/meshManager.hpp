@@ -22,10 +22,11 @@ typedef struct _metadata {
 
 class meshManager {
 public:
-  GLuint vn_offset;
-  GLuint idx_offset;//in readF
+  GLuint v_offset;
+  GLuint idx_offset;
   GLuint flat_offset;
-  vector<GLfloat> *vertices_normals;
+  vector<GLfloat> *vertices;
+  vector<GLfloat> *normals;
   vector<GLuint> *indices;
   map< GLuint, vector<GLuint> > *index_faces;
   map< string, metadata > *filename_metadata;
@@ -33,10 +34,13 @@ public:
   vector<string> draw_sequence;
   meshManager();
   void readFiles(int num_files, char* argv[]);
+  void init();
+  void 
 private:
-  vector<GLfloat> face_normals; // should be for per mesh
+  vector<glm::vec3> face_normals; // should be for per mesh
   void readFile(char* filename);// after readFile, all data in metadata should be available
-  void calc_normal(GLuint idx_offset, GLuint vn_offset, string filename);// next round of meshManager offsets should be available
+  void calc_normal(string filename);// next round of meshManager offsets should be available
+  glm::vec3 calc_face_normal(GLuint v0, GLuint v1, GLuint v2);// v_offset should be added
 };
 
 
