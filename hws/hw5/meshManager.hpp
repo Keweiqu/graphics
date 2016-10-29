@@ -31,7 +31,7 @@ public:
   vector<GLuint> *indices;
   map< GLuint, vector<GLuint> > *index_faces;
   map< string, metadata > *filename_metadata;
-  vector<GLfloat> *flat_vertices_normals;
+  vector<GLfloat> *flat_vertices;
   vector<string> draw_sequence;
   meshManager();
   void readFiles(int num_files, char* argv[]);
