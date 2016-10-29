@@ -5,18 +5,12 @@
 int main(int argc, char* argv[]) {
   meshManager mesh;
   mesh.readFiles(argc - 1, argv + 1);
-  int i = (*mesh.filename_metadata)["tetra.off"].num_of_indices;
-
-  // cout << "Mesh vertice: ";
-  // for (unsigned int i = 0; i < mesh.vertices->size(); i++) {
-  //   cout << mesh.vertices->at(i) << " ";
-  // }
-  // cout << endl;
-
-  // cout << "Mesh indices: ";
-  // for (unsigned int i = 0; i < mesh.indices->size(); i++) {
-  //   cout << mesh.indices->at(i) << " ";
-  // }
-  cout << i;
+  for(int i = 0; i < mesh.draw_sequence.size(); i++) {
+    string filename = mesh.draw_sequence[i];
+    metadata md = (*mesh.filename_metadata)[filename];
+    cout << "Printing data for " << filename << endl;
+    cout << "num vertices: " << md.num_of_vertices << " num indices: " << md.num_of_indices << endl;
+    cout << "vn_offset: " << md.vn_offset << " indices_offset: " << md.indices_offset << endl;
+  }
   return 0;
 }

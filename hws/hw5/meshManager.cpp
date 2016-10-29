@@ -16,6 +16,7 @@ void meshManager::readFiles(int num_files, char* argv[]) {
     char* filename = argv[i];
     this->readFile(filename);
     this->calc_normal(filename);
+
   }
 }
 
@@ -39,6 +40,10 @@ void meshManager::readFile(char* filename) {
     cout << "File " << filename << " has incorrect format" << endl;
     return;
   } else {
+    this->draw_sequence.push_back(filename);
+    if(this->filename_metadata->find(filename) != this->filename_metadata->end()) {
+      return;
+    }
     cout << "Reading data for " << filename << "..." << endl;
     getline(source, line);
     int num_vertices, num_faces, num_edges;
@@ -144,6 +149,8 @@ void meshManager::calc_normal(string filename) {
     (*this->normals).push_back(normal.z);
     
   }
+
+  //Do this after all flat and smooth normals are calculated
   this->face_normals->clear();
 }
 
