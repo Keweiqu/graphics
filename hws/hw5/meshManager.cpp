@@ -1,10 +1,12 @@
 #include "meshManager.hpp"
 
 meshManager::meshManager() {
-  v_offset = 0;
+  vn_offset = 0;
   idx_offset = 0;
-  vertices_normals = new vector<GLfloat>();
+  vertices = new vector<GLfloat>();
+  normals = new vector<GLfloat>();
   indices = new vector<GLuint>();
+  face_normals = new vector<glm::vec3>();
   index_faces = new map< GLuint, vector<GLuint> >();
   filename_metadata = new map< string, metadata>();
 }
@@ -53,9 +55,9 @@ void meshManager::readFile(char* filename) {
       stringstream stream(line);
       GLfloat x, y, z;
       stream >> x >> y >> z;
-      this->vertices_normals->push_back(x);
-      this->vertices_normals->push_back(y);
-      this->vertices_normals->push_back(z);
+      this->vertices->push_back(x);
+      this->vertices->push_back(y);
+      this->vertices->push_back(z);
     }
 
     GLuint face_index = 0;
@@ -72,37 +74,37 @@ void meshManager::readFile(char* filename) {
       } else if (n == 3) {
 	GLuint n1, n2, n3;
 	stream >> n1 >> n2 >> n3;
-	this->indices->push_back(n1 + this->v_offset);
-	this->indices->push_back(n2 + this->v_offset);
-	this->indices->push_back(n3 + this->v_offset);
+	this->indices->push_back(n1 + this->vn_offset);
+	this->indices->push_back(n2 + this->vn_offset);
+	this->indices->push_back(n3 + this->vn_offset);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
-	glm::vec3 face_normal = this->calc_face_normal(n1 + this->v_offset, n2 + this->v_offset, n3 + this->v_offset);
+	glm::vec3 face_normal = this->calc_face_normal(n1 + this->vn_offset, n2 + this->vn_offset, n3 + this->vn_offset);
 	this->face_normals->push_back(face_normal);
 	face_index++;
 	
       } else if (n == 4) {
 	GLuint n1, n2, n3, n4;
 	stream >> n1 >> n2 >> n3 >> n4;
-	this->indices->push_back(n1 + this->v_offset);
-	this->indices->push_back(n2 + this->v_offset);
-	this->indices->push_back(n3 + this->v_offset);
+	this->indices->push_back(n1 + this->vn_offset);
+	this->indices->push_back(n2 + this->vn_offset);
+	this->indices->push_back(n3 + this->vn_offset);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
-	glm::vec3 face_normal = this->calc_face_normal(n1 + this->v_offset, n2 + this->v_offset, n3 + this->v_offset);
-	this->face_normals->push_back(face_normal);
+	glm::vec3 face_normal1 = this->calc_face_normal(n1 + this->vn_offset, n2 + this->vn_offset, n3 + this->vn_offset);
+	this->face_normals->push_back(face_normal1);
 	face_index++;
 
-	this->indices->push_back(n1 + this->v_offset);
-	this->indices->push_back(n3 + this->v_offset);
-	this->indices->push_back(n4 + this->v_offset);
+	this->indices->push_back(n1 + this->vn_offset);
+	this->indices->push_back(n3 + this->vn_offset);
+	this->indices->push_back(n4 + this->vn_offset);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
 	(*this->index_faces)[n4].push_back(face_index);
-	glm::vec3 face_normal = this->calc_face_normal(n1 + this->v_offset, n3 + this->v_offset, n4 + this->v_offset);
-	this->face_normals->push_back(face_normal);
+	glm::vec3 face_normal2 = this->calc_face_normal(n1 + this->vn_offset, n3 + this->vn_offset, n4 + this->vn_offset);
+	this->face_normals->push_back(face_normal2);
 	face_index++;
       }
     }
@@ -118,9 +120,9 @@ void meshManager::readFile(char* filename) {
 
 
 glm::vec3 meshManager::calc_face_normal(GLuint v0, GLuint v1, GLuint v2) {
-  glm::vec3 vertex_0 = glm::vec3(this->vertices[v0 * 3], this->vertices[v0 * 3 + 1], this->vertices[v0 * 3 + 2]);
-  glm::vec3 vertex_1 = glm::vec3(this->vertices[v1 * 3], this->vertices[v1 * 3 + 1], this->vertices[v1 * 3 + 2]);
-  glm::vec3 vertex_2 = glm::vec3(this->vertices[v2 * 3], this->vertices[v2 * 3 + 1], this->vertices[v2 * 3 + 2]);
+  glm::vec3 vertex_0 = glm::vec3((*this->vertices)[v0 * 3], (*this->vertices)[v0 * 3 + 1], (*this->vertices)[v0 * 3 + 2]);
+  glm::vec3 vertex_1 = glm::vec3((*this->vertices)[v1 * 3], (*this->vertices)[v1 * 3 + 1], (*this->vertices)[v1 * 3 + 2]);
+  glm::vec3 vertex_2 = glm::vec3((*this->vertices)[v2 * 3], (*this->vertices)[v2 * 3 + 1], (*this->vertices)[v2 * 3 + 2]);
   glm::vec3 vector0 = vertex_2 - vertex_1;
   glm::vec3 vector1 = vertex_0 - vertex_1;
   return glm::normalize(glm::cross(vector0, vector1));

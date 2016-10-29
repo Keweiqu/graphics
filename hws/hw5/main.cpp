@@ -5,7 +5,7 @@
 int main(int argc, char* argv[]) {
   meshManager mesh;
   mesh.readFiles(argc - 1, argv + 1);
-  int i = (*mesh.filename_metadata)["extralarge/dragon.off"].num_of_indices;
+  int i = (*mesh.filename_metadata)["tetra.off"].num_of_indices;
 
   // cout << "Mesh vertice: ";
   // for (unsigned int i = 0; i < mesh.vertices->size(); i++) {

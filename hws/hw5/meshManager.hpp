@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 
+
 using namespace std;
 
 typedef struct _metadata {
@@ -17,12 +18,12 @@ typedef struct _metadata {
   GLuint vn_offset;
   GLuint indices_offset;
 
-  GLuint flat_vn_offset;
+  GLuint flat_offset;
 } metadata;
 
 class meshManager {
 public:
-  GLuint v_offset;
+  GLuint vn_offset;
   GLuint idx_offset;
   GLuint flat_offset;
   vector<GLfloat> *vertices;
@@ -35,9 +36,8 @@ public:
   meshManager();
   void readFiles(int num_files, char* argv[]);
   void init();
-  void 
 private:
-  vector<glm::vec3> face_normals; // should be for per mesh
+  vector<glm::vec3> *face_normals; // should be for per mesh
   void readFile(char* filename);// after readFile, all data in metadata should be available
   void calc_normal(string filename);// next round of meshManager offsets should be available
   glm::vec3 calc_face_normal(GLuint v0, GLuint v1, GLuint v2);// v_offset should be added
