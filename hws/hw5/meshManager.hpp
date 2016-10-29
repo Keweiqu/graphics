@@ -30,11 +30,11 @@ public:
   map< GLuint, vector<GLuint> > *index_faces;
   map< string, metadata > *filename_metadata;
   vector<GLfloat> *flat_vertices_normals;
-  vector<string> draw_sequence;
+  vector<string> *draw_sequence;
   meshManager();
   void readFiles(int num_files, char* argv[]);
 private:
-  vector<GLfloat> face_normals; // should be for per mesh
+  vector<GLfloat> *face_normals; // should be for per mesh
   void readFile(char* filename);// after readFile, all data in metadata should be available
   void calc_normal(GLuint idx_offset, GLuint vn_offset, string filename);// next round of meshManager offsets should be available
 };

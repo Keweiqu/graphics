@@ -4,10 +4,16 @@
 
 int main(int argc, char* argv[]) {
   meshManager mesh;
-  if (readFile(&mesh, argc, argv) == -1) {
-    cout << "Exiting program..." << endl;
-    return -1;
-  }
+  // mesh.readFiles(argc - 1, argv);
+  // if (mesh.readFile(&mesh, argc, argv) == -1) {
+  //   cout << "Exiting program..." << endl;
+  //   return -1;
+  // }
+
+  // cout << "Draw Sequence: ";
+  // for (unsigned int i = 0; i < mesh.draw_sequence->size(); i++) {
+  //   cout << mesh.draw_sequence->at(i) << " ";
+  // }
 
   // cout << "Mesh vertice: ";
   // for (unsigned int i = 0; i < mesh.vertices->size(); i++) {
