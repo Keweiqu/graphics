@@ -1,4 +1,12 @@
 #include "meshManager.hpp"
+extern GLuint fs_shader;
+static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
+  GLuint bufnum;
+  glGenBuffers(1, &bufnum);
+  glBindBuffer(type, bufnum);
+  glBufferData(type, buf_size, buf, GL_STATIC_DRAW);
+  return bufnum;
+}
 
 meshManager::meshManager() {
   vn_offset = 0;
@@ -59,7 +67,7 @@ void meshManager::readFile(char* filename) {
     for(int i = 0; i < num_vertices; i++) {
       getline(source, line);
       if (source.fail()) { 
-		cout << "Warning: incorrent line number, will draw crazily..." << filename << endl;
+	cout << "Warning: incorrent line number, will draw crazily..." << filename << endl;
       }
       stringstream stream(line);
       GLfloat x, y, z;
@@ -83,9 +91,9 @@ void meshManager::readFile(char* filename) {
       } else if (n == 3) {
 	GLuint n1, n2, n3;
 	stream >> n1 >> n2 >> n3;
-	this->indices->push_back(n1 + this->vn_offset);
-	this->indices->push_back(n2 + this->vn_offset);
-	this->indices->push_back(n3 + this->vn_offset);
+	this->indices->push_back(n1 + this->vn_offset / 3);
+	this->indices->push_back(n2 + this->vn_offset / 3);
+	this->indices->push_back(n3 + this->vn_offset / 3);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);	
@@ -99,16 +107,16 @@ void meshManager::readFile(char* filename) {
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 1]);
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 2]);
 
-	glm::vec3 face_normal = this->calc_face_normal(n1 + this->vn_offset, n2 + this->vn_offset, n3 + this->vn_offset);
+	glm::vec3 face_normal = this->calc_face_normal(n1 + this->vn_offset / 3, n2 + this->vn_offset / 3, n3 + this->vn_offset / 3);
 	this->face_normals->push_back(face_normal);
 	face_index++;
 	
       } else if (n == 4) {
 	GLuint n1, n2, n3, n4;
 	stream >> n1 >> n2 >> n3 >> n4;
-	this->indices->push_back(n1 + this->vn_offset);
-	this->indices->push_back(n2 + this->vn_offset);
-	this->indices->push_back(n3 + this->vn_offset);
+	this->indices->push_back(n1 + this->vn_offset / 3);
+	this->indices->push_back(n2 + this->vn_offset / 3);
+	this->indices->push_back(n3 + this->vn_offset / 3);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
@@ -121,13 +129,13 @@ void meshManager::readFile(char* filename) {
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3]);
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 1]);
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 2]);
-	glm::vec3 face_normal1 = this->calc_face_normal(n1 + this->vn_offset, n2 + this->vn_offset, n3 + this->vn_offset);
+	glm::vec3 face_normal1 = this->calc_face_normal(n1 + this->vn_offset / 3, n2 + this->vn_offset / 3, n3 + this->vn_offset / 3);
 	this->face_normals->push_back(face_normal1);
 	face_index++;
 
-	this->indices->push_back(n1 + this->vn_offset);
-	this->indices->push_back(n3 + this->vn_offset);
-	this->indices->push_back(n4 + this->vn_offset);
+	this->indices->push_back(n1 + this->vn_offset / 3);
+	this->indices->push_back(n3 + this->vn_offset / 3);
+	this->indices->push_back(n4 + this->vn_offset / 3);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
 	(*this->index_faces)[n4].push_back(face_index);
@@ -140,7 +148,7 @@ void meshManager::readFile(char* filename) {
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n4 * 3]);
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n4 * 3 + 1]);
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n4 * 3 + 2]);
-	glm::vec3 face_normal2 = this->calc_face_normal(n1 + this->vn_offset, n3 + this->vn_offset, n4 + this->vn_offset);
+	glm::vec3 face_normal2 = this->calc_face_normal(n1 + this->vn_offset / 3, n3 + this->vn_offset / 3, n4 + this->vn_offset / 3);
 	this->face_normals->push_back(face_normal2);
 	face_index++;
       }
@@ -151,7 +159,6 @@ void meshManager::readFile(char* filename) {
     this->vn_offset = this->vertices->size();
     this->idx_offset = this->indices->size();
     this->flat_offset += face_index * 6;
-    cout << "vn_offset: " << this->vn_offset << endl;
 
     if (getline(source, line)) {
       cout << "Warning: extra lines in " << filename << " ignored" << endl;
@@ -172,10 +179,10 @@ glm::vec3 meshManager::calc_face_normal(GLuint v0, GLuint v1, GLuint v2) {
 
 void meshManager::calc_normal(string filename) {
   metadata md = (*this->filename_metadata)[filename];
-  for(int i = 0; i < md.num_of_vertices; i++) {
+  for(unsigned int i = 0; i < md.num_of_vertices; i++) {
     vector<GLuint> faces = (*this->index_faces)[i];
     glm::vec3 normal = glm::vec3(0.0);
-    for(int j = 0; j < faces.size(); j++) {
+    for(unsigned int j = 0; j < faces.size(); j++) {
       GLuint face_no = faces[j];
       normal = normal + (*this->face_normals)[face_no];
     }
@@ -190,4 +197,29 @@ void meshManager::calc_normal(string filename) {
   this->face_normals->clear();
 }
 
+void meshManager::init() {
+  this->vbo_pos = make_bo(GL_ARRAY_BUFFER,
+			  &(this->vertices->front()),
+			  this->vertices->size());
+  this->vbo_normal = make_bo(GL_ARRAY_BUFFER,
+			     &(this->normals->front()),
+			     this->normals->size());
+  this->ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
+		      &(this->indices->front()),
+		      this->indices->size());
+  this->flat_vbo_pos = make_bo(GL_ARRAY_BUFFER,
+			       &(this->flat_vertices->front()),
+			       this->flat_vertices->size());
+  glGenVertexArrays(1, &(this->vao));
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_pos);
+  GLuint pos = glGetAttribLocation(fs_shader, "vPos");
+  glEnableVertexAttribArray(pos);
+  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  GLuint normal = glGetAttribLocation(fs_shader, "vNormal");
+  glEnableVertexAttribArray(normal);
+  glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  
+  
+}
 

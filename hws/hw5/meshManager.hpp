@@ -8,6 +8,14 @@
 #include <fstream>
 #include <sstream>
 
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/mat4x4.hpp>
+
 
 using namespace std;
 
@@ -23,15 +31,27 @@ typedef struct _metadata {
 
 class meshManager {
 public:
+  GLuint vbo_pos;
+  GLuint vbo_normal;
+  GLuint ebo;
+
+  GLuint vao;
+
+  GLuint flat_vbo_pos;
+  GLuint flat_vbo_normal;
+  
   GLuint vn_offset;
   GLuint idx_offset;
   GLuint flat_offset;
   vector<GLfloat> *vertices;
   vector<GLfloat> *normals;
   vector<GLuint> *indices;
+
+  vector<GLfloat> *flat_vertices;
+  
   map< GLuint, vector<GLuint> > *index_faces;
   map< string, metadata > *filename_metadata;
-  vector<GLfloat> *flat_vertices;
+
   vector<string> draw_sequence;
   meshManager();
   void readFiles(int num_files, char* argv[]);
