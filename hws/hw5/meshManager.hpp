@@ -29,8 +29,9 @@ public:
   vector<GLfloat> *vertices;
   vector<GLfloat> *normals;
   vector<GLuint> *indices;
-  map< GLuint, vector<GLuint> > *index_faces;
+  map< GLuint, vector<GLuint> > *index_faces; // per mesh
   map< string, metadata > *filename_metadata;
+  vector<GLfloat> *flat_normals;
   vector<GLfloat> *flat_vertices;
   vector<string> draw_sequence;
   meshManager();

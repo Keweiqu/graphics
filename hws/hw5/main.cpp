@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
   cout << "Offsets: ";
   cout << "vn offset: " << mesh.vn_offset << ", " << "idx_offset: " << mesh.idx_offset << ", " << "flat offset: " << mesh.flat_offset << endl;
 
-  cout << "Flat vertices and normals: ";
+  cout << "Flat vertices";
   for (unsigned int i = 0; i < mesh.flat_vertices->size(); i++) {
     cout << mesh.flat_vertices->at(i) << " ";
   }
