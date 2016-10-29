@@ -1,1 +1,1 @@
-enum draw_mode {VERTEX, EDGE,FACE};
+enum draw_mode {VERTEX, EDGE, FACE};

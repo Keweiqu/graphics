@@ -194,12 +194,6 @@ void meshManager::calc_normal(string filename) {
     (*this->normals).push_back(normal.z);
   }
 
-  cout << "Face normals: " << endl;
-  for (GLuint i = 0; i < (*this->face_normals).size(); i++) {
-    glm::vec3 fn = (*this->face_normals)[i];
-    cout << "x = " << fn.x << " y = " << fn.y << " z = " << fn.z << endl;
-  }
-
   for (GLuint i = 0; i < md.num_of_indices / 3; i++) {
     glm::vec3 normal = (*this->face_normals)[i];
     for (int i = 0; i < 3; i++) {
@@ -251,5 +245,9 @@ void meshManager::draw_edge_mode() {
 
 void meshManager::draw_vertex_mode() {
   glBindVertexArray(this->vao);
-  glDrawArrays(GL_POINTS, 0, this->vertices->size());
+  for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
+    string filename = this->draw_sequence[i];
+    metadata md = (*this->filename_metadata)[filename];
+    glDrawArrays(GL_POINTS, md.vn_offset, md.vn_offset + md.num_of_vertices * sizeof(GLfloat));
+  }
 }

@@ -65,7 +65,7 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   fs_shader = initshader("fs_vs.glsl", "fs_fs.glsl");
   wire_shader = initshader("wire_vs.glsl", "wire_fs.glsl");
-  glUseProgram(wire_shader);
+  glUseProgram(fs_shader);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
 
@@ -82,7 +82,7 @@ void init() {
   modelview = glGetUniformLocation(fs_shader, "ModelView");
   project = glGetUniformLocation(fs_shader, "Project");
   glClearColor(1.0, 1.0, 1.0, 1.0);
-  glPointSize(3);
+  // glPointSize(3);
 }
 
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
