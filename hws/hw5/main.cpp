@@ -17,12 +17,12 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
 }
 
 GLfloat my_vertices[] = {
-  0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f 
+  0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f
 };
 
 
 GLuint my_indices[] = {
-  0, 1, 2, 2, 1, 3, 2, 3, 0, 0, 3, 1 
+  0, 1, 2, 2, 1, 3, 2, 3, 0, 0, 3, 1
 };
 
 vector<GLfloat> vertices(my_vertices, my_vertices + 12);
@@ -45,7 +45,7 @@ GLuint indices[] = {
 
   5, 1, 3,
   5, 3, 7,
-  
+
   6, 4, 5,
   6, 5, 7,
 
@@ -68,21 +68,21 @@ void init() {
   glUseProgram(wire_shader);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
-  
+
   vbo = make_bo(GL_ARRAY_BUFFER, &vertices[0], vertices.size() * sizeof(GLfloat));
   ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER, &indices[0], indices.size() * sizeof(GLuint));
   glGenVertexArrays(1, &vao);
-  
+
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   pos = glGetAttribLocation(fs_shader, "vPos");
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-  
+
   modelview = glGetUniformLocation(fs_shader, "ModelView");
   project = glGetUniformLocation(fs_shader, "Project");
   glClearColor(1.0, 1.0, 1.0, 1.0);
-  
+  glPointSize(3);
 }
 
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
@@ -93,6 +93,11 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       glUseProgram(wire_shader);
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       mode = EDGE;
+      break;
+    case 'v':
+    case 'V':
+      glUseProgram(wire_shader);
+      mode = VERTEX;
       break;
     }
   }
@@ -108,7 +113,7 @@ int main(int argc, char* argv[]) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  
+
   GLFWwindow *window = glfwCreateWindow(512, 512, "Triangle", NULL, NULL);
   if(!window) {
     cerr << "Error: Cannot open window with GLFW3" << endl;
@@ -121,13 +126,13 @@ int main(int argc, char* argv[]) {
   glewExperimental = GL_TRUE;
   glewInit();
   glfwSetKeyCallback(window, keyboard);
-  
+
   init();
-  
+
   meshManager mesh;
   mesh.readFiles(argc - 1, argv + 1);
   mesh.init();
-  
+
   project_mat = glm::perspective(45 * M_PI / 180.0, 1.0, 0.1, 1000.0);
   glm::vec3 eye = glm::vec3(0.0, 1.0, 5.0);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
@@ -146,11 +151,14 @@ int main(int argc, char* argv[]) {
     case EDGE:
       mesh.draw_edge_mode();
       break;
+    case VERTEX:
+      mesh.draw_vertex_mode();
+      break;
     }
     angle += 0.05;
     glfwSwapBuffers(window);
     glfwPollEvents();
-    
+
    }
   glfwTerminate();
   return 0;
