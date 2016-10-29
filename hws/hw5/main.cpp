@@ -1,17 +1,101 @@
 #include "meshManager.hpp"
 #include "common.hpp"
+#include "main.hpp"
 using namespace std;
 
-GLuint fs_shader, p_shader;
+GLuint fs_shader, wire_shader, p_shader;
+GLuint modelview, project, vbo, ebo, vao, pos;
+glm::mat4 model_mat, view_mat, project_mat;
+enum draw_mode mode = EDGE;
 
+static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
+  GLuint bufnum;
+  glGenBuffers(1, &bufnum);
+  glBindBuffer(type, bufnum);
+  glBufferData(type, buf_size, buf, GL_STATIC_DRAW);
+  return bufnum;
+}
+
+GLfloat my_vertices[] = {
+  0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f 
+};
+
+
+GLuint my_indices[] = {
+  0, 1, 2, 2, 1, 3, 2, 3, 0, 0, 3, 1 
+};
+
+vector<GLfloat> vertices(my_vertices, my_vertices + 12);
+vector<GLuint> indices(my_indices, my_indices + 12);
+/*
+GLfloat vertices[] = {
+  -0.5, 0.5, 0.5,
+  0.5, 0.5, 0.5,
+  -0.5, -0.5, 0.5,
+  0.5, -0.5, 0.5,
+  -0.5, 0.5, -0.5,
+  0.5, 0.5, -0.5,
+  -0.5, -0.5, -0.5,
+  0.5, -0.5, -0.5
+};
+
+GLuint indices[] = {
+  1, 0, 2,
+  1, 2, 3,
+
+  5, 1, 3,
+  5, 3, 7,
+  
+  6, 4, 5,
+  6, 5, 7,
+
+  0, 4, 6,
+  0, 6, 2,
+
+  5, 4, 0,
+  5, 0, 1,
+
+  2, 6, 7,
+  2, 7, 3
+};
+
+*/
 
 void init() {
-  fs_shader = initshader("lab_vs.glsl", "lab_fs.glsl");
-  glUseProgram(fs_shader);
+  glEnable(GL_DEPTH_TEST);
+  fs_shader = initshader("fs_vs.glsl", "fs_fs.glsl");
+  wire_shader = initshader("wire_vs.glsl", "wire_fs.glsl");
+  glUseProgram(wire_shader);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
-  glEnable(GL_DEPTH_TEST);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
+  
+  vbo = make_bo(GL_ARRAY_BUFFER, &vertices[0], vertices.size() * sizeof(GLfloat));
+  ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER, &indices[0], indices.size() * sizeof(GLuint));
+  glGenVertexArrays(1, &vao);
+  
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  pos = glGetAttribLocation(fs_shader, "vPos");
+  glEnableVertexAttribArray(pos);
+  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  modelview = glGetUniformLocation(fs_shader, "ModelView");
+  project = glGetUniformLocation(fs_shader, "Project");
+  glClearColor(1.0, 1.0, 1.0, 1.0);
+  
+}
+
+void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
+  if(action == GLFW_PRESS) {
+    switch(key) {
+    case 'e':
+    case 'E':
+      glUseProgram(wire_shader);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      mode = EDGE;
+      break;
+    }
+  }
 }
 
 int main(int argc, char* argv[]) {
@@ -36,58 +120,38 @@ int main(int argc, char* argv[]) {
 
   glewExperimental = GL_TRUE;
   glewInit();
+  glfwSetKeyCallback(window, keyboard);
+  
   init();
-
-   while(!glfwWindowShouldClose(window)) {
-     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-     glfwSwapBuffers(window);
-     glfwPollEvents();
-     
-   }
-   glfwTerminate();
-  /*
+  
   meshManager mesh;
   mesh.readFiles(argc - 1, argv + 1);
   mesh.init();
+  
+  project_mat = glm::perspective(45 * M_PI / 180.0, 1.0, 0.1, 1000.0);
+  glm::vec3 eye = glm::vec3(0.0, 1.0, 5.0);
+  glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
+  glm::vec3 up = glm::vec3(0, 1, 0);
+  view_mat = glm::lookAt(eye, center, up);
+  model_mat = glm::mat4(1.0);
+  GLfloat angle = 0.0;
 
-  for(unsigned int i = 0; i < mesh.draw_sequence.size(); i++) {
-    string filename = mesh.draw_sequence[i];
-    metadata md = (*mesh.filename_metadata)[filename];
-    cout << "Printing data for " << filename << endl;
-    cout << "num vertices: " << md.num_of_vertices << " num indices: " << md.num_of_indices << endl;
-    cout << "vn_offset: " << md.vn_offset << " indices_offset: " << md.indices_offset << endl;
-  }
-  cout << endl;
-  cout << "Printing vertices..." << endl;
-  for(unsigned int i = 0; i < mesh.vertices->size(); i++) {
-    cout << mesh.vertices->at(i) << " ";
-  }
-  cout << endl;
-  cout << "Printing indices..." << endl;
-  for(unsigned int i = 0; i < mesh.indices->size(); i++) {
-    cout << mesh.indices->at(i) << " ";
-  }
-
-  cout << endl;
-  cout << "Print normals..." << endl;
-  for(unsigned int i = 0; i < mesh.normals->size(); i++) {
-    cout << mesh.normals->at(i) << " ";
-  }
-  cout << endl;
-  cout << "Offsets: ";
-  cout << "vn offset: " << mesh.vn_offset << ", " << "idx_offset: " << mesh.idx_offset << ", " << "flat offset: " << mesh.flat_offset << endl;
-
-  cout << "Flat vertices: ";
-  for (unsigned int i = 0; i < mesh.flat_vertices->size(); i += 3) {
-    cout << mesh.flat_vertices->at(i) << " " << mesh.flat_vertices->at(i + 1) << " " << mesh.flat_vertices->at(i + 2) << ", ";
-  }
-  cout << endl;
-
-  cout << "Flat normals: " << endl;
-  for (unsigned int i = 0; i < mesh.flat_normals->size(); i += 3) {
-    cout << "x: " << mesh.flat_normals->at(i) << ", " << "y: " << mesh.flat_normals->at(i + 1) << ", " << "z: " << mesh.flat_normals->at(i + 2) << endl;
-  }
-  cout << endl;
-  */
+  while(!glfwWindowShouldClose(window)) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    model_mat = glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 model_view_mat = view_mat * model_mat;
+    glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(model_view_mat));
+    glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
+    switch(mode) {
+    case EDGE:
+      mesh.draw_edge_mode();
+      break;
+    }
+    angle += 0.05;
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+    
+   }
+  glfwTerminate();
   return 0;
 }

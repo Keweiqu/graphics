@@ -216,25 +216,35 @@ void meshManager::calc_normal(string filename) {
 void meshManager::init() {
   this->vbo_pos = make_bo(GL_ARRAY_BUFFER,
 			  &(this->vertices->front()),
-			  this->vertices->size());
+			  this->vertices->size() * sizeof(GLfloat));
+  
   this->vbo_normal = make_bo(GL_ARRAY_BUFFER,
 			     &(this->normals->front()),
-			     this->normals->size());
+			     this->normals->size() * sizeof(GLfloat));
+  
   this->ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
 		      &(this->indices->front()),
-		      this->indices->size());
+		      this->indices->size() * sizeof(GLuint));
   this->flat_vbo_pos = make_bo(GL_ARRAY_BUFFER,
 			       &(this->flat_vertices->front()),
-			       this->flat_vertices->size());
+			       this->flat_vertices->size() * sizeof(GLfloat));
   glGenVertexArrays(1, &(this->vao));
   glBindVertexArray(vao);
+  
   glBindBuffer(GL_ARRAY_BUFFER, this->vbo_pos);
   GLuint pos = glGetAttribLocation(fs_shader, "vPos");
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_normal);
   GLuint normal = glGetAttribLocation(fs_shader, "vNormal");
   glEnableVertexAttribArray(normal);
   glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  
+}
 
-
+void meshManager::draw_edge_mode() {
+  glBindVertexArray(this->vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
+    glDrawElements(GL_TRIANGLES, this->indices->size(), GL_UNSIGNED_INT, (void*) 0);
 }
