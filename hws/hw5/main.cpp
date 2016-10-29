@@ -94,6 +94,12 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       mode = EDGE;
       break;
+    case 't':
+    case 'T':
+      glUseProgram(fs_shader);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      mode = FACE;
+      break;
     case 'v':
     case 'V':
       glUseProgram(wire_shader);
@@ -149,7 +155,8 @@ int main(int argc, char* argv[]) {
     glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
     switch(mode) {
     case EDGE:
-      mesh.draw_edge_mode();
+    case FACE:
+      mesh.draw_default();
       break;
     case VERTEX:
       mesh.draw_vertex_mode();
