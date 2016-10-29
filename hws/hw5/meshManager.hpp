@@ -39,7 +39,7 @@ public:
 
   GLuint flat_vbo_pos;
   GLuint flat_vbo_normal;
-  
+
   GLuint vn_offset;
   GLuint idx_offset;
   GLuint flat_offset;
@@ -47,9 +47,10 @@ public:
   vector<GLfloat> *normals;
   vector<GLuint> *indices;
 
+  vector<GLfloat> *flat_normals;
   vector<GLfloat> *flat_vertices;
-  
-  map< GLuint, vector<GLuint> > *index_faces;
+
+  map< GLuint, vector<GLuint> > *index_faces; // per mesh
   map< string, metadata > *filename_metadata;
 
   vector<string> draw_sequence;

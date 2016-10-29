@@ -19,6 +19,7 @@ meshManager::meshManager() {
   index_faces = new map< GLuint, vector<GLuint> >();
   filename_metadata = new map< string, metadata>();
   flat_vertices = new vector<GLfloat>();
+  flat_normals = new vector<GLfloat>();
 }
 
 void meshManager::readFiles(int num_files, char* argv[]) {
@@ -31,17 +32,17 @@ void meshManager::readFiles(int num_files, char* argv[]) {
 }
 
 void meshManager::readFile(char* filename) {
- 
+
 
   ifstream source;
   source.open(filename);
   if(source.fail()){
     cerr << "Cannot open file " << filename << endl;
   }
-  
+
   string line;
   getline(source, line);
-  
+
   if(line != "OFF") {
     cout << "File " << filename << " has incorrect format" << endl;
     return;
@@ -61,13 +62,13 @@ void meshManager::readFile(char* filename) {
     int num_vertices, num_faces, num_edges;
     stringstream stream(line);
     stream >> num_vertices >> num_faces >> num_edges;
-  
+
     cout <<"num_vertices: " << num_vertices << " num_faces: " << num_faces << " num_edges: " << num_edges << endl;
     cout << "Reading vertices..." << endl;
     for(int i = 0; i < num_vertices; i++) {
       getline(source, line);
-      if (source.fail()) { 
-	cout << "Warning: incorrent line number, will draw crazily..." << filename << endl;
+      if (source.fail()) {
+		      cout << "Warning: incorrent line number, will draw crazily..." << filename << endl;
       }
       stringstream stream(line);
       GLfloat x, y, z;
@@ -96,7 +97,7 @@ void meshManager::readFile(char* filename) {
 	this->indices->push_back(n3 + this->vn_offset / 3);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
-	(*this->index_faces)[n3].push_back(face_index);	
+	(*this->index_faces)[n3].push_back(face_index);
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3]);
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3 + 1]);
 	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3 + 2]);
@@ -110,7 +111,7 @@ void meshManager::readFile(char* filename) {
 	glm::vec3 face_normal = this->calc_face_normal(n1 + this->vn_offset / 3, n2 + this->vn_offset / 3, n3 + this->vn_offset / 3);
 	this->face_normals->push_back(face_normal);
 	face_index++;
-	
+
       } else if (n == 4) {
 	GLuint n1, n2, n3, n4;
 	stream >> n1 >> n2 >> n3 >> n4;
@@ -158,7 +159,8 @@ void meshManager::readFile(char* filename) {
     (*this->filename_metadata)[f_string].num_of_indices = face_index * 3;
     this->vn_offset = this->vertices->size();
     this->idx_offset = this->indices->size();
-    this->flat_offset += face_index * 6;
+    this->flat_offset += face_index * 9;
+    cout << "vn_offset: " << this->vn_offset << endl;
 
     if (getline(source, line)) {
       cout << "Warning: extra lines in " << filename << " ignored" << endl;
@@ -179,10 +181,10 @@ glm::vec3 meshManager::calc_face_normal(GLuint v0, GLuint v1, GLuint v2) {
 
 void meshManager::calc_normal(string filename) {
   metadata md = (*this->filename_metadata)[filename];
-  for(unsigned int i = 0; i < md.num_of_vertices; i++) {
+  for(GLuint i = 0; i < md.num_of_vertices; i++) {
     vector<GLuint> faces = (*this->index_faces)[i];
     glm::vec3 normal = glm::vec3(0.0);
-    for(unsigned int j = 0; j < faces.size(); j++) {
+    for(GLuint j = 0; j < faces.size(); j++) {
       GLuint face_no = faces[j];
       normal = normal + (*this->face_normals)[face_no];
     }
@@ -190,12 +192,27 @@ void meshManager::calc_normal(string filename) {
     (*this->normals).push_back(normal.x);
     (*this->normals).push_back(normal.y);
     (*this->normals).push_back(normal.z);
-    
+  }
+
+  cout << "Face normals: " << endl;
+  for (GLuint i = 0; i < (*this->face_normals).size(); i++) {
+    glm::vec3 fn = (*this->face_normals)[i];
+    cout << "x = " << fn.x << " y = " << fn.y << " z = " << fn.z << endl;
+  }
+
+  for (GLuint i = 0; i < md.num_of_indices / 3; i++) {
+    glm::vec3 normal = (*this->face_normals)[i];
+    for (int i = 0; i < 3; i++) {
+      (*this->flat_normals).push_back(normal.x);
+      (*this->flat_normals).push_back(normal.y);
+      (*this->flat_normals).push_back(normal.z);
+    }
   }
 
   //Do this after all flat and smooth normals are calculated
   this->face_normals->clear();
 }
+<<<<<<< HEAD
 
 void meshManager::init() {
   this->vbo_pos = make_bo(GL_ARRAY_BUFFER,
@@ -219,7 +236,9 @@ void meshManager::init() {
   GLuint normal = glGetAttribLocation(fs_shader, "vNormal");
   glEnableVertexAttribArray(normal);
   glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-  
-  
+
+
 }
 
+=======
+>>>>>>> 3de8d3c605c27dcc44578dcd84dc02fddf5ccb46
