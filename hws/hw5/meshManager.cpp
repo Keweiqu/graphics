@@ -18,7 +18,7 @@ void meshManager::readFiles(int num_files, char* argv[]) {
   for(int i = 0; i < num_files; i++) {
     char* filename = argv[i];
     this->readFile(filename);
-    //this->calc_normal(this->idx_offset, this->vn_offset, filename);
+    this->calc_normal(filename);
   }
 }
 
@@ -161,6 +161,25 @@ glm::vec3 meshManager::calc_face_normal(GLuint v0, GLuint v1, GLuint v2) {
   glm::vec3 vector0 = vertex_2 - vertex_1;
   glm::vec3 vector1 = vertex_0 - vertex_1;
   return glm::normalize(glm::cross(vector0, vector1));
+}
+
+
+void meshManager::calc_normal(string filename) {
+  metadata md = (*this->filename_metadata)[filename];
+  for(int i = 0; i < md.num_of_vertices; i++) {
+    vector<GLuint> faces = (*this->index_faces)[i];
+    glm::vec3 normal = glm::vec3(0.0);
+    for(int j = 0; j < faces.size(); j++) {
+      GLuint face_no = faces[j];
+      normal = normal + (*this->face_normals)[face_no];
+    }
+    normal = normal / (faces.size() * 1.0f);
+    (*this->normals).push_back(normal.x);
+    (*this->normals).push_back(normal.y);
+    (*this->normals).push_back(normal.z);
+    
+  }
+  this->face_normals->clear();
 }
 
 
