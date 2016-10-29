@@ -212,7 +212,6 @@ void meshManager::calc_normal(string filename) {
   //Do this after all flat and smooth normals are calculated
   this->face_normals->clear();
 }
-<<<<<<< HEAD
 
 void meshManager::init() {
   this->vbo_pos = make_bo(GL_ARRAY_BUFFER,
@@ -239,6 +238,3 @@ void meshManager::init() {
 
 
 }
-
-=======
->>>>>>> 3de8d3c605c27dcc44578dcd84dc02fddf5ccb46
