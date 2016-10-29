@@ -173,10 +173,10 @@ glm::vec3 meshManager::calc_face_normal(GLuint v0, GLuint v1, GLuint v2) {
 
 void meshManager::calc_normal(string filename) {
   metadata md = (*this->filename_metadata)[filename];
-  for(int i = 0; i < md.num_of_vertices; i++) {
+  for(GLuint i = 0; i < md.num_of_vertices; i++) {
     vector<GLuint> faces = (*this->index_faces)[i];
     glm::vec3 normal = glm::vec3(0.0);
-    for(int j = 0; j < faces.size(); j++) {
+    for(GLuint j = 0; j < faces.size(); j++) {
       GLuint face_no = faces[j];
       normal = normal + (*this->face_normals)[face_no];
     }
@@ -184,14 +184,21 @@ void meshManager::calc_normal(string filename) {
     (*this->normals).push_back(normal.x);
     (*this->normals).push_back(normal.y);
     (*this->normals).push_back(normal.z);
-
   }
 
-  for (int i = 0; i < md.num_of_indices / 3; i++) {
-    glm:vec3 normal = (*this->face_normals)[i];
-    (*this->flat_normals).push_back(normal.x);
-    (*this->flat_normals).push_back(normal.y);
-    (*this->flat_normals).push_back(normal.z);
+  cout << "Face normals: " << endl;
+  for (GLuint i = 0; i < (*this->face_normals).size(); i++) {
+    glm::vec3 fn = (*this->face_normals)[i];
+    cout << "x = " << fn.x << " y = " << fn.y << " z = " << fn.z << endl;
+  }
+
+  for (GLuint i = 0; i < md.num_of_indices / 3; i++) {
+    glm::vec3 normal = (*this->face_normals)[i];
+    for (int i = 0; i < 3; i++) {
+      (*this->flat_normals).push_back(normal.x);
+      (*this->flat_normals).push_back(normal.y);
+      (*this->flat_normals).push_back(normal.z);
+    }
   }
 
   //Do this after all flat and smooth normals are calculated
