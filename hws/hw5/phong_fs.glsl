@@ -12,7 +12,7 @@ void main() {
      vec4 AmbientProduct = vec4(0.0215, 0.1745, 0.0215, 1.0);
      vec4 DiffuseProduct = vec4(0.07568, 0.61424, 0.0756, 1.0);
      vec4 SpecularProduct = vec4(0.633, 0.727811, 0.633, 1.0);
-     float Shininess = 0.9;
+     float Shininess = 0.6;
 
      vec3 N = normalize(fN);
      vec3 E = normalize(fE);

@@ -16,7 +16,7 @@ void main() {
      vec4 pos = View * Model * vPos;
 
      fN = (View * Model * vec4(vNormal, 0.0)).xyz;
-     fE = pos.xyz;
+     fE = -pos.xyz;
      fL = LightPosition.xyz;
 
      if( LightPosition.w != 0.0) {
