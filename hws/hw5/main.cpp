@@ -3,7 +3,7 @@
 #include "main.hpp"
 using namespace std;
 
-GLuint fs_shader, wire_shader, p_shader;
+GLuint fs_shader, wire_shader, phong_shader;
 GLuint model, view, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 GLfloat angle = 0.0;
@@ -36,6 +36,7 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   fs_shader = initshader("fs_vs.glsl", "fs_fs.glsl");
   wire_shader = initshader("wire_vs.glsl", "wire_fs.glsl");
+  phong_shader = initshader("phong_vs.glsl", "phong_fs.glsl");
   glUseProgram(fs_shader);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -88,6 +89,13 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       if (d_mode == FACE) {
         glUseProgram(fs_shader);
         s_mode = SMOOTH;
+      }
+      break;
+    case 'k':
+    case 'K':
+      if (d_mode == FACE) {
+        glUseProgram(phong_shader);
+        s_mode = PHONG;
       }
       break;
     case 'q':
@@ -153,7 +161,7 @@ int main(int argc, char* argv[]) {
       glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
     }
     mesh.draw();
-    if (!isPaused) angle += 0.01;
+    if (!isPaused) angle += 0.05;
     glfwSwapBuffers(window);
     glfwPollEvents();
 

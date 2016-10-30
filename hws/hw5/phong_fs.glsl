@@ -5,7 +5,8 @@ in vec3 fN;
 in vec3 fL;
 in vec3 fE;
 
-uniform mat4 ModelView;
+uniform mat4 Model;
+uniform mat4 View;
 
 void main() {
      vec4 AmbientProduct = vec4(0.0215, 0.1745, 0.0215, 1.0);
@@ -22,7 +23,7 @@ void main() {
 
      float Kd = max(dot(L, N), 0.0);
      vec4 diffuse = Kd * DiffuseProduct;
-     
+
      float Ks = pow(max(dot(N, H), 0.0), Shininess);
      vec4 specular = Ks * SpecularProduct;
      if(dot(L, N) < 0.0) {
