@@ -64,6 +64,7 @@ public:
   void readFiles(int num_files, char* argv[]);
   void init();
   void draw_vertex_mode();
+  void draw_flat_mode();
   void draw_default();
   void draw();
 private:

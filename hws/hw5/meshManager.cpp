@@ -289,7 +289,7 @@ void meshManager::draw_default() {
       glm::scale(glm::vec3(md.scale)) *
       glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
       glm::translate(md.trans);
-    
+
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glDrawElements(GL_TRIANGLES, md.num_of_indices, GL_UNSIGNED_INT, (void*) (md.indices_offset * sizeof(GLuint)));
@@ -301,7 +301,11 @@ void meshManager::draw_vertex_mode() {
   for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
-    glm::mat4 model_mat = md.model_mat * glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 model_mat =
+      glm::scale(glm::vec3(md.scale)) *
+      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::translate(md.trans);
+
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glDrawArrays(GL_POINTS, md.vn_offset, md.vn_offset + md.num_of_vertices * sizeof(GLfloat));
@@ -332,7 +336,11 @@ void meshManager::draw_flat_mode() {
   for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
-    glm::mat4 model_mat = md.model_mat * glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 model_mat =
+      glm::scale(glm::vec3(md.scale)) *
+      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::translate(md.trans);
+
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glDrawArrays(GL_TRIANGLES, md.flat_offset, md.flat_offset + md.num_of_indices * 3 * sizeof(GLfloat));

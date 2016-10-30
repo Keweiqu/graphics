@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
     glfwPollEvents();
 
    }
-   delete &mesh;
+
   glfwTerminate();
   return 0;
 }
