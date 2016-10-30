@@ -12,11 +12,11 @@ uniform mat4 View;
 uniform mat4 Project;
 
 void main() {
-     vec4 LightPosition = View * vec4(0.0, 5.0, 0.0, 1.0);
+     vec4 LightPosition = View * vec4(50.0, 100.0, 0.0, 1.0);
      vec4 pos = View * Model * vPos;
 
      fN = (View * Model * vec4(vNormal, 0.0)).xyz;
-     fE = (View * Model * pos).xyz;
+     fE = pos.xyz;
      fL = LightPosition.xyz;
 
      if( LightPosition.w != 0.0) {
