@@ -105,10 +105,8 @@ void meshManager::readFile(char* filename) {
     GLfloat y_scale = WIDTH / (y_max - y_min);
     GLfloat z_scale = WIDTH / (z_max - z_min);
     GLfloat scale = min(min(x_scale, y_scale), z_scale);
-    (*filename_metadata)[f_string].model_mat =
-      glm::scale(glm::vec3(scale, scale, scale)) *
-      glm::translate(glm::vec3(-x_center,-y_center, -z_center));
-
+    (*filename_metadata)[f_string].scale = scale;
+    (*filename_metadata)[f_string].trans = glm::vec3(-x_center, -y_center, -z_center);
     GLuint face_index = 0;
     for(int i = 0; i < num_faces; i++) {
       getline(source, line);
@@ -287,7 +285,11 @@ void meshManager::draw_default() {
   for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
-    glm::mat4 model_mat = md.model_mat * glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 model_mat =
+      glm::scale(glm::vec3(md.scale)) *
+      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::translate(md.trans);
+    
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glDrawElements(GL_TRIANGLES, md.num_of_indices, GL_UNSIGNED_INT, (void*) (md.indices_offset * sizeof(GLuint)));
