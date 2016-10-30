@@ -188,7 +188,7 @@ void meshManager::readFile(char* filename) {
     (*this->filename_metadata)[f_string].num_of_indices = face_index * 3;
     this->vn_offset = this->vertices->size();
     this->idx_offset = this->indices->size();
-    this->flat_offset += face_index * 9;
+    this->flat_offset += face_index * 3;
     cout << "vn_offset: " << this->vn_offset << endl;
 
     if (getline(source, line)) {
@@ -343,6 +343,6 @@ void meshManager::draw_flat_mode() {
 
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
-    glDrawArrays(GL_TRIANGLES, md.flat_offset / 3, md.num_of_indices);
+    glDrawArrays(GL_TRIANGLES, md.flat_offset, md.num_of_indices);
   }
 }
