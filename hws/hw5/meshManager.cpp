@@ -46,6 +46,7 @@ void meshManager::readFiles(int num_files, char* argv[]) {
     this->readFile(filename);
     this->calc_normal(filename);
   }
+  this->calc_grid_trans_and_scale();
 }
 
 void meshManager::readFile(char* filename) {
@@ -286,6 +287,7 @@ void meshManager::draw_default() {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
     glm::mat4 model_mat =
+      glm::translate(this->grid_trans[i]) *
       glm::scale(glm::vec3(md.scale)) *
       glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
       glm::translate(md.trans);
@@ -344,5 +346,34 @@ void meshManager::draw_flat_mode() {
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glDrawArrays(GL_TRIANGLES, md.flat_offset, md.num_of_indices);
+  }
+}
+
+void meshManager::calc_grid_trans_and_scale() {
+ 
+  GLuint num_objects = this->draw_sequence.size();
+  int side = sqrt(num_objects);
+  if(pow(side, 2) != num_objects) {
+    side++;
+  }
+  map<string, metadata>::iterator it;
+  for(it = this->filename_metadata->begin(); it != this->filename_metadata->end(); it++) {
+    it->second.scale /= ((side * 1.0) + 0.2);
+  }
+  
+  GLfloat grid_width = WIDTH / (side * 1.0);
+  for(GLuint i = 0; i < this->draw_sequence.size(); i++){
+    string filename = this->draw_sequence[i];
+    int row = i / side;
+    int col = i - row * side;
+    GLfloat x_trans, y_trans;
+    if(side % 2 == 0) {
+      x_trans = (row - side / 2 + 0.5) * grid_width;
+      y_trans = (side / 2 - col - 0.5) * grid_width;
+    } else {
+      x_trans = (row - side / 2) * grid_width;
+      y_trans = (side / 2 - col) * grid_width;
+    }
+    this->grid_trans.push_back(glm::vec3(x_trans, y_trans, 0));
   }
 }
