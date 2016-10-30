@@ -8,7 +8,7 @@ GLuint modelview, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 GLfloat angle = 0.0;
 bool isPaused = false, isParallel = false;
-enum draw_mode d_mode = EDGE;
+enum draw_mode d_mode = FACE;
 enum shade_mode s_mode = SMOOTH;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
@@ -138,7 +138,7 @@ int main(int argc, char* argv[]) {
 
   project_mat = glm::perspective(50 * M_PI / 180.0, 1.0, 0.1, 1000.0);
   parallel_mat = glm::ortho(-13.5, 13.5, -13.5, 13.5, 0.1, 1000.0);
-  glm::vec3 eye = glm::vec3(0.0, 1.0, 30.0);
+  glm::vec3 eye = glm::vec3(0.0, 1.0, 15.0);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
   glm::vec3 up = glm::vec3(0, 1, 0);
   view_mat = glm::lookAt(eye, center, up);
