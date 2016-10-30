@@ -4,7 +4,7 @@
 using namespace std;
 
 GLuint fs_shader, wire_shader, p_shader;
-GLuint modelview, project, vbo, ebo, vao, pos;
+GLuint model, view, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 GLfloat angle = 0.0;
 bool isPaused = false, isParallel = false;
@@ -50,7 +50,8 @@ void init() {
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-  modelview = glGetUniformLocation(fs_shader, "ModelView");
+  model = glGetUniformLocation(fs_shader, "Model");
+  view = glGetUniformLocation(fs_shader, "View");
   project = glGetUniformLocation(fs_shader, "Project");
   glClearColor(1.0, 1.0, 1.0, 1.0);
 }
