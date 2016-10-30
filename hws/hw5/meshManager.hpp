@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cfloat>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -16,6 +17,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
 
+#define WIDTH 5.0f
 
 using namespace std;
 
@@ -27,6 +29,15 @@ typedef struct _metadata {
   GLuint indices_offset;
 
   GLuint flat_offset;
+
+  GLfloat x_max;
+  GLfloat x_min;
+  GLfloat y_max;
+  GLfloat y_min;
+  GLfloat z_max;
+  GLfloat z_min;
+
+  glm::mat4 model_mat;
 } metadata;
 
 class meshManager {
@@ -59,6 +70,7 @@ public:
   void init();
   void draw_vertex_mode();
   void draw_default();
+  void draw();
 private:
   vector<glm::vec3> *face_normals; // should be for per mesh
   void readFile(char* filename);// after readFile, all data in metadata should be available

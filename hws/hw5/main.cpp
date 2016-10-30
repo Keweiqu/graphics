@@ -6,6 +6,7 @@ using namespace std;
 GLuint fs_shader, wire_shader, p_shader;
 GLuint modelview, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat;
+GLfloat angle = 0.0;
 enum draw_mode mode = EDGE;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
@@ -27,39 +28,7 @@ GLuint my_indices[] = {
 
 vector<GLfloat> vertices(my_vertices, my_vertices + 12);
 vector<GLuint> indices(my_indices, my_indices + 12);
-/*
-GLfloat vertices[] = {
-  -0.5, 0.5, 0.5,
-  0.5, 0.5, 0.5,
-  -0.5, -0.5, 0.5,
-  0.5, -0.5, 0.5,
-  -0.5, 0.5, -0.5,
-  0.5, 0.5, -0.5,
-  -0.5, -0.5, -0.5,
-  0.5, -0.5, -0.5
-};
 
-GLuint indices[] = {
-  1, 0, 2,
-  1, 2, 3,
-
-  5, 1, 3,
-  5, 3, 7,
-
-  6, 4, 5,
-  6, 5, 7,
-
-  0, 4, 6,
-  0, 6, 2,
-
-  5, 4, 0,
-  5, 0, 1,
-
-  2, 6, 7,
-  2, 7, 3
-};
-
-*/
 
 void init() {
   glEnable(GL_DEPTH_TEST);
@@ -82,7 +51,6 @@ void init() {
   modelview = glGetUniformLocation(fs_shader, "ModelView");
   project = glGetUniformLocation(fs_shader, "Project");
   glClearColor(1.0, 1.0, 1.0, 1.0);
-  // glPointSize(3);
 }
 
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
@@ -120,7 +88,7 @@ int main(int argc, char* argv[]) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow *window = glfwCreateWindow(512, 512, "Triangle", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(800, 800, "Triangle", NULL, NULL);
   if(!window) {
     cerr << "Error: Cannot open window with GLFW3" << endl;
     glfwTerminate();
@@ -140,28 +108,16 @@ int main(int argc, char* argv[]) {
   mesh.init();
 
   project_mat = glm::perspective(45 * M_PI / 180.0, 1.0, 0.1, 1000.0);
-  glm::vec3 eye = glm::vec3(0.0, 1.0, 5.0);
+  glm::vec3 eye = glm::vec3(0.0, 1.0, 15.0);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
   glm::vec3 up = glm::vec3(0, 1, 0);
   view_mat = glm::lookAt(eye, center, up);
   model_mat = glm::mat4(1.0);
-  GLfloat angle = 0.0;
 
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    model_mat = glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 model_view_mat = view_mat * model_mat;
-    glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(model_view_mat));
     glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
-    switch(mode) {
-    case EDGE:
-    case FACE:
-      mesh.draw_default();
-      break;
-    case VERTEX:
-      mesh.draw_vertex_mode();
-      break;
-    }
+    mesh.draw();
     angle += 0.05;
     glfwSwapBuffers(window);
     glfwPollEvents();

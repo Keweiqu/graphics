@@ -1,5 +1,11 @@
 #include "meshManager.hpp"
-extern GLuint fs_shader;
+#include "main.hpp"
+
+extern GLuint fs_shader, modelview, project;
+extern GLfloat angle;
+extern glm::mat4 view_mat;
+extern enum draw_mode mode;
+
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
   glGenBuffers(1, &bufnum);
@@ -32,8 +38,6 @@ void meshManager::readFiles(int num_files, char* argv[]) {
 }
 
 void meshManager::readFile(char* filename) {
-
-
   ifstream source;
   source.open(filename);
   if(source.fail()){
@@ -65,30 +69,40 @@ void meshManager::readFile(char* filename) {
 
     cout <<"num_vertices: " << num_vertices << " num_faces: " << num_faces << " num_edges: " << num_edges << endl;
     cout << "Reading vertices..." << endl;
+
+    GLfloat x_max = FLT_MIN, x_min = FLT_MAX, y_max = FLT_MIN, y_min = FLT_MAX, z_max = FLT_MIN, z_min = FLT_MAX;
     for(int i = 0; i < num_vertices; i++) {
       getline(source, line);
       if (source.fail()) {
-		      cout << "Warning: incorrent line number, will draw crazily..." << filename << endl;
+	cout << "Warning: incorrent line number, will draw crazily..." << filename << endl;
       }
       stringstream stream(line);
       GLfloat x, y, z;
       stream >> x >> y >> z;
+      x_max = max(x_max, x); x_min = min(x_min, x);
+      y_max = max(y_max, y); y_min = min(y_min, y);
+      z_max = max(z_max, z); z_min = min(z_min, z);
       this->vertices->push_back(x);
       this->vertices->push_back(y);
       this->vertices->push_back(z);
     }
 
+    GLfloat x_center = (x_max + x_min) / 2.0;
+    GLfloat y_center = (y_max + y_min) / 2.0;
+    GLfloat z_center = (z_max + z_min) / 2.0;
+    (*filename_metadata)[f_string].model_mat = glm::translate(glm::vec3(-x_center,-y_center, -z_center));
+
     GLuint face_index = 0;
     for(int i = 0; i < num_faces; i++) {
       getline(source, line);
       if (source.fail()) {
-		cout << "Warning: incorrect line number... will draw crazily with dummy values " << filename << endl;
+	cout << "Warning: incorrect line number... will draw crazily with dummy values " << filename << endl;
       }
       stringstream stream(line);
       GLuint n;
       stream >> n;
       if (n < 3 || n > 4) {
-		cout << "bad line ignored.. will draw crazily" << endl;
+	cout << "bad line ignored.. will draw crazily" << endl;
       } else if (n == 3) {
 	GLuint n1, n2, n3;
 	stream >> n1 >> n2 >> n3;
@@ -243,6 +257,9 @@ void meshManager::draw_default() {
   for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
+    glm::mat4 model_mat = md.model_mat * glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 modelview_mat = view_mat * model_mat;
+    glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glDrawElements(GL_TRIANGLES, md.num_of_indices, GL_UNSIGNED_INT, (void*) (md.indices_offset * sizeof(GLuint)));
   }
 }
@@ -253,5 +270,17 @@ void meshManager::draw_vertex_mode() {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
     glDrawArrays(GL_POINTS, md.vn_offset, md.vn_offset + md.num_of_vertices * sizeof(GLfloat));
+  }
+}
+
+void meshManager::draw() {
+  switch(mode) {
+  case EDGE:
+  case FACE:
+    this->draw_default();
+    break;
+  case VERTEX:
+    this->draw_vertex_mode();
+    break;
   }
 }
