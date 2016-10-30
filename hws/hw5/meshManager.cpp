@@ -290,8 +290,6 @@ void meshManager::draw_default() {
       glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
       glm::translate(md.trans);
 
-    // glm::mat4 modelview_mat = view_mat * model_mat;
-    // glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
     glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
     glDrawElements(GL_TRIANGLES, md.num_of_indices, GL_UNSIGNED_INT, (void*) (md.indices_offset * sizeof(GLuint)));
@@ -308,8 +306,6 @@ void meshManager::draw_vertex_mode() {
       glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
       glm::translate(md.trans);
 
-    // glm::mat4 modelview_mat = view_mat * model_mat;
-    // glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
     glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
     glDrawArrays(GL_POINTS, md.vn_offset / 3, md.num_of_vertices);
@@ -326,6 +322,9 @@ void meshManager::draw() {
         break;
       case FLAT:
         this->draw_flat_mode();
+        break;
+      case PHONG:
+        this->draw_default();
         break;
     }
     break;
@@ -345,8 +344,6 @@ void meshManager::draw_flat_mode() {
       glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
       glm::translate(md.trans);
 
-    // glm::mat4 modelview_mat = view_mat * model_mat;
-    // glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
     glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
     glDrawArrays(GL_TRIANGLES, md.flat_offset, md.num_of_indices);
