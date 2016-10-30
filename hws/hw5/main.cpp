@@ -77,13 +77,17 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       break;
     case 'f':
     case 'F':
-      glUseProgram(fs_shader);
-      s_mode = FLAT;
+      if (d_mode == FACE) {
+        glUseProgram(fs_shader);
+        s_mode = FLAT;
+      }
       break;
     case 's':
     case 'S':
-      glUseProgram(fs_shader);
-      s_mode = SMOOTH;
+      if (d_mode == FACE) {
+        glUseProgram(fs_shader);
+        s_mode = SMOOTH;
+      }
       break;
     case 'q':
     case 'Q':
