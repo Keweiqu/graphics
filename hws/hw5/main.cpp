@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
       glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
     }
     mesh.draw();
-    if (!isPaused) angle += 0.05;
+    if (!isPaused) angle += 0.01;
     glfwSwapBuffers(window);
     glfwPollEvents();
 
