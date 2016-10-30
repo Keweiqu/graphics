@@ -47,6 +47,7 @@ public:
   GLuint ebo;
 
   GLuint vao;
+  GLuint flat_vao;
 
   GLuint flat_vbo_pos;
   GLuint flat_vbo_normal;
@@ -66,6 +67,7 @@ public:
 
   vector<string> draw_sequence;
   meshManager();
+  ~meshManager();
   void readFiles(int num_files, char* argv[]);
   void init();
   void draw_vertex_mode();

@@ -7,7 +7,8 @@ GLuint fs_shader, wire_shader, p_shader;
 GLuint modelview, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat;
 GLfloat angle = 0.0;
-enum draw_mode mode = EDGE;
+enum draw_mode d_mode = EDGE;
+enum shade_mode s_mode = SMOOTH;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -60,18 +61,28 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case 'E':
       glUseProgram(wire_shader);
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-      mode = EDGE;
+      d_mode = EDGE;
       break;
     case 't':
     case 'T':
       glUseProgram(fs_shader);
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-      mode = FACE;
+      d_mode = FACE;
       break;
     case 'v':
     case 'V':
       glUseProgram(wire_shader);
-      mode = VERTEX;
+      d_mode = VERTEX;
+      break;
+    case 'f':
+    case 'F':
+      glUseProgram(fs_shader);
+      s_mode = FLAT;
+      break;
+    case 's':
+    case 'S':
+      glUseProgram(fs_shader);
+      s_mode = SMOOTH;
       break;
     }
   }
@@ -123,6 +134,7 @@ int main(int argc, char* argv[]) {
     glfwPollEvents();
 
    }
+   delete &mesh;
   glfwTerminate();
   return 0;
 }
