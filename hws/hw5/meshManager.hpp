@@ -17,7 +17,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat4x4.hpp>
 
-#define WIDTH 5.0f
+#define WIDTH 10.0f
 
 using namespace std;
 
@@ -66,9 +66,12 @@ public:
   void draw();
 private:
   vector<glm::vec3> *face_normals; // should be for per mesh
+  vector<glm::vec3> grid_trans;
   void readFile(char* filename);// after readFile, all data in metadata should be available
   void calc_normal(string filename);// next round of meshManager offsets should be available
   glm::vec3 calc_face_normal(GLuint v0, GLuint v1, GLuint v2);// v_offset should be added
+  void calc_grid_trans();
+  
 };
 
 

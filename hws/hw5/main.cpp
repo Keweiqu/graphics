@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
   mesh.readFiles(argc - 1, argv + 1);
   mesh.init();
 
-  project_mat = glm::perspective(45 * M_PI / 180.0, 1.0, 0.1, 1000.0);
+  project_mat = glm::perspective(50 * M_PI / 180.0, 1.0, 0.1, 1000.0);
   glm::vec3 eye = glm::vec3(0.0, 1.0, 15.0);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
   glm::vec3 up = glm::vec3(0, 1, 0);
