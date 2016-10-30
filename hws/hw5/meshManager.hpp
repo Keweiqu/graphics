@@ -29,15 +29,8 @@ typedef struct _metadata {
   GLuint indices_offset;
 
   GLuint flat_offset;
-
-  GLfloat x_max;
-  GLfloat x_min;
-  GLfloat y_max;
-  GLfloat y_min;
-  GLfloat z_max;
-  GLfloat z_min;
-
-  glm::mat4 model_mat;
+  GLfloat scale;
+  glm::vec3 trans;
 } metadata;
 
 class meshManager {
