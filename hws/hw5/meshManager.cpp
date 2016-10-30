@@ -304,6 +304,7 @@ void meshManager::draw_vertex_mode() {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
     glm::mat4 model_mat =
+      glm::translate(this->grid_trans[i]) *
       glm::scale(glm::vec3(md.scale)) *
       glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
       glm::translate(md.trans);
@@ -342,6 +343,7 @@ void meshManager::draw_flat_mode() {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
     glm::mat4 model_mat =
+      glm::translate(this->grid_trans[i]) *
       glm::scale(glm::vec3(md.scale)) *
       glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
       glm::translate(md.trans);
@@ -353,7 +355,7 @@ void meshManager::draw_flat_mode() {
 }
 
 void meshManager::calc_grid_trans_and_scale() {
- 
+
   GLuint num_objects = this->draw_sequence.size();
   int side = sqrt(num_objects);
   if(pow(side, 2) != num_objects) {
@@ -363,7 +365,7 @@ void meshManager::calc_grid_trans_and_scale() {
   for(it = this->filename_metadata->begin(); it != this->filename_metadata->end(); it++) {
     it->second.scale /= ((side * 1.0) + 0.2);
   }
-  
+
   GLfloat grid_width = WIDTH / (side * 1.0);
   for(GLuint i = 0; i < this->draw_sequence.size(); i++){
     string filename = this->draw_sequence[i];
