@@ -308,7 +308,7 @@ void meshManager::draw_vertex_mode() {
 
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
-    glDrawArrays(GL_POINTS, md.vn_offset, md.vn_offset + md.num_of_vertices * sizeof(GLfloat));
+    glDrawArrays(GL_POINTS, md.vn_offset / 3, md.num_of_vertices);
   }
 }
 
