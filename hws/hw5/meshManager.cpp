@@ -343,6 +343,6 @@ void meshManager::draw_flat_mode() {
 
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
-    glDrawArrays(GL_TRIANGLES, md.flat_offset, md.flat_offset + md.num_of_indices * 3 * sizeof(GLfloat));
+    glDrawArrays(GL_TRIANGLES, md.flat_offset / 3, md.num_of_indices);
   }
 }
