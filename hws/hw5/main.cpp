@@ -5,8 +5,9 @@ using namespace std;
 
 GLuint fs_shader, wire_shader, p_shader;
 GLuint modelview, project, vbo, ebo, vao, pos;
-glm::mat4 model_mat, view_mat, project_mat;
+glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 GLfloat angle = 0.0;
+bool isPaused = false, isParallel = false;
 enum draw_mode d_mode = EDGE;
 enum shade_mode s_mode = SMOOTH;
 
@@ -84,6 +85,19 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       glUseProgram(fs_shader);
       s_mode = SMOOTH;
       break;
+    case 'q':
+    case 'Q':
+    case GLFW_KEY_ESCAPE:
+      glfwSetWindowShouldClose(w, true);
+      break;
+    case 'a':
+    case 'A':
+      isPaused = !isPaused;
+      break;
+    case 'p':
+    case 'P':
+      isParallel = !isParallel;
+      break;
     }
   }
 }
@@ -119,6 +133,7 @@ int main(int argc, char* argv[]) {
   mesh.init();
 
   project_mat = glm::perspective(50 * M_PI / 180.0, 1.0, 0.1, 1000.0);
+  parallel_mat = glm::ortho(-13.5, 13.5, -13.5, 13.5, 0.1, 1000.0);
   glm::vec3 eye = glm::vec3(0.0, 1.0, 30.0);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
   glm::vec3 up = glm::vec3(0, 1, 0);
@@ -127,9 +142,13 @@ int main(int argc, char* argv[]) {
 
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
+    if (isParallel) {
+      glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(parallel_mat));
+    } else {
+      glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
+    }
     mesh.draw();
-    angle += 0.05;
+    if (!isPaused) angle += 0.05;
     glfwSwapBuffers(window);
     glfwPollEvents();
 
