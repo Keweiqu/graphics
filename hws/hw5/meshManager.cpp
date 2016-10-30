@@ -4,7 +4,8 @@
 extern GLuint fs_shader, modelview, project;
 extern GLfloat angle;
 extern glm::mat4 view_mat;
-extern enum draw_mode mode;
+extern enum draw_mode d_mode;
+extern enum shade_mode s_mode;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -28,12 +29,22 @@ meshManager::meshManager() {
   flat_normals = new vector<GLfloat>();
 }
 
+meshManager::~meshManager() {
+  delete vertices;
+  delete normals;
+  delete indices;
+  delete flat_normals;
+  delete flat_vertices;
+  delete index_faces;
+  delete filename_metadata;
+  delete face_normals;
+}
+
 void meshManager::readFiles(int num_files, char* argv[]) {
   for(int i = 0; i < num_files; i++) {
     char* filename = argv[i];
     this->readFile(filename);
     this->calc_normal(filename);
-
   }
 }
 
@@ -240,6 +251,9 @@ void meshManager::init() {
   this->flat_vbo_pos = make_bo(GL_ARRAY_BUFFER,
 			       &(this->flat_vertices->front()),
 			       this->flat_vertices->size() * sizeof(GLfloat));
+  this->flat_vbo_normal = make_bo(GL_ARRAY_BUFFER,
+          &(this->flat_normals->front()),
+          this->flat_normals->size() * sizeof(GLfloat));
   glGenVertexArrays(1, &(this->vao));
   glBindVertexArray(vao);
 
@@ -253,6 +267,16 @@ void meshManager::init() {
   glEnableVertexAttribArray(normal);
   glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
+  glGenVertexArrays(1, &(this->flat_vao));
+  glBindVertexArray(flat_vao);
+
+  glBindBuffer(GL_ARRAY_BUFFER, this->flat_vbo_pos);
+  glEnableVertexAttribArray(pos);
+  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, this->flat_vbo_normal);
+  glEnableVertexAttribArray(normal);
+  glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 }
 
 void meshManager::draw_default() {
@@ -265,7 +289,7 @@ void meshManager::draw_default() {
       glm::scale(glm::vec3(md.scale)) *
       glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
       glm::translate(md.trans);
-    
+
     glm::mat4 modelview_mat = view_mat * model_mat;
     glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glDrawElements(GL_TRIANGLES, md.num_of_indices, GL_UNSIGNED_INT, (void*) (md.indices_offset * sizeof(GLuint)));
@@ -277,18 +301,48 @@ void meshManager::draw_vertex_mode() {
   for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
+    glm::mat4 model_mat =
+      glm::scale(glm::vec3(md.scale)) *
+      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::translate(md.trans);
+
+    glm::mat4 modelview_mat = view_mat * model_mat;
+    glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
     glDrawArrays(GL_POINTS, md.vn_offset, md.vn_offset + md.num_of_vertices * sizeof(GLfloat));
   }
 }
 
 void meshManager::draw() {
-  switch(mode) {
+  switch(d_mode) {
   case EDGE:
   case FACE:
-    this->draw_default();
+    switch (s_mode) {
+      case SMOOTH:
+        this->draw_default();
+        break;
+      case FLAT:
+        this->draw_flat_mode();
+        break;
+    }
     break;
   case VERTEX:
     this->draw_vertex_mode();
     break;
+  }
+}
+
+void meshManager::draw_flat_mode() {
+  glBindVertexArray(this->flat_vao);
+  for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
+    string filename = this->draw_sequence[i];
+    metadata md = (*this->filename_metadata)[filename];
+    glm::mat4 model_mat =
+      glm::scale(glm::vec3(md.scale)) *
+      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::translate(md.trans);
+
+    glm::mat4 modelview_mat = view_mat * model_mat;
+    glUniformMatrix4fv(modelview, 1, GL_FALSE, glm::value_ptr(modelview_mat));
+    glDrawArrays(GL_TRIANGLES, md.flat_offset, md.flat_offset + md.num_of_indices * 3 * sizeof(GLfloat));
   }
 }
