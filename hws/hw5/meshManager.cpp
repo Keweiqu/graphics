@@ -101,7 +101,13 @@ void meshManager::readFile(char* filename) {
     GLfloat x_center = (x_max + x_min) / 2.0;
     GLfloat y_center = (y_max + y_min) / 2.0;
     GLfloat z_center = (z_max + z_min) / 2.0;
-    (*filename_metadata)[f_string].model_mat = glm::translate(glm::vec3(-x_center,-y_center, -z_center));
+    GLfloat x_scale = WIDTH / (x_max - x_min);
+    GLfloat y_scale = WIDTH / (y_max - y_min);
+    GLfloat z_scale = WIDTH / (z_max - z_min);
+    GLfloat scale = min(min(x_scale, y_scale), z_scale);
+    (*filename_metadata)[f_string].model_mat =
+      glm::scale(glm::vec3(scale, scale, scale)) *
+      glm::translate(glm::vec3(-x_center,-y_center, -z_center));
 
     GLuint face_index = 0;
     for(int i = 0; i < num_faces; i++) {
