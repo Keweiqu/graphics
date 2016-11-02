@@ -24,9 +24,11 @@ using namespace std;
 typedef struct _metadata {
   GLuint num_of_vertices;
   GLuint num_of_indices;
+  GLuint num_of_edge_indices;
 
   GLuint vn_offset;
   GLuint indices_offset;
+  GLuint edge_indices_offset;
 
   GLuint flat_offset;
   GLfloat scale;
@@ -38,6 +40,7 @@ public:
   GLuint vbo_pos;
   GLuint vbo_normal;
   GLuint ebo;
+  GLuint edge_ebo;
 
   GLuint vao;
   GLuint flat_vao;
@@ -47,10 +50,12 @@ public:
 
   GLuint vn_offset;
   GLuint idx_offset;
+  GLuint edge_idx_offset;
   GLuint flat_offset;
   vector<GLfloat> *vertices;
   vector<GLfloat> *normals;
   vector<GLuint> *indices;
+  vector<GLuint> *edge_indices;
 
   vector<GLfloat> *flat_normals;
   vector<GLfloat> *flat_vertices;
@@ -64,6 +69,7 @@ public:
   void readFiles(int num_files, char* argv[]);
   void init();
   void draw_vertex_mode();
+  void draw_edge_mode();
   void draw_flat_mode();
   void draw_default();
   void draw();
