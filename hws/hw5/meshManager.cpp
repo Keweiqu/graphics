@@ -162,6 +162,7 @@ void meshManager::readFile(char* filename) {
 	this->edge_indices->push_back(n3 + this->vn_offset / 3);
 	this->edge_indices->push_back(n3 + this->vn_offset / 3);
 	this->edge_indices->push_back(n4 + this->vn_offset / 3);
+	this->edge_indices->push_back(n4 + this->vn_offset / 3);
 	this->edge_indices->push_back(n1 + this->vn_offset / 3);
 	this->indices->push_back(n1 + this->vn_offset / 3);
 	this->indices->push_back(n2 + this->vn_offset / 3);
@@ -351,7 +352,9 @@ void meshManager::draw_edge_mode() {
     glm::mat4 model_mat =
       glm::translate(this->grid_trans[i]) *
       glm::scale(glm::vec3(md.scale)) *
-      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
+      glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
       glm::translate(md.trans);
 
     glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
