@@ -1,17 +1,16 @@
 #include "util.hpp"
 
-extern GLfloat eye_dist;
-extern bool isParallel;
+extern GLfloat scale_factor;
 
 void zoom_in() {
-  if (eye_dist > 15) {
-    eye_dist -= 2;
+  if (scale_factor < 2.1) {
+    scale_factor *= 1.1;
   }
 }
 
 void zoom_out() {
-  if (eye_dist < 55) {
-    eye_dist += 2;
+  if (scale_factor > 0.5) {
+    scale_factor /= 1.1;
   }
 }
 // int readFile(meshManager* mesh, int argc, char* argv[]) {

@@ -7,6 +7,7 @@ extern glm::mat4 view_mat;
 extern enum draw_mode d_mode;
 extern enum shade_mode s_mode;
 extern GLfloat spin[3];
+extern GLfloat scale_factor;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -306,14 +307,14 @@ void meshManager::init() {
 }
 
 void meshManager::draw_default() {
- 
+
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
   for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
     glm::mat4 model_mat =
       glm::translate(this->grid_trans[i]) *
-      glm::scale(glm::vec3(md.scale)) *
+      glm::scale(glm::vec3(md.scale * scale_factor)) *
       glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
       glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
       glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
@@ -331,7 +332,7 @@ void meshManager::draw_vertex_mode() {
     metadata md = (*this->filename_metadata)[filename];
     glm::mat4 model_mat =
       glm::translate(this->grid_trans[i]) *
-      glm::scale(glm::vec3(md.scale)) *
+      glm::scale(glm::vec3(md.scale * scale_factor)) *
       glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
       glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
       glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
@@ -350,7 +351,7 @@ void meshManager::draw_edge_mode() {
     metadata md = (*this->filename_metadata)[filename];
     glm::mat4 model_mat =
       glm::translate(this->grid_trans[i]) *
-      glm::scale(glm::vec3(md.scale)) *
+      glm::scale(glm::vec3(md.scale * scale_factor)) *
       glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
       glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
       glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
@@ -395,7 +396,7 @@ void meshManager::draw_flat_mode() {
     metadata md = (*this->filename_metadata)[filename];
     glm::mat4 model_mat =
       glm::translate(this->grid_trans[i]) *
-      glm::scale(glm::vec3(md.scale)) *
+      glm::scale(glm::vec3(md.scale * scale_factor)) *
       glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
       glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
       glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *

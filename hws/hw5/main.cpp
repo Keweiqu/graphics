@@ -8,7 +8,7 @@ GLuint fs_shader, wire_shader, phong_shader;
 GLuint model, view, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 GLfloat spin[3] = {0.0f, 0.0f, 0.0f};
-GLfloat eye_dist = 30.0;
+GLfloat scale_factor = 1.0;
 bool isPaused = false, isParallel = false;
 enum draw_mode d_mode = FACE;
 enum shade_mode s_mode = SMOOTH;
@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
 
   project_mat = glm::perspective(35 * M_PI / 180.0, 1.0, 0.1, 1000.0);
   parallel_mat = glm::ortho(-10.0, 10.0, -10.0, 10.0, 0.1, 1000.0);
-  glm::vec3 eye = glm::vec3(0.0, 1.0, eye_dist);
+  glm::vec3 eye = glm::vec3(0.0, 1.0, 30.0);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
   glm::vec3 up = glm::vec3(0, 1, 0);
   view_mat = glm::lookAt(eye, center, up);
@@ -181,8 +181,6 @@ int main(int argc, char* argv[]) {
     }
     mesh.draw();
     if (!isPaused) mesh.update_angle();
-    eye[2] = eye_dist;
-    view_mat = glm::lookAt(eye, center, up);
     glfwSwapBuffers(window);
     glfwPollEvents();
 
