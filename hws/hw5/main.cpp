@@ -6,7 +6,7 @@ using namespace std;
 GLuint fs_shader, wire_shader, phong_shader;
 GLuint model, view, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
-GLfloat angle = 0.0;
+GLfloat spin[3] = {0.0f, 0.0f, 0.0f};
 bool isPaused = false, isParallel = false;
 enum draw_mode d_mode = FACE;
 enum shade_mode s_mode = SMOOTH;
@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
       glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
     }
     mesh.draw();
-    if (!isPaused) angle += 0.05;
+    if (!isPaused) mesh.update_angle();
     glfwSwapBuffers(window);
     glfwPollEvents();
 

@@ -73,6 +73,7 @@ public:
   void draw_flat_mode();
   void draw_default();
   void draw();
+  void update_angle();
 private:
   vector<glm::vec3> *face_normals; // should be for per mesh
   vector<glm::vec3> grid_trans;
@@ -80,7 +81,7 @@ private:
   void calc_normal(string filename);// next round of meshManager offsets should be available
   glm::vec3 calc_face_normal(GLuint v0, GLuint v1, GLuint v2);// v_offset should be added
   void calc_grid_trans_and_scale();
-  
+
 };
 
 
