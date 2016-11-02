@@ -11,6 +11,8 @@ bool isPaused = false, isParallel = false;
 enum draw_mode d_mode = FACE;
 enum shade_mode s_mode = SMOOTH;
 
+meshManager mesh;
+
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
   glGenBuffers(1, &bufnum);
@@ -62,41 +64,46 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     switch(key) {
     case 'e':
     case 'E':
-      glUseProgram(wire_shader);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
       d_mode = EDGE;
+      glBindVertexArray(mesh.vao);
       break;
     case 't':
     case 'T':
-      glUseProgram(fs_shader);
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+      if(s_mode == FLAT) {
+	glBindVertexArray(mesh.flat_vao);
+      } else {
+	glBindVertexArray(mesh.vao);
+      }
       d_mode = FACE;
       break;
     case 'v':
     case 'V':
-      glUseProgram(wire_shader);
+      glBindVertexArray(mesh.vao);
       d_mode = VERTEX;
       break;
     case 'f':
     case 'F':
-      if (d_mode == FACE) {
-        glUseProgram(fs_shader);
-        s_mode = FLAT;
+      if(d_mode == FACE) {
+	glBindVertexArray(mesh.flat_vao);
       }
+      glUseProgram(fs_shader);
+      s_mode = FLAT;
       break;
     case 's':
     case 'S':
-      if (d_mode == FACE) {
-        glUseProgram(fs_shader);
-        s_mode = SMOOTH;
+      if(d_mode == FACE) {
+	glBindVertexArray(mesh.vao);
       }
+      glUseProgram(fs_shader);
+      s_mode = SMOOTH;
       break;
     case 'k':
     case 'K':
-      if (d_mode == FACE) {
-        glUseProgram(phong_shader);
-        s_mode = PHONG;
+      if(d_mode == FACE) {
+	glBindVertexArray(mesh.vao);
       }
+      glUseProgram(phong_shader);
+      s_mode = PHONG;
       break;
     case 'q':
     case 'Q':
@@ -141,7 +148,6 @@ int main(int argc, char* argv[]) {
 
   init();
 
-  meshManager mesh;
   mesh.readFiles(argc - 1, argv + 1);
   mesh.init();
 
@@ -152,7 +158,7 @@ int main(int argc, char* argv[]) {
   glm::vec3 up = glm::vec3(0, 1, 0);
   view_mat = glm::lookAt(eye, center, up);
   model_mat = glm::mat4(1.0);
-
+  glBindVertexArray(mesh.vao);
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (isParallel) {

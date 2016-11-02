@@ -30,6 +30,7 @@ meshManager::meshManager() {
   filename_metadata = new map< string, metadata>();
   flat_vertices = new vector<GLfloat>();
   flat_normals = new vector<GLfloat>();
+  flat_interleave = new vector<GLfloat>();
 }
 
 meshManager::~meshManager() {
@@ -305,7 +306,7 @@ void meshManager::init() {
 }
 
 void meshManager::draw_default() {
-  glBindVertexArray(this->vao);
+ 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
   for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
@@ -325,7 +326,6 @@ void meshManager::draw_default() {
 }
 
 void meshManager::draw_vertex_mode() {
-  glBindVertexArray(this->vao);
   for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
@@ -344,7 +344,6 @@ void meshManager::draw_vertex_mode() {
 }
 
 void meshManager::draw_edge_mode() {
-  glBindVertexArray(this->vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->edge_ebo);
   for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
@@ -391,7 +390,6 @@ void meshManager::draw() {
 }
 
 void meshManager::draw_flat_mode() {
-  glBindVertexArray(this->flat_vao);
   for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];

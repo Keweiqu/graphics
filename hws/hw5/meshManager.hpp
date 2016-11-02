@@ -59,6 +59,7 @@ public:
 
   vector<GLfloat> *flat_normals;
   vector<GLfloat> *flat_vertices;
+  vector<GLfloat> *flat_interleave;
 
   map< GLuint, vector<GLuint> > *index_faces; // per mesh
   map< string, metadata > *filename_metadata;
