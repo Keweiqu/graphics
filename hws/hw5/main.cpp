@@ -8,7 +8,7 @@ GLuint fs_shader, wire_shader, phong_shader;
 GLuint model, view, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 GLfloat spin[3] = {0.0f, 0.0f, 0.0f};
-GLfloat scale_factor = 1.0;
+GLfloat scale_factor = 1.0, eye_dist = 30.0;
 bool isPaused = false, isParallel = false;
 enum draw_mode d_mode = FACE;
 enum shade_mode s_mode = SMOOTH;
@@ -126,13 +126,17 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS || action == GLFW_REPEAT) {
     switch(key) {
       case GLFW_KEY_UP:
-      zoom_in();
+        zoom_in();
       break;
       case GLFW_KEY_DOWN:
-      zoom_out();
+        zoom_out();
       break;
     }
   }
+}
+
+void mouse(GLFWwindow *w, int button, int action, int mods) {
+
 }
 
 int main(int argc, char* argv[]) {
@@ -158,6 +162,7 @@ int main(int argc, char* argv[]) {
   glewExperimental = GL_TRUE;
   glewInit();
   glfwSetKeyCallback(window, keyboard);
+  glfwSetMouseButtonCallback(window, mouse);
 
   init();
 
@@ -166,12 +171,13 @@ int main(int argc, char* argv[]) {
 
   project_mat = glm::perspective(35 * M_PI / 180.0, 1.0, 0.1, 1000.0);
   parallel_mat = glm::ortho(-10.0, 10.0, -10.0, 10.0, 0.1, 1000.0);
-  glm::vec3 eye = glm::vec3(0.0, 1.0, 30.0);
+  glm::vec3 eye = glm::vec3(0.0, 1.0, eye_dist);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
   glm::vec3 up = glm::vec3(0, 1, 0);
   view_mat = glm::lookAt(eye, center, up);
   model_mat = glm::mat4(1.0);
   glBindVertexArray(mesh.vao);
+
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (isParallel) {
@@ -181,6 +187,8 @@ int main(int argc, char* argv[]) {
     }
     mesh.draw();
     if (!isPaused) mesh.update_angle();
+    eye[2] = eye_dist;
+    view_mat = glm::lookAt(eye, center, up);
     glfwSwapBuffers(window);
     glfwPollEvents();
 
