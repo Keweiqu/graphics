@@ -7,5 +7,7 @@
 #include "meshManager.hpp"
 using namespace std;
 
-int readFile(meshManager* mesh, int argc, char* argv[]);
+// int readFile(meshManager* mesh, int argc, char* argv[]);
+void zoom_in();
+void zoom_out();
 #endif
