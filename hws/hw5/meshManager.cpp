@@ -6,6 +6,7 @@ extern GLfloat angle;
 extern glm::mat4 view_mat;
 extern enum draw_mode d_mode;
 extern enum shade_mode s_mode;
+extern GLfloat spin[3];
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -87,7 +88,7 @@ void meshManager::readFile(char* filename) {
       getline(source, line);
       if (source.fail()) {
 	cout << "Warning: incorrent line number, will draw crazily..." << filename << endl;
-      }
+}
       stringstream stream(line);
       GLfloat x, y, z;
       stream >> x >> y >> z;
@@ -289,7 +290,9 @@ void meshManager::draw_default() {
     glm::mat4 model_mat =
       glm::translate(this->grid_trans[i]) *
       glm::scale(glm::vec3(md.scale)) *
-      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
+      glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
       glm::translate(md.trans);
 
     glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
@@ -306,7 +309,9 @@ void meshManager::draw_vertex_mode() {
     glm::mat4 model_mat =
       glm::translate(this->grid_trans[i]) *
       glm::scale(glm::vec3(md.scale)) *
-      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
+      glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
       glm::translate(md.trans);
 
     glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
@@ -345,7 +350,9 @@ void meshManager::draw_flat_mode() {
     glm::mat4 model_mat =
       glm::translate(this->grid_trans[i]) *
       glm::scale(glm::vec3(md.scale)) *
-      glm::rotate(angle, glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
+      glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
       glm::translate(md.trans);
 
     glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
@@ -382,3 +389,18 @@ void meshManager::calc_grid_trans_and_scale() {
     this->grid_trans.push_back(glm::vec3(x_trans, y_trans, 0));
   }
 }
+
+void meshManager::update_angle() {
+  spin[0] += 0.01;
+  spin[1] += 0.01;
+  spin[2] += 0.01;
+  if (spin[0] > 2 * M_PI) {
+    spin[0] -= 2 * M_PI;
+  }
+  if (spin[1] > 2 * M_PI) {
+    spin[1] -= 2 * M_PI;
+  }
+  if (spin[2] > 2 * M_PI) {
+    spin[2] -= 2 * M_PI;
+  }
+ }
