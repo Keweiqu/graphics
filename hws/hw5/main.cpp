@@ -14,6 +14,7 @@ enum draw_mode d_mode = FACE;
 enum shade_mode s_mode = SMOOTH;
 int clicked = FALSE;
 double m_xpos, m_ypos;
+GLfloat last_x_diff, last_y_diff;
 GLfloat x_diff, y_diff;
 GLfloat x_angle, y_angle;
 GLfloat direction = 1.0;
@@ -149,6 +150,10 @@ void mouse(GLFWwindow *w, int button, int action, int mods) {
       printf("pressed\n");
       clicked = TRUE;
     } else {
+      last_x_diff += x_diff;
+      last_y_diff += y_diff;
+      x_diff = 0;
+      y_diff = 0;
       printf("released\n");
       clicked = FALSE;
     }
@@ -159,20 +164,14 @@ void mouse(GLFWwindow *w, int button, int action, int mods) {
 
 void cursor(GLFWwindow* window, double xpos, double ypos) {
   if(clicked) {
-    x_diff = x_diff + (xpos - m_xpos) / 5000.0;
-    y_diff = y_diff + (ypos - m_ypos) / 5000.0;
+    x_diff = (xpos - m_xpos) / 250.0;
+    y_diff = (ypos - m_ypos) / 250.0;
     if(x_diff < 0) {
       x_diff += 2 * M_PI;
     } else if(x_diff > 2 * M_PI) {
       x_diff -= 2 * M_PI;
     }
-    /*
-    if(x_diff > M_PI) {
-      direction = -1.0;
-    } else {
-      direction = 1.0;
-    }
-    */
+
     if(y_diff < 0) {
       y_diff += 2 * M_PI;
     } else if (y_diff > 2 * M_PI) {
@@ -181,6 +180,18 @@ void cursor(GLFWwindow* window, double xpos, double ypos) {
     cout << "x_diff is: " << x_diff << endl;
     cout << "y_diff is: " << y_diff << endl;
   }
+}
+
+void reshape(GLFWwindow* window, int width, int height) {
+  if (isParallel) {
+    glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(parallel_mat));
+  } else {
+    glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  }
+}
+
+void framebuffer_resize(GLFWwindow* window, int width, int height) {
+  glViewport(0, 0, width, height);
 }
 
 int main(int argc, char* argv[]) {
@@ -208,6 +219,8 @@ int main(int argc, char* argv[]) {
   glfwSetKeyCallback(window, keyboard);
   glfwSetMouseButtonCallback(window, mouse);
   glfwSetCursorPosCallback(window, cursor);
+  glfwSetWindowSizeCallback(window, reshape);
+  glfwSetFramebufferSizeCallback(window, framebuffer_resize);
 
   init();
 
@@ -224,9 +237,12 @@ int main(int argc, char* argv[]) {
   glBindVertexArray(mesh.vao);
 
   while(!glfwWindowShouldClose(window)) {
-    universe_rotate = 
-      glm::rotate(y_diff, glm::vec3(direction, 0.0, 0.0)) *
-      glm::rotate(x_diff, glm::vec3(0.0, 1.0, 0.0));
+    GLfloat last_x = last_x_diff + x_diff;
+    GLfloat last_y = last_y_diff + y_diff;
+    universe_rotate =
+      glm::rotate(last_y, glm::vec3(cos(last_x), 0.0, sin(-last_x))) *
+      glm::rotate(last_x, glm::vec3(0.0, 1.0, 0.0));
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (isParallel) {
       glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(parallel_mat));
