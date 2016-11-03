@@ -11,6 +11,7 @@
   - 'F'/'f': flat shading
   - 'K'/'k': phong shading
   The grid is laid out on the x-y plane, with zooming on z-axis. 
+  
 ##Execution instruction
   - make clean; make to compile
   - ./hw5 foo.off bar.off baz.off ... to run the program
