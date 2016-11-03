@@ -3,7 +3,7 @@
 
 extern GLuint fs_shader, model, view, project;
 extern GLfloat angle;
-extern glm::mat4 view_mat;
+extern glm::mat4 view_mat, universe_rotate;
 extern enum draw_mode d_mode;
 extern enum shade_mode s_mode;
 extern GLfloat spin[3];
@@ -32,7 +32,6 @@ meshManager::meshManager() {
   filename_metadata = new map< string, metadata>();
   flat_vertices = new vector<GLfloat>();
   flat_normals = new vector<GLfloat>();
-  flat_interleave = new vector<GLfloat>();
 }
 
 meshManager::~meshManager() {
@@ -318,6 +317,7 @@ void meshManager::draw_default() {
     glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
     translate_vector += isParallel * (scale_factor - 1) * translate_vector;
     glm::mat4 model_mat =
+      universe_rotate *
       glm::translate(translate_vector) *
       glm::scale(scale_vector) *
       glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *

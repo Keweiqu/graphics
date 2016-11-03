@@ -12,6 +12,12 @@ GLfloat scale_factor = 1.0, eye_dist = 30.0;
 bool isPaused = false, isParallel = false;
 enum draw_mode d_mode = FACE;
 enum shade_mode s_mode = SMOOTH;
+int clicked = FALSE;
+double m_xpos, m_ypos;
+GLfloat x_diff, y_diff;
+GLfloat x_angle, y_angle;
+GLfloat direction = 1.0;
+glm::mat4 universe_rotate;
 
 meshManager mesh;
 
@@ -136,7 +142,45 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 }
 
 void mouse(GLFWwindow *w, int button, int action, int mods) {
+  switch(button) {
+  case GLFW_MOUSE_BUTTON_LEFT:
+    if(action== GLFW_PRESS){
+      glfwGetCursorPos(w, &m_xpos, &m_ypos);
+      printf("pressed\n");
+      clicked = TRUE;
+    } else {
+      printf("released\n");
+      clicked = FALSE;
+    }
+  default:
+    break;
+  }
+}
 
+void cursor(GLFWwindow* window, double xpos, double ypos) {
+  if(clicked) {
+    x_diff = x_diff + (xpos - m_xpos) / 5000.0;
+    y_diff = y_diff + (ypos - m_ypos) / 5000.0;
+    if(x_diff < 0) {
+      x_diff += 2 * M_PI;
+    } else if(x_diff > 2 * M_PI) {
+      x_diff -= 2 * M_PI;
+    }
+    /*
+    if(x_diff > M_PI) {
+      direction = -1.0;
+    } else {
+      direction = 1.0;
+    }
+    */
+    if(y_diff < 0) {
+      y_diff += 2 * M_PI;
+    } else if (y_diff > 2 * M_PI) {
+      y_diff -= 2 * M_PI;
+    }
+    cout << "x_diff is: " << x_diff << endl;
+    cout << "y_diff is: " << y_diff << endl;
+  }
 }
 
 int main(int argc, char* argv[]) {
@@ -163,6 +207,7 @@ int main(int argc, char* argv[]) {
   glewInit();
   glfwSetKeyCallback(window, keyboard);
   glfwSetMouseButtonCallback(window, mouse);
+  glfwSetCursorPosCallback(window, cursor);
 
   init();
 
@@ -179,6 +224,9 @@ int main(int argc, char* argv[]) {
   glBindVertexArray(mesh.vao);
 
   while(!glfwWindowShouldClose(window)) {
+    universe_rotate = 
+      glm::rotate(y_diff, glm::vec3(direction, 0.0, 0.0)) *
+      glm::rotate(x_diff, glm::vec3(0.0, 1.0, 0.0));
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (isParallel) {
       glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(parallel_mat));
