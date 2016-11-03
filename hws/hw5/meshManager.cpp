@@ -285,6 +285,7 @@ void meshManager::init() {
   glBindVertexArray(vao);
 
   glBindBuffer(GL_ARRAY_BUFFER, this->vbo_pos);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
   GLuint pos = glGetAttribLocation(fs_shader, "vPos");
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
@@ -293,6 +294,7 @@ void meshManager::init() {
   GLuint normal = glGetAttribLocation(fs_shader, "vNormal");
   glEnableVertexAttribArray(normal);
   glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+
 
   glGenVertexArrays(1, &(this->flat_vao));
   glBindVertexArray(flat_vao);
@@ -307,8 +309,6 @@ void meshManager::init() {
 }
 
 void meshManager::draw_default() {
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
   for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
@@ -340,6 +340,7 @@ void meshManager::draw_vertex_mode() {
     glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
     translate_vector += isParallel * (scale_factor - 1) * translate_vector;
     glm::mat4 model_mat =
+      universe_rotate *
       glm::translate(translate_vector) *
       glm::scale(scale_vector) *
       glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
@@ -354,7 +355,6 @@ void meshManager::draw_vertex_mode() {
 }
 
 void meshManager::draw_edge_mode() {
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->edge_ebo);
   for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
@@ -363,6 +363,7 @@ void meshManager::draw_edge_mode() {
     glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
     translate_vector += isParallel * (scale_factor - 1) * translate_vector;
     glm::mat4 model_mat =
+      universe_rotate *
       glm::translate(translate_vector) *
       glm::scale(scale_vector) *
       glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
@@ -412,6 +413,7 @@ void meshManager::draw_flat_mode() {
     glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
     translate_vector += isParallel * (scale_factor - 1) * translate_vector;
     glm::mat4 model_mat =
+      universe_rotate *
       glm::translate(translate_vector) *
       glm::scale(scale_vector) *
       glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
@@ -455,9 +457,9 @@ void meshManager::calc_grid_trans_and_scale() {
 }
 
 void meshManager::update_angle() {
-  spin[0] += 0.01;
-  spin[1] += 0.01;
-  spin[2] += 0.01;
+  spin[0] += ROTATE_X_SPEED;
+  spin[1] += ROTATE_Y_SPEED;
+  spin[2] += ROTATE_Z_SPEED;
   if (spin[0] > 2 * M_PI) {
     spin[0] -= 2 * M_PI;
   }

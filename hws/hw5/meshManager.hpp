@@ -18,6 +18,9 @@
 #include <glm/mat4x4.hpp>
 
 #define WIDTH 10.0f
+#define ROTATE_X_SPEED 0.01
+#define ROTATE_Y_SPEED 0.01
+#define ROTATE_Z_SPEED 0.01
 
 using namespace std;
 

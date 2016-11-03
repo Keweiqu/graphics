@@ -1,33 +1,32 @@
 #include "util.hpp"
+#include "main.hpp"
 
 extern bool isParallel;
 extern GLfloat eye_dist, scale_factor;
 
 void zoom_in() {
-  if (eye_dist > 14) {
+  // steps for eye_dist and scale_factor are magic numbers that make zoom in/out have the same effects on parallel and perspective mode
+  if (eye_dist > EYE_DIST_NEAR) {
     eye_dist -= 2;
   }
-  if (scale_factor < 2.2 && scale_factor >= 1.0) {
+  if (scale_factor < SCALE_FACTOR_MAX && scale_factor >= INITIAL_SCALE_FACTOR) {
     scale_factor += 0.15;
-  } else if (scale_factor < 1.0) {
+  } else if (scale_factor < INITIAL_SCALE_FACTOR) {
     scale_factor += 0.04;
   }
 }
 
 void zoom_out() {
-  if (eye_dist < 46) {
+  if (eye_dist < EYE_DIST_FAR) {
     eye_dist += 2;
   }
-  if (scale_factor > 0.68 && scale_factor <= 1.0) {
+  if (scale_factor > SCALE_FACTOR_MIN && scale_factor <= INITIAL_SCALE_FACTOR) {
     scale_factor -= 0.04;
-  } else if (scale_factor > 1.0) {
+  } else if (scale_factor > INITIAL_SCALE_FACTOR) {
     scale_factor -= 0.15;
   }
 }
 
-void click_and_drag() {
-
-}
 // int readFile(meshManager* mesh, int argc, char* argv[]) {
 //   if(argc <= 1) {
 //     cout << "No file, no render, goodbye." << endl;

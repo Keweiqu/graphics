@@ -8,7 +8,7 @@ GLuint fs_shader, wire_shader, phong_shader;
 GLuint model, view, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 GLfloat spin[3] = {0.0f, 0.0f, 0.0f};
-GLfloat scale_factor = 1.0, eye_dist = 30.0;
+GLfloat scale_factor = INITIAL_SCALE_FACTOR, eye_dist = INITIAL_EYE_DIST;
 bool isPaused = false, isParallel = false;
 enum draw_mode d_mode = FACE;
 enum shade_mode s_mode = SMOOTH;
@@ -17,7 +17,6 @@ double m_xpos, m_ypos;
 GLfloat last_x_diff, last_y_diff;
 GLfloat x_diff, y_diff;
 GLfloat x_angle, y_angle;
-GLfloat direction = 1.0;
 glm::mat4 universe_rotate;
 
 meshManager mesh;
@@ -75,6 +74,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case 'E':
       d_mode = EDGE;
       glBindVertexArray(mesh.vao);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.edge_ebo);
       break;
     case 't':
     case 'T':
@@ -82,6 +82,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 	glBindVertexArray(mesh.flat_vao);
       } else {
 	glBindVertexArray(mesh.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
       }
       d_mode = FACE;
       break;
@@ -102,6 +103,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case 'S':
       if(d_mode == FACE) {
 	glBindVertexArray(mesh.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
       }
       glUseProgram(fs_shader);
       s_mode = SMOOTH;
@@ -110,6 +112,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case 'K':
       if(d_mode == FACE) {
 	glBindVertexArray(mesh.vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
       }
       glUseProgram(phong_shader);
       s_mode = PHONG;
@@ -164,8 +167,8 @@ void mouse(GLFWwindow *w, int button, int action, int mods) {
 
 void cursor(GLFWwindow* window, double xpos, double ypos) {
   if(clicked) {
-    x_diff = (xpos - m_xpos) / 250.0;
-    y_diff = (ypos - m_ypos) / 250.0;
+    x_diff = (xpos - m_xpos) / DRAG_SPEED_FACTOR;
+    y_diff = (ypos - m_ypos) / DRAG_SPEED_FACTOR;
     if(x_diff < 0) {
       x_diff += 2 * M_PI;
     } else if(x_diff > 2 * M_PI) {
@@ -205,7 +208,7 @@ int main(int argc, char* argv[]) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow *window = glfwCreateWindow(800, 800, "Triangle", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Triangle", NULL, NULL);
   if(!window) {
     cerr << "Error: Cannot open window with GLFW3" << endl;
     glfwTerminate();
@@ -227,8 +230,8 @@ int main(int argc, char* argv[]) {
   mesh.readFiles(argc - 1, argv + 1);
   mesh.init();
 
-  project_mat = glm::perspective(35 * M_PI / 180.0, 1.0, 0.1, 1000.0);
-  parallel_mat = glm::ortho(-10.0, 10.0, -10.0, 10.0, 0.1, 1000.0);
+  project_mat = glm::perspective(35 * DEGREES_TO_RADIANS, 1.0, 0.1, 1000.0); // magic numbers, parallel and perspective don't match if modifed
+  parallel_mat = glm::ortho(-10.0, 10.0, -10.0, 10.0, 0.1, 1000.0); // magic numbers, parallel and perspective don't match if modifed
   glm::vec3 eye = glm::vec3(0.0, 1.0, eye_dist);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
   glm::vec3 up = glm::vec3(0, 1, 0);
@@ -237,11 +240,11 @@ int main(int argc, char* argv[]) {
   glBindVertexArray(mesh.vao);
 
   while(!glfwWindowShouldClose(window)) {
-    GLfloat last_x = last_x_diff + x_diff;
-    GLfloat last_y = last_y_diff + y_diff;
+    GLfloat new_x = last_x_diff + x_diff;
+    GLfloat new_y = last_y_diff + y_diff;
     universe_rotate =
-      glm::rotate(last_y, glm::vec3(cos(last_x), 0.0, sin(-last_x))) *
-      glm::rotate(last_x, glm::vec3(0.0, 1.0, 0.0));
+      glm::rotate(new_y, glm::vec3(cos(new_x), 0.0, sin(-new_x))) *
+      glm::rotate(new_x, glm::vec3(0.0, 1.0, 0.0));
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (isParallel) {
