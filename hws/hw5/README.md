@@ -1,6 +1,6 @@
 ##Kewei Qu and Rachel Xu
 
-##Design
+##Features
   - 'P'/'p': toggling parallel and perspective projection
   - 'A'/'a': toggling animation/freeze
   - up/down arrows for zoom in/out
@@ -11,7 +11,11 @@
   - 'F'/'f': flat shading
   - 'K'/'k': phong shading
   The grid is laid out on the x-y plane, with zooming on z-axis. 
-  
+
+##Data Struture
+Assuming there is no flat mode, the data structure for rendering the meshes is simple. For multiple meshes, we only keep one VAO that contains two VBOs(vertex vbo, normal vbo). To render each mesh with correct offset, we maintain a metadata structure for each mesh that record the number of indices to render and the correct offset in the vbo. In the draw call, we passed in the modelview for each mesh that gives the correct layout.
+For flat, we keep another vao with two vbos(vertex vbo and normal vbo).
+
 ##Execution instruction
   - make clean; make to compile
   - ./hw5 foo.off bar.off baz.off ... to run the program
@@ -21,8 +25,9 @@
 
 ##Extra Credits
   - One or multiple copies of the extra large meshes smoothly animated (frame rate
-    only drops when switching to flat mode for xyzdragon)
+    only drops when switching to flat mode for xyzdragon). Rate also drops when rendering more than 3 xyzdragons. For other extralarge, the program works fine. 
   - left mouse click-and-drag rotation of the universe. Since it is rotation of the universe, meaning that it works best for 1 mesh, or meshes that filled most of the grid (currrent grid size is limited to perfect square number). Therefore the rotation works well for 1 mesh, 3 meshes, 4 meshes, 7, 8, 9 meshes. However, if you passed in 6 meshes, it will render using the 3 * 3 grid, so that the objects are squished to the left side of the screen, and therefore, the mouse drag rotation looks a little weird.
+  - [question] the mouse drag rotate does not quite work for vertical drag. 
 
 ##What can be done better
   - Our current readFile function does not check for all syntacitcal possible malformed
