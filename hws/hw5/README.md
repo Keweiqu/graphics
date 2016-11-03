@@ -10,7 +10,7 @@
   - 'S'/'s': smooth shading
   - 'F'/'f': flat shading
   - 'K'/'k': phong shading
-  The grid is laid out on the x-y plane, with zooming on z-axis. 
+  - The grid is laid out on the x-y plane, with zooming on z-axis. 
 
 ##Data Struture
 Assuming there is no flat mode, the data structure for rendering the meshes is simple. For multiple meshes, we only keep one VAO that contains two VBOs(vertex vbo, normal vbo). To render each mesh with correct offset, we maintain a metadata structure for each mesh that record the number of indices to render and the correct offset in the vbo. In the draw call, we passed in the modelview for each mesh that gives the correct layout.
