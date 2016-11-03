@@ -1,4 +1,5 @@
 ##Kewei Qu and Rachel Xu
+
 ##Design
   - 'P'/'p': toggling parallel and perspective projection
   - 'A'/'a': toggling animation/freeze
