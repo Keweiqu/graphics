@@ -4,7 +4,7 @@
 #include "util.hpp"
 using namespace std;
 
-GLuint fs_shader, wire_shader, phong_shader;
+GLuint fs_shader, phong_shader;
 GLuint model, view, project, vbo, ebo, vao, pos;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 GLfloat spin[3] = {0.0f, 0.0f, 0.0f};
@@ -45,7 +45,6 @@ vector<GLuint> indices(my_indices, my_indices + 12);
 void init() {
   glEnable(GL_DEPTH_TEST);
   fs_shader = initshader("fs_vs.glsl", "fs_fs.glsl");
-  wire_shader = initshader("wire_vs.glsl", "wire_fs.glsl");
   phong_shader = initshader("phong_vs.glsl", "phong_fs.glsl");
   glUseProgram(fs_shader);
   glEnable(GL_CULL_FACE);
@@ -180,8 +179,6 @@ void cursor(GLFWwindow* window, double xpos, double ypos) {
     } else if (y_diff > 2 * M_PI) {
       y_diff -= 2 * M_PI;
     }
-    cout << "x_diff is: " << x_diff << endl;
-    cout << "y_diff is: " << y_diff << endl;
   }
 }
 
