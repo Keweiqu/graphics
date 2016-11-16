@@ -71,7 +71,8 @@ GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, shadow_vbo, shadow
 GLuint program, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, mo, vi, pro, modelView;
 GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler;
 GLuint t;
-vector<GLuint> textures;
+// vector<GLuint> textures;
+GLuint texture;
 Image ocean;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
@@ -83,7 +84,7 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
 }
 
 void read_images() {
-  if (!read_ppm("fire.ppm", &ocean)) {
+  if (!read_ppm("glass.ppm", &ocean)) {
     cout << "Fail to read image for ocean\n" << endl;
     exit(EXIT_FAILURE);
   }
@@ -92,13 +93,14 @@ void read_images() {
 void init_ocean() {
   calc_ocean_vertices(WORLD_SIZE * 2);
 
+
   ocean_vbo_pos = make_bo(GL_ARRAY_BUFFER, ocean_vertices, sizeof(ocean_vertices));
   ocean_vbo_tex = make_bo(GL_ARRAY_BUFFER, ocean_tex_coords, sizeof(ocean_tex_coords));
-  ocean_vbo_normal = make_bo(GL_ELEMENT_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
+  ocean_vbo_normal = make_bo(GL_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
 
-  glGenTextures(1, &(textures.front()));
+  glGenTextures(1, &texture);
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textures[0]);
+  glBindTexture(GL_TEXTURE_2D, texture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean.data);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -159,6 +161,7 @@ void init_checkerboard() {
 
 void init() {
   glEnable(GL_DEPTH_TEST);
+  read_images();
   boid_vbo1 = make_bo(GL_ARRAY_BUFFER, boid_vertices, sizeof(boid_vertices));
   boid_vbo2 = make_bo(GL_ARRAY_BUFFER, colors, sizeof(colors));
   boid_vbo3 = make_bo(GL_ARRAY_BUFFER, boid_flap_vertices, sizeof(boid_flap_vertices));
@@ -223,11 +226,10 @@ void init() {
   glEnableVertexAttribArray(color);
   glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-  // init_ocean();
-  init_checkerboard();
+  init_ocean();
+  // init_checkerboard();
   init_time();
 
-  modelView = glGetUniformLocation(program, "M");
   mo = glGetUniformLocation(program, "Model");
   vi = glGetUniformLocation(program, "View");
   pro = glGetUniformLocation(program, "Project");
@@ -348,13 +350,13 @@ if(!glfwInit()) {
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
 
-  // read_images();
 
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_view(view, f);
-    draw_checkerboard(&f, modelView, vao2, board_idx);
+    // draw_checkerboard(&f, modelView, vao2, board_idx);
+    draw_ocean(vao2);
     draw_flock(&f, modelView, boid_vao, boid_idx);
     if(!pause) {
       f.update_centers();

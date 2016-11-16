@@ -37,6 +37,7 @@ void calc_ocean_vertices(GLfloat len);
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index);
+void draw_ocean(GLuint vao);
 void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void center_view(mat4 &v, Flock& f);
 void side_view(mat4 &v, Flock& f);

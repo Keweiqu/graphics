@@ -118,6 +118,15 @@ void calc_checkerboard_colors(int n) {
 
 extern mat4 view, project;
 
+void draw_ocean(GLuint vao) {
+  glBindVertexArray(vao);
+  glm::mat4 model_mat = glm::mat4(1.0);
+  glUniformMatrix4fv(pro, 1, GL_FALSE, project.data);
+  glUniformMatrix4fv(vi, 1, GL_FALSE, view.data);
+  glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
 void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
@@ -149,35 +158,35 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   }
 }
 
-void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
+// void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
+//   glBindVertexArray(vao);
+//   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
 
-  for (int i = 0; i < f->count; i++) {
-    mat4 result;
-    result = project;
-    result = result * view;
+//   for (int i = 0; i < f->count; i++) {
+//     mat4 result;
+//     result = project;
+//     result = result * view;
 
-    my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2] * 0, result);
-    GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
-    my_rotatef(xy_angle, 0, 0, 1, result);
-    glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
-  }
-}
+//     my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2] * 0, result);
+//     GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
+//     my_rotatef(xy_angle, 0, 0, 1, result);
+//     glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
+//     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
+//   }
+// }
 
 
-void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-  mat4 result;
-  result = project;
-  result = result * view;
+// void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
+//   glBindVertexArray(vao);
+//   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
+//   mat4 result;
+//   result = project;
+//   result = result * view;
 
-  my_translatef(f->goal[0], f->goal[1], f->goal[2], result);
-  glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
-}
+//   my_translatef(f->goal[0], f->goal[1], f->goal[2], result);
+//   glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
+//   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
+// }
 
 void update_view(mat4 &view, Flock& f) {
 
