@@ -4,21 +4,30 @@ using namespace std;
 
 GLfloat heights[SIDE_LEN][SIDE_LEN];
 int recurse = RECURSE;
-
+GLfloat rand_range = (GLfloat) RAND_RANGE;
 
 
 int main() {
   initCorner(123.5);
+  /*
+  diamondStep(pow(2, recurse));
+  rand_range /= 2;
+  squareStep(pow(2, recurse));
+  */
+  genTerrain(123.5);
   printSquare();
   return 0;
 }
 
 void genTerrain(GLfloat height) {
   initCorner(height);
-  
+  srand(time(NULL));
+  GLfloat rand_range = (GLfloat) RAND_RANGE;
   while(recurse >= 1) {
     diamondStep(pow(2, recurse));
+    rand_range /= 2;
     squareStep(pow(2, recurse));
+    rand_range /= 2;
     recurse--;
   }
 }
@@ -48,7 +57,22 @@ void diamondStep(int side_length) {
 
 void squareStep(int side_length) {
   //for each diamond, fill the center
-  
+  int row = 0;
+  int half_side = side_length / 2;
+  int center_x = 0, center_y = 0;
+  while(center_x < SIDE_LEN) {
+    if(row % 2 == 0) {
+      center_y += half_side;
+    }
+    while(center_y < SIDE_LEN) {
+      cout << "center_x: " << center_x << "center_y: " << center_y << endl;
+      fillDiamondCenter(center_x, center_y, side_length);
+      center_y += side_length;
+    }
+    row++;
+    center_y = 0;
+    center_x += half_side;
+  }
 }
 
 
@@ -59,6 +83,7 @@ void fillSquareCenter(GLint top_left_x, GLint top_left_y, GLint side) {
   sum += heights[top_left_x][top_left_y + side];
   sum += heights[top_left_x + side][top_left_y + side];
   sum /= 4.0;
+  sum += (rand() / (GLfloat) RAND_MAX) * rand_range;
   GLint center_x = (top_left_x + side) / 2;
   GLint center_y = (top_left_y + side) / 2;
   heights[center_x][center_y] = sum;
@@ -88,7 +113,9 @@ void fillDiamondCenter(GLint center_x, GLint center_y, GLint side) {
     divider++;
   }
 
-  heights[center_x][center_y] = sum / (divider * 1.0);
+  sum /= (GLfloat) divider;
+  sum += (rand() / (GLfloat) RAND_MAX) * rand_range;
+  heights[center_x][center_y] = sum;
 }
 
 void printSquare() {
