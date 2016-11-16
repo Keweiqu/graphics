@@ -60,8 +60,12 @@ GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_pos1, board_c;
 extern GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
 extern GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
 extern GLshort board_indices[SIDES * SIDES * 6];
+extern GLfloat ocean_vertices[18];
+extern GLfloat ocean_tex_coords[12];
+extern GLfloat ocean_normals[3];
 GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, shadow_vbo, shadow_vao, boid_vao, goal_vao, boid_idx, goal_idx;
 GLuint program, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, modelView;
+GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_normal, ocean_pos, ocean_normal;
 GLuint t;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
@@ -70,6 +74,29 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   glBindBuffer(type, bufnum);
   glBufferData(type, buf_size, buf, GL_STATIC_DRAW);
   return bufnum;
+}
+
+void init_ocean() {
+  ocean_vbo_pos = make_bo(GL_ARRAY_BUFFER, ocean_vertices, sizeof(ocean_vertices));
+  ocean_vbo_tex = make_bo(GL_ARRAY_BUFFER, ocean_tex_coords, sizeof(ocean_tex_coords));
+  ocean_vbo_normal = make_bo(GL_ELEMENT_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
+
+  glGenVertexArrays(1, &vao2);
+  glBindVertexArray(vao2);
+
+  glBindBuffer(GL_ARRAY_BUFFER, ocean_vbo_pos);
+  ocean_pos = glGetAttribLocation(program, "vPos0");
+  glEnableVertexAttribArray(ocean_pos);
+  glVertexAttribPointer(ocean_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+  ocean_pos = glGetAttribLocation(program, "vPos1");
+  glEnableVertexAttribArray(ocean_pos);
+  glVertexAttribPointer(ocean_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, ocean_vbo_normal);
+  ocean_normal = glGetAttribLocation(program, "vNormal");
+  glEnableVertexAttribArray(ocean_normal);
+  glVertexAttribPointer(ocean_normal, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 }
 
 void init_checkerboard() {

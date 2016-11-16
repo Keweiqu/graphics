@@ -42,3 +42,17 @@ GLubyte goal_indices[] = {
   7, 3, 2,
   6, 7, 2
 };
+
+GLfloat ocean_tex_coords[12] = {
+  0.0, 1.0,
+  0.0, 0.0,
+  1.0, 1.0,
+
+  0.0, 0.0,
+  1.0, 0.0,
+  1.0, 1.0
+};
+
+GLfloat ocean_normals[3] = {
+  0.0, 0.0, 1.0
+};

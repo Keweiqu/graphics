@@ -3,6 +3,7 @@
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
 GLshort board_indices[SIDES * SIDES * 6];
+GLfloat ocean_vertices[18];
 View v;
 extern mat4 view;
 extern Flock f;
@@ -25,6 +26,32 @@ void calc_checkerboard_vertices(int n, GLfloat len) {
     board_vertices[i][1] = ypos;
     board_vertices[i][2] = 0; //z
   }
+}
+
+void calc_ocean_vertices(GLfloat len) {
+  ocean_vertices[0] = -len / 2;
+  ocean_vertices[1] = len / 2;
+  ocean_vertices[2] = 0;
+
+  ocean_vertices[3] = -len / 2;
+  ocean_vertices[4] = -len / 2;
+  ocean_vertices[5] = 0;
+
+  ocean_vertices[6] = len / 2;
+  ocean_vertices[7] = len / 2;
+  ocean_vertices[8] = 0;
+
+  ocean_vertices[9] = -len / 2;
+  ocean_vertices[10] = -len / 2;
+  ocean_vertices[11] = 0;
+
+  ocean_vertices[12] = len / 2;
+  ocean_vertices[13] = -len / 2;
+  ocean_vertices[14] = 0;
+
+  ocean_vertices[15] = len / 2;
+  ocean_vertices[16] = len / 2;
+  ocean_vertices[17] = 0;
 }
 
 /*

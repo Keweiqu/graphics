@@ -26,6 +26,7 @@ public:
 void calc_checkerboard_indices(int n);
 void calc_checkerboard_colors(int n);
 void calc_checkerboard_vertices(int n, GLfloat len);
+void calc_ocean_vertices(GLfloat len);
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index);
