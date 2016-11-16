@@ -4,6 +4,12 @@
 #include "Flock.hpp"
 #include "gl_replace.hpp"
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/mat4x4.hpp>
 
 #define VECTOR_LENGTH 3
 #define SIDES 50

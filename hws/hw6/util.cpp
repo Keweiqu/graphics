@@ -10,6 +10,7 @@ extern Flock f;
 extern enum VIEW_TYPE v_mode;
 extern GLuint t, program;
 extern float glTime;
+extern GLuint pro, mo, vi;
 
 /*
  * calculate all vertices coordinates for checkerboard.
@@ -121,10 +122,10 @@ void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
 
-  mat4 result;
-  result = project;
-  result = result * view;
-  glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
+  glm::mat4 model_mat = glm::mat4(1.0);
+  glUniformMatrix4fv(pro, 1, GL_FALSE, project.data);
+  glUniformMatrix4fv(vi, 1, GL_FALSE, view.data);
+  glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
 
   glDrawElements(GL_TRIANGLES, SIDES * SIDES * 6, GL_UNSIGNED_SHORT, (void*)0);
 }
@@ -134,17 +135,17 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
 
   for(int i = 0; i < f->count; i++) {
-    mat4 result;
-    result = result * project;
-
-    result = result * view;
-    my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2], result);
+    mat4 model;
+    my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2], model);
     GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
-    my_rotatef(xy_angle, 0, 0, 1, result);
-    glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
+    my_rotatef(xy_angle, 0, 0, 1, model);
+
+    glUniformMatrix4fv(pro, 1, GL_FALSE, project.data);
+    glUniformMatrix4fv(vi, 1, GL_FALSE, view.data);
+    glUniformMatrix4fv(mo, 1, GL_FALSE, model.data);
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
     update_time(i);
-
   }
 }
 

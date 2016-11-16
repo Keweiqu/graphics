@@ -1,9 +1,13 @@
 #include <iostream>
 #include <string>
 #include <stdio.h>
+#include <iostream>
+#include <cmath>
+#include <vector>
 #include "common.hpp"
 #include "Flock.hpp"
 #include "util.hpp"
+#include "read_ppm.hpp"
 
 #define GOAL_DELTA 100;
 using namespace std;
@@ -64,9 +68,11 @@ extern GLfloat ocean_vertices[18];
 extern GLfloat ocean_tex_coords[12];
 extern GLfloat ocean_normals[3];
 GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, shadow_vbo, shadow_vao, boid_vao, goal_vao, boid_idx, goal_idx;
-GLuint program, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, modelView;
-GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_normal, ocean_pos, ocean_normal;
+GLuint program, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, mo, vi, pro, modelView;
+GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler;
 GLuint t;
+vector<GLuint> textures;
+Image ocean;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -76,10 +82,28 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   return bufnum;
 }
 
+void read_images() {
+  if (!read_ppm("fire.ppm", &ocean)) {
+    cout << "Fail to read image for ocean\n" << endl;
+    exit(EXIT_FAILURE);
+  }
+}
+
 void init_ocean() {
+  calc_ocean_vertices(WORLD_SIZE * 2);
+
   ocean_vbo_pos = make_bo(GL_ARRAY_BUFFER, ocean_vertices, sizeof(ocean_vertices));
   ocean_vbo_tex = make_bo(GL_ARRAY_BUFFER, ocean_tex_coords, sizeof(ocean_tex_coords));
   ocean_vbo_normal = make_bo(GL_ELEMENT_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
+
+  glGenTextures(1, &(textures.front()));
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, textures[0]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean.data);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   glGenVertexArrays(1, &vao2);
   glBindVertexArray(vao2);
@@ -97,6 +121,11 @@ void init_ocean() {
   ocean_normal = glGetAttribLocation(program, "vNormal");
   glEnableVertexAttribArray(ocean_normal);
   glVertexAttribPointer(ocean_normal, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, ocean_vbo_tex);
+  ocean_texc = glGetAttribLocation(program, "vTex");
+  glEnableVertexAttribArray(ocean_texc);
+  glVertexAttribPointer(ocean_texc, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 }
 
 void init_checkerboard() {
@@ -194,10 +223,14 @@ void init() {
   glEnableVertexAttribArray(color);
   glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
+  // init_ocean();
   init_checkerboard();
   init_time();
 
   modelView = glGetUniformLocation(program, "M");
+  mo = glGetUniformLocation(program, "Model");
+  vi = glGetUniformLocation(program, "View");
+  pro = glGetUniformLocation(program, "Project");
 
   glClearColor(0.0, 0.0, 0.0, 1.0);
 }
@@ -314,6 +347,8 @@ if(!glfwInit()) {
   glfwSetKeyCallback(window, keyboard);
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
+
+  // read_images();
 
   init();
   while(!glfwWindowShouldClose(window)) {
