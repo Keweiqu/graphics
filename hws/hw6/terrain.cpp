@@ -1,33 +1,41 @@
 #include "terrain.hpp"
 
-using namespace std;
-
 GLfloat heights[SIDE_LEN][SIDE_LEN];
 int recurse = RECURSE;
 GLfloat rand_range = (GLfloat) RAND_RANGE;
 
 
 int main() {
+  srand(time(NULL));
   initCorner(123.5);
   /*
   diamondStep(pow(2, recurse));
-  rand_range /= 2;
+  rand_range = rand_range / 4;
+  squareStep(pow(2, recurse));
+  rand_range = rand_range / 4;
+  printSquare();
+  cout << "==============================" << endl;
+  recurse--;
+  diamondStep(pow(2, recurse));
+  rand_range = rand_range / 4;
   squareStep(pow(2, recurse));
   */
+
   genTerrain(123.5);
-  printSquare();
+  removeContour();
+  //printSquare();
+  genMeshOff();
   return 0;
 }
 
 void genTerrain(GLfloat height) {
   initCorner(height);
   srand(time(NULL));
-  GLfloat rand_range = (GLfloat) RAND_RANGE;
   while(recurse >= 1) {
     diamondStep(pow(2, recurse));
-    rand_range /= 2;
     squareStep(pow(2, recurse));
-    rand_range /= 2;
+    rand_range = rand_range / 2.0;
+    cout << "rand_range is " << rand_range << endl;
     recurse--;
   }
 }
@@ -65,7 +73,6 @@ void squareStep(int side_length) {
       center_y += half_side;
     }
     while(center_y < SIDE_LEN) {
-      cout << "center_x: " << center_x << "center_y: " << center_y << endl;
       fillDiamondCenter(center_x, center_y, side_length);
       center_y += side_length;
     }
@@ -84,8 +91,8 @@ void fillSquareCenter(GLint top_left_x, GLint top_left_y, GLint side) {
   sum += heights[top_left_x + side][top_left_y + side];
   sum /= 4.0;
   sum += (rand() / (GLfloat) RAND_MAX) * rand_range;
-  GLint center_x = (top_left_x + side) / 2;
-  GLint center_y = (top_left_y + side) / 2;
+  GLint center_x = top_left_x + (side / 2);
+  GLint center_y = top_left_y + (side / 2);
   heights[center_x][center_y] = sum;
 }
 
@@ -124,5 +131,60 @@ void printSquare() {
       cout << heights[i][j] << "  ";
     }
     cout << endl;
+  }
+}
+
+void genMeshOff() {
+  ofstream mesh;
+  mesh.open("terrain.off");
+  mesh << "OFF\n";
+  mesh << (SIDE_LEN * SIDE_LEN) * 2 << " ";
+  mesh << (SIDE_LEN - 1) * (SIDE_LEN - 1) * 4 << " ";
+  mesh << (SIDE_LEN * (SIDE_LEN - 1) * 2 + (SIDE_LEN - 1) * (SIDE_LEN - 1)) * 2 << "\n";
+  genVertex(mesh);
+  genFaces(mesh);
+}
+
+void genVertex(ofstream &mesh) {
+  GLfloat width = 50;
+  int row, col;
+  for(row = 0; row < SIDE_LEN; row++) {
+    for(col = 0; col < SIDE_LEN; col++) {
+      mesh << row * width << " " << col * width << " " << heights[row][col] << "\n";
+    }
+  }
+
+  for(row = 0; row < SIDE_LEN; row++) {
+    for(col = 0; col < SIDE_LEN; col++) {
+      mesh << row * width << " " << col * width << " 0\n";
+    }
+  }
+}
+
+void genFaces(ofstream &mesh) {
+  int index = 0;
+  for(int i = 0; i < SIDE_LEN - 1; i++) {
+    for(int j = 0; j < SIDE_LEN - 1; j++) {
+      mesh << "3 " << index + j << " " << index + j + SIDE_LEN + 1 << " " << index + j + 1 << "\n";
+      mesh << "3 " << index + j << " " << index + j + SIDE_LEN << " " << index + j + SIDE_LEN + 1 << "\n";
+    }
+    index += SIDE_LEN;
+  }
+  index = SIDE_LEN * SIDE_LEN;
+  for(int i = 0; i < SIDE_LEN - 1; i++) {
+    for(int j = 0; j < SIDE_LEN - 1; j++) {
+      mesh << "3 " << index + j << " " << index + j + SIDE_LEN + 1 << " " << index + j + 1 << "\n";
+      mesh << "3 " << index + j << " " << index + j + SIDE_LEN << " " << index + j + SIDE_LEN + 1 << "\n";
+    }
+    index += SIDE_LEN;
+  }
+}
+
+void removeContour() {
+  for(int i = 0; i < SIDE_LEN; i++) {
+    heights[0][i] = 0.0;
+    heights[SIDE_LEN - 1][i] = 0.0;
+    heights[i][0] = 0.0;
+    heights[i][SIDE_LEN - 1] = 0.0;
   }
 }
