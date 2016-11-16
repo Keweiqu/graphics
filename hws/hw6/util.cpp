@@ -124,12 +124,12 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
 void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-  
+
   for (int i = 0; i < f->count; i++) {
     mat4 result;
     result = project;
     result = result * view;
-    
+
     my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2] * 0, result);
     GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
     my_rotatef(xy_angle, 0, 0, 1, result);
@@ -163,6 +163,9 @@ void update_view(mat4 &view, Flock& f) {
     case SIDE:
       side_view(view, f);
       break;
+    case FIRST_PERSON:
+      first_person_view(view, f);
+      break;
   }
 }
 
@@ -186,6 +189,14 @@ void trailing_view(mat4& view, Flock &f) {
   View v;
   v.pos = get_trailing_pos(f);
   v.look = calc_middleway(f);
+  v.up = vec3(0.0, 0.0, 1.0);
+  my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
+}
+
+void first_person_view(mat4& view, Flock &f) {
+  View v;
+  v.pos = f.pos->at(0);
+  v.look = get_center_pos(f);
   v.up = vec3(0.0, 0.0, 1.0);
   my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
 }
@@ -243,6 +254,13 @@ vec3 get_trailing_pos(Flock& f) {
   return m;
 }
 
+vec3 get_center_pos(Flock& f) {
+  vec3 boid_pos = f.pos->at(0);
+  vec3 boid_v = f.vel->at(0);
+  vec3 center = boid_pos + (boid_v * 100);
+  center[2] = 0;
+  return center;
+}
 
 GLfloat center_goal_dist(Flock& f) {
   vec3 center = ave_flock_center(f);

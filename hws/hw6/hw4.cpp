@@ -230,6 +230,9 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       case GLFW_KEY_S:
         v_mode = SIDE;
         break;
+      case GLFW_KEY_F:
+        v_mode = FIRST_PERSON;
+        break;
     case GLFW_KEY_COMMA:
       if(f.speed > 5) {
 	f.speed -= 1.0;
