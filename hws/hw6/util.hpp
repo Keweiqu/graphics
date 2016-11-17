@@ -4,6 +4,12 @@
 #include "Flock.hpp"
 #include "gl_replace.hpp"
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/mat4x4.hpp>
 
 #define VECTOR_LENGTH 3
 #define SIDES 50
@@ -26,10 +32,12 @@ public:
 void calc_checkerboard_indices(int n);
 void calc_checkerboard_colors(int n);
 void calc_checkerboard_vertices(int n, GLfloat len);
+void calc_ocean_vertices(GLfloat len);
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index);
+void draw_ocean(GLuint vao);
 void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void center_view(mat4 &v, Flock& f);
 void side_view(mat4 &v, Flock& f);
