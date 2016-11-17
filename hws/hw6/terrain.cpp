@@ -22,7 +22,7 @@ int main() {
   */
 
   genTerrain(123.5);
-  removeContour();
+  clampContour();
   //printSquare();
   genMeshOff();
   return 0;
@@ -138,9 +138,9 @@ void genMeshOff() {
   ofstream mesh;
   mesh.open("terrain.off");
   mesh << "OFF\n";
-  mesh << (SIDE_LEN * SIDE_LEN) * 2 << " ";
-  mesh << (SIDE_LEN - 1) * (SIDE_LEN - 1) * 4 << " ";
-  mesh << (SIDE_LEN * (SIDE_LEN - 1) * 2 + (SIDE_LEN - 1) * (SIDE_LEN - 1)) * 2 << "\n";
+  mesh << SIDE_LEN * SIDE_LEN << " ";
+  mesh << (SIDE_LEN - 1) * (SIDE_LEN - 1) * 2 << " ";
+  mesh << SIDE_LEN * (SIDE_LEN - 1) * 2 + (SIDE_LEN - 1) * (SIDE_LEN - 1) << "\n";
   genVertex(mesh);
   genFaces(mesh);
 }
@@ -153,12 +153,7 @@ void genVertex(ofstream &mesh) {
       mesh << row * width << " " << col * width << " " << heights[row][col] << "\n";
     }
   }
-
-  for(row = 0; row < SIDE_LEN; row++) {
-    for(col = 0; col < SIDE_LEN; col++) {
-      mesh << row * width << " " << col * width << " 0\n";
-    }
-  }
+  
 }
 
 void genFaces(ofstream &mesh) {
@@ -170,21 +165,22 @@ void genFaces(ofstream &mesh) {
     }
     index += SIDE_LEN;
   }
-  index = SIDE_LEN * SIDE_LEN;
-  for(int i = 0; i < SIDE_LEN - 1; i++) {
-    for(int j = 0; j < SIDE_LEN - 1; j++) {
-      mesh << "3 " << index + j << " " << index + j + SIDE_LEN + 1 << " " << index + j + 1 << "\n";
-      mesh << "3 " << index + j << " " << index + j + SIDE_LEN << " " << index + j + SIDE_LEN + 1 << "\n";
-    }
-    index += SIDE_LEN;
-  }
 }
 
-void removeContour() {
-  for(int i = 0; i < SIDE_LEN; i++) {
-    heights[0][i] = 0.0;
-    heights[SIDE_LEN - 1][i] = 0.0;
-    heights[i][0] = 0.0;
-    heights[i][SIDE_LEN - 1] = 0.0;
+void clampContour() {
+  GLfloat range = 350.0;
+  GLfloat drop = 350;
+  for(int i = 10; i > 0; i--) {
+    cout << "i is " << i << endl;
+    for(int j = 0; j < SIDE_LEN - i; j++) {
+      //top
+      heights[i - 1][j + i] = heights[i][j + i]  - drop + (rand() / (GLfloat) RAND_MAX) * range;
+      //bottom
+      heights[SIDE_LEN - i][j + i] = heights[SIDE_LEN - i - 1][j + i] - drop + (rand() / (GLfloat) RAND_MAX) * range;
+      //left
+      heights[j + i][i - 1] = heights[j + i][i] - drop + (rand() / (GLfloat) RAND_MAX) * range;
+      //right
+      heights[j + i][SIDE_LEN - i] = heights[j + i][SIDE_LEN - i - 1] - drop + (rand() / (GLfloat) RAND_MAX) * range;
+    }
   }
 }
