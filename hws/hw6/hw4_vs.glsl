@@ -37,4 +37,3 @@ void main() {
 	gl_Position = Project * vec4(pos_eye, 1.0);
 	//color = vColor;
 }
-

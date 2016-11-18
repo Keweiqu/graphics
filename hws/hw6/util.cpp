@@ -9,7 +9,7 @@ extern mat4 view;
 extern Flock f;
 extern enum VIEW_TYPE v_mode;
 extern GLuint t, program;
-extern float glTime;
+extern float glTime, glOceanTime;
 extern GLuint pro, mo, vi;
 extern bool isParallel;
 extern GLfloat eye_dist, scale_factor;
@@ -327,6 +327,13 @@ void init_time() {
 void update_time(int index) {
   glTime = (sin(glfwGetTime() * 10 + (*(f.seed))[index]) + 1) / 2;
   glUniform1f(t, glTime);
+
+  update_ocean_time();
+}
+
+void update_ocean_time() {
+  glOceanTime = sin(glfwGetTime());
+  glUniform1f(glGetUniformLocation(program, "ocean_time"), glOceanTime);
 }
 
 void print_step_msg(Flock* f) {

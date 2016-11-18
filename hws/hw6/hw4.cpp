@@ -3,7 +3,7 @@
 Flock f;
 int pause = FALSE, to_left = FALSE, to_right = FALSE;
 int up = FALSE, down = FALSE;
-float glTime;
+float glTime, glOceanTime;
 enum VIEW_TYPE v_mode;
 glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 
@@ -75,11 +75,10 @@ extern GLfloat ocean_tex_coords[12];
 extern GLfloat ocean_normals[3];
 GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, shadow_vbo, shadow_vao, boid_vao, goal_vao, boid_idx, goal_idx;
 GLuint program, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, mo, vi, pro, modelView;
-GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler;
+GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1;
 GLuint t;
-// vector<GLuint> textures;
-GLuint texture;
-Image ocean;
+GLuint textures[4];
+Image ocean0, ocean1;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -90,8 +89,13 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
 }
 
 void read_images() {
-  if (!read_ppm("glass.ppm", &ocean)) {
-    cout << "Fail to read image for ocean\n" << endl;
+  if (!read_ppm("blue-water3.ppm", &ocean0)) {
+    cout << "Fail to read image for ocean0\n" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  if (!read_ppm("blue-water4.ppm", &ocean1)) {
+    cout << "Fail to read image for ocean1\n" << endl;
     exit(EXIT_FAILURE);
   }
 }
@@ -102,11 +106,26 @@ void init_ocean() {
   ocean_vbo_pos = make_bo(GL_ARRAY_BUFFER, ocean_vertices, sizeof(ocean_vertices));
   ocean_vbo_tex = make_bo(GL_ARRAY_BUFFER, ocean_tex_coords, sizeof(ocean_tex_coords));
   ocean_vbo_normal = make_bo(GL_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
+  ocean_tex_sampler0 = glGetUniformLocation(program, "ocean_tex0");
+  ocean_tex_sampler1 = glGetUniformLocation(program, "ocean_tex1");
 
-  glGenTextures(1, &texture);
+  glGenTextures(4, textures);
+
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean.data);
+  glBindTexture(GL_TEXTURE_2D, textures[0]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2048, 2048, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean0.data);
+  glUniform1i(ocean_tex_sampler0, 0);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, textures[1]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2048, 2048, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean1.data);
+  glUniform1i(ocean_tex_sampler1, 1);
+
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -133,6 +152,7 @@ void init_ocean() {
   ocean_texc = glGetAttribLocation(program, "vTex");
   glEnableVertexAttribArray(ocean_texc);
   glVertexAttribPointer(ocean_texc, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
 }
 
 void init_checkerboard() {
