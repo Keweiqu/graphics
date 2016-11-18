@@ -11,6 +11,8 @@ extern enum VIEW_TYPE v_mode;
 extern GLuint t, program;
 extern float glTime;
 extern GLuint pro, mo, vi;
+extern bool isParallel;
+extern GLfloat eye_dist, scale_factor;
 
 /*
  * calculate all vertices coordinates for checkerboard.
@@ -333,4 +335,27 @@ void print_step_msg(Flock* f) {
   cout << "-------------------------------------------------------------------------------" << endl;
   f->print_goal();
   cout << "*******************************************************************************" << endl;
+}
+
+void zoom_in() {
+  // steps for eye_dist and scale_factor are magic numbers that make zoom in/out have the same effects on parallel and perspective mode
+  if (eye_dist > EYE_DIST_NEAR) {
+    eye_dist -= 2;
+  }
+  if (scale_factor < SCALE_FACTOR_MAX && scale_factor >= INITIAL_SCALE_FACTOR) {
+    scale_factor += 0.15;
+  } else if (scale_factor < INITIAL_SCALE_FACTOR) {
+    scale_factor += 0.04;
+  }
+}
+
+void zoom_out() {
+  if (eye_dist < EYE_DIST_FAR) {
+    eye_dist += 2;
+  }
+  if (scale_factor > SCALE_FACTOR_MIN && scale_factor <= INITIAL_SCALE_FACTOR) {
+    scale_factor -= 0.04;
+  } else if (scale_factor > INITIAL_SCALE_FACTOR) {
+    scale_factor -= 0.15;
+  }
 }

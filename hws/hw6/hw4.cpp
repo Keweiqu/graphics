@@ -1,24 +1,30 @@
-#include <iostream>
-#include <string>
-#include <stdio.h>
-#include <iostream>
-#include <cmath>
-#include <vector>
-#include "common.hpp"
-#include "Flock.hpp"
-#include "util.hpp"
-#include "read_ppm.hpp"
-
-#define GOAL_DELTA 100;
-using namespace std;
+#include "hw4.hpp"
 
 Flock f;
 int pause = FALSE, to_left = FALSE, to_right = FALSE;
 int up = FALSE, down = FALSE;
 float glTime;
 enum VIEW_TYPE v_mode;
+glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
 
+// coming from main.cpp
+// GLuint fs_shader, phong_shader;
+// GLuint model, view, project, vbo, ebo, vao, pos;
+GLfloat spin[3] = {0.0f, 0.0f, 0.0f};
+GLfloat scale_factor = INITIAL_SCALE_FACTOR, eye_dist = INITIAL_EYE_DIST;
+bool isParallel = false; // bool isPaused = false, isParallel = false;
+enum draw_mode d_mode = FACE;
+enum shade_mode s_mode = SMOOTH;
+int clicked = FALSE;
+double m_xpos, m_ypos;
+GLfloat last_x_diff, last_y_diff;
+GLfloat x_diff, y_diff;
+GLfloat x_angle, y_angle;
+glm::mat4 universe_rotate;
+
+meshManager mesh;
 mat4 view, project;
+
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
 extern GLubyte goal_indices[36];
@@ -93,7 +99,6 @@ void read_images() {
 void init_ocean() {
   calc_ocean_vertices(WORLD_SIZE * 2);
 
-
   ocean_vbo_pos = make_bo(GL_ARRAY_BUFFER, ocean_vertices, sizeof(ocean_vertices));
   ocean_vbo_tex = make_bo(GL_ARRAY_BUFFER, ocean_tex_coords, sizeof(ocean_tex_coords));
   ocean_vbo_normal = make_bo(GL_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
@@ -161,6 +166,8 @@ void init_checkerboard() {
 
 void init() {
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
   read_images();
   boid_vbo1 = make_bo(GL_ARRAY_BUFFER, boid_vertices, sizeof(boid_vertices));
   boid_vbo2 = make_bo(GL_ARRAY_BUFFER, colors, sizeof(colors));
@@ -309,6 +316,44 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   }
 }
 
+void mouse(GLFWwindow *w, int button, int action, int mods) {
+  switch(button) {
+  case GLFW_MOUSE_BUTTON_LEFT:
+    if(action== GLFW_PRESS){
+      glfwGetCursorPos(w, &m_xpos, &m_ypos);
+      printf("pressed\n");
+      clicked = TRUE;
+    } else {
+      last_x_diff += x_diff;
+      last_y_diff += y_diff;
+      x_diff = 0;
+      y_diff = 0;
+      printf("released\n");
+      clicked = FALSE;
+    }
+  default:
+    break;
+  }
+}
+
+void cursor(GLFWwindow* window, double xpos, double ypos) {
+  if(clicked) {
+    x_diff = (xpos - m_xpos) / DRAG_SPEED_FACTOR;
+    y_diff = (ypos - m_ypos) / DRAG_SPEED_FACTOR;
+    if(x_diff < 0) {
+      x_diff += 2 * M_PI;
+    } else if(x_diff > 2 * M_PI) {
+      x_diff -= 2 * M_PI;
+    }
+
+    if(y_diff < 0) {
+      y_diff += 2 * M_PI;
+    } else if (y_diff > 2 * M_PI) {
+      y_diff -= 2 * M_PI;
+    }
+  }
+}
+
 void reshape(GLFWwindow *w, int width, int height) {
   mat4 result;
   result = project;
@@ -323,6 +368,8 @@ int main(int argc, char** argv) {
   v_mode = SIDE;
   my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
   my_perspective(60.0, 1.0, 5.0, 21000.0, project);
+  // my_lookat(0.0, 1.0, eye_dist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, view);
+  // my_perspective(35 * DEGREES_TO_RADIANS, 1.0, 0.1, 1000.0, project);
 
 if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
@@ -347,12 +394,24 @@ if(!glfwInit()) {
   glewInit();
 
   glfwSetKeyCallback(window, keyboard);
+  glfwSetMouseButtonCallback(window, mouse);
+  glfwSetCursorPosCallback(window, cursor);
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
 
 
   init();
+  mesh.readFiles(argc - 1, argv + 1);
+  mesh.init();
+  glBindVertexArray(mesh.vao);
+
   while(!glfwWindowShouldClose(window)) {
+    GLfloat new_x = last_x_diff + x_diff;
+    GLfloat new_y = last_y_diff + y_diff;
+    universe_rotate =
+      glm::rotate(new_y, glm::vec3(cos(new_x), 0.0, sin(-new_x))) *
+      glm::rotate(new_x, glm::vec3(0.0, 1.0, 0.0));
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_view(view, f);
     // draw_checkerboard(&f, modelView, vao2, board_idx);
@@ -364,6 +423,7 @@ if(!glfwInit()) {
       f.update_goal();
       f.update_boids();
     }
+    mesh.draw_default();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
