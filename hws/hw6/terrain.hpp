@@ -22,4 +22,4 @@ void printSquare();
 void genMeshOff();
 void genVertex(ofstream &mesh);
 void genFaces(ofstream &mesh);
-void removeContour();
+void clampContour();
