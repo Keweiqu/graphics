@@ -8,18 +8,6 @@ GLfloat rand_range = (GLfloat) RAND_RANGE;
 int main() {
   srand(time(NULL));
   initCorner(123.5);
-  /*
-  diamondStep(pow(2, recurse));
-  rand_range = rand_range / 4;
-  squareStep(pow(2, recurse));
-  rand_range = rand_range / 4;
-  printSquare();
-  cout << "==============================" << endl;
-  recurse--;
-  diamondStep(pow(2, recurse));
-  rand_range = rand_range / 4;
-  squareStep(pow(2, recurse));
-  */
 
   genTerrain(123.5);
   //clampContour();

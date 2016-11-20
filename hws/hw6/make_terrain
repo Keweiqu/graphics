@@ -1,0 +1,23 @@
+ifeq ($(shell uname -s), Darwin)
+LDFLAGS=-L/opt/ports/lib -framework OpenGL -lglfw -lGLEW -lm
+else
+LDFLAGS=-lX11 -lGL -lGLU -lglut -lGLEW -lglfw -lm
+endif
+
+CC = g++
+CFLAGS=-g -Wall -I/opt/ports/include 
+SOURCES= terrain.cpp
+OBJECTS=$(SOURCES:.cpp=.o)
+EXECUTABLE=terrain
+
+all: clean terrain
+
+terrain: terrain.o
+	$(CC) $(CFLAGS) $(LDFLAGS) terrain.o -o $@
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@ 
+
+
+clean: 
+	-rm -r terrain *.o core *.dSYM
