@@ -329,7 +329,8 @@ int main(int argc, char** argv) {
   init();
   terrain_mesh.readFile("terrain.off");
   terrain_mesh.init();
-
+  terrain_mesh.scale = 1.0;
+  terrain_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glBindVertexArray(terrain_mesh.vao);

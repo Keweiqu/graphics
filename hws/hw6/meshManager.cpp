@@ -20,7 +20,7 @@ meshManager::meshManager() {
   face_normals = new vector<glm::vec3>();
   index_faces = new map< GLuint, vector<GLuint> >();
   scale = 1.0;
-  trans_vec = glm::vec3(0.0, 0.0, -2500.0);
+  trans_vec = glm::vec3(0.0, 0.0, 0.0);
 }
 
 meshManager::~meshManager() {
