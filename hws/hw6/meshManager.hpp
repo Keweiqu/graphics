@@ -26,17 +26,6 @@
 
 using namespace std;
 
-typedef struct _metadata {
-  GLuint num_of_vertices;
-  GLuint num_of_indices;
-
-  GLuint vn_offset;
-  GLuint indices_offset;
-
-  GLfloat scale;
-  glm::vec3 trans;
-} metadata;
-
 class meshManager {
 public:
   GLuint vbo_pos;
@@ -44,32 +33,29 @@ public:
   GLuint vbo_pos1;
   GLuint vbo_normal;
   GLuint ebo;
-  GLuint edge_ebo;
-
   GLuint vao;
+  
+  GLfloat scale;
+  glm::vec3 trans_vec;
 
-  GLuint vn_offset;
-  GLuint idx_offset;
   vector<GLfloat> *vertices;
   vector<GLfloat> *normals;
   vector<GLuint> *indices;
 
+  GLuint num_of_vertices;
+  GLuint num_of_indices;
+  
   map< GLuint, vector<GLuint> > *index_faces; // per mesh
-  map< string, metadata > *filename_metadata;
 
-  vector<string> draw_sequence;
   meshManager();
   ~meshManager();
-  void readFiles(int num_files, char* argv[]);
+  void readFile(string filename);
   void init();
   void draw();
 private:
   vector<glm::vec3> *face_normals; // should be for per mesh
-  vector<glm::vec3> grid_trans;
-  void readFile(char* filename);// after readFile, all data in metadata should be available
-  void calc_normal(string filename);// next round of meshManager offsets should be available
+  void calc_normal();// next round of meshManager offsets should be available
   glm::vec3 calc_face_normal(GLuint v0, GLuint v1, GLuint v2);// v_offset should be added
-  void calc_grid_trans_and_scale();
 
 };
 

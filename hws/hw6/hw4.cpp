@@ -9,7 +9,7 @@ glm::mat4 model_mat, view_mat, project_mat;
 
 GLfloat eye_dist = INITIAL_EYE_DIST;
 int clicked = FALSE;
-meshManager mesh;
+meshManager terrain_mesh;
 
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -327,16 +327,17 @@ int main(int argc, char** argv) {
 
 
   init();
-  mesh.readFiles(argc - 1, argv + 1);
-  mesh.init();
-
+  terrain_mesh.readFile("terrain.off");
+  terrain_mesh.init();
+  terrain_mesh.scale = 1.0;
+  terrain_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
-  glBindVertexArray(mesh.vao);
+  glBindVertexArray(terrain_mesh.vao);
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_view(view_mat, f);
-    mesh.draw();
+    terrain_mesh.draw();
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
     if(!pause) {
