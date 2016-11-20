@@ -12,6 +12,7 @@
 #include "util.hpp"
 #include "read_ppm.hpp"
 #include "meshManager.hpp"
+#include "terrain.hpp"
 
 #define GOAL_DELTA 100;
 #define WINDOW_WIDTH 800

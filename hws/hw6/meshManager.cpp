@@ -231,9 +231,11 @@ void meshManager::init() {
 
 void meshManager::draw() {
   for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
+    glBindVertexArray(this->vao);
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
-    glm::vec3 scale_vector = glm::vec3(md.scale);
+    //    glm::vec3 scale_vector = glm::vec3(md.scale);
+    glm::vec3 scale_vector = glm::vec3(1.0);
     glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
     glm::mat4 model_mat =
       glm::translate(translate_vector) *
@@ -270,6 +272,6 @@ void meshManager::calc_grid_trans_and_scale() {
       x_trans = (row - side / 2) * grid_width;
       y_trans = (side / 2 - col) * grid_width;
     }
-    this->grid_trans.push_back(glm::vec3(x_trans, y_trans, 0));
+    this->grid_trans.push_back(glm::vec3(x_trans, y_trans, -2500.0));
   }
 }

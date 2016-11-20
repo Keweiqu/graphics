@@ -36,6 +36,8 @@ GLubyte boid_indices[] = {
 extern GLfloat ocean_vertices[18];
 extern GLfloat ocean_tex_coords[12];
 extern GLfloat ocean_normals[3];
+extern GLfloat terrain_vertices[];
+extern GLuint terrain_indices[];
 
 GLuint boid_vao;
 GLuint boid_vbo1, boid_vbo3, boid_idx;
@@ -98,6 +100,11 @@ void init_ocean() {
   ocean_texc = glGetAttribLocation(program, "vTex");
   glEnableVertexAttribArray(ocean_texc);
   glVertexAttribPointer(ocean_texc, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+}
+
+
+void init_terrain() {
+  
 }
 
 void init() {
@@ -262,6 +269,7 @@ int main(int argc, char** argv) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_view(view_mat, f);
     glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
+    mesh.draw();
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
     if(!pause) {
@@ -270,7 +278,7 @@ int main(int argc, char** argv) {
       f.update_goal();
       f.update_boids();
     }
-    mesh.draw();
+
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

@@ -1,3 +1,6 @@
+#ifndef TERRAIN_H
+#define TERRAIN_H
+
 #include "common.hpp"
 #include <cmath>
 #include <cstring>
@@ -21,7 +24,11 @@ void fillSquareCenter(GLint top_left_x, GLint top_left_y, GLint side);
 void fillDiamondCenter(GLint center_x, GLint center_y, GLint side);
 void printSquare();
 void genMeshOff();
-void genVertex(ofstream &mesh);
-void genFaces(ofstream &mesh);
+void genVertexOFF(ofstream &mesh);
+void genFacesOFF(ofstream &mesh);
+void genVertex();
+void genFaces();
 void clampContour();
 GLfloat distToCenter(GLint x, GLint y);
+
+#endif
