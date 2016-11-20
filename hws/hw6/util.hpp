@@ -59,4 +59,5 @@ GLfloat max_boid_goal_dist(Flock& f);
 void print_step_msg(Flock* f);
 void init_time();
 void update_time(int index);
+void update_ocean_time();
 #endif

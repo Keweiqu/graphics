@@ -8,7 +8,10 @@ in vec3 fL;
 in vec3 fE;
 in vec3 pos_eye, normal_eye;
 in vec2 texCoord;
-uniform sampler2D tex;
+uniform sampler2D ocean_tex0;
+uniform sampler2D ocean_tex1;
+uniform sampler2D feather_tex;
+uniform float ocean_time;
 
 void main() {
   vec4 AmbientProduct = vec4(1.0, 1.0, 1.0, 1.0);
@@ -34,8 +37,7 @@ void main() {
 
   vec4 shadeLight = ambient + diffuse + specular;
   shadeLight.a = 1.0;
-  vec4 shadeTex = vec4(texture(tex, texCoord).rgb, 1.0);
+  vec4 shadeTex = vec4(mix(texture(ocean_tex0, texCoord).rgb, texture(ocean_tex1, texCoord).rgb, ocean_time), 1.0);
   fColor = shadeLight * shadeTex;
     //fColor = color;
 }
-

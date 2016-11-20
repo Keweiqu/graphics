@@ -27,11 +27,10 @@ void main() {
      fN = normal_eye;
      fE = -pos_eye.xyz;
      fL = LightPosition.xyz;
-     
+
      if (LightPosition.w != 0.0) {
      	fL = LightPosition.xyz - pos_eye;
      }
 
      gl_Position = Project * vec4(pos_eye, 1.0);
 }
-
