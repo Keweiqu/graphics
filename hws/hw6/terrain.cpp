@@ -35,7 +35,6 @@ void genTerrain(GLfloat height) {
     diamondStep(pow(2, recurse));
     squareStep(pow(2, recurse));
     rand_range = rand_range / 2.0;
-    cout << "rand_range is " << rand_range << endl;
     recurse--;
   }
 }
@@ -93,7 +92,6 @@ void fillSquareCenter(GLint top_left_x, GLint top_left_y, GLint side) {
   GLint center_x = top_left_x + (side / 2);
   GLint center_y = top_left_y + (side / 2);
   sum += (rand() / (GLfloat) RAND_MAX) * rand_range * 10.0 / distToCenter(center_x, center_y);
-  cout << "sum is " << sum << endl;
   heights[center_x][center_y] = sum;
 }
 
@@ -189,6 +187,5 @@ void clampContour() {
 
 GLfloat distToCenter(GLint x, GLint y) {
   GLfloat result = sqrt(sqrt(pow(x - MIDDLE, 2) +  pow(y - MIDDLE, 2)));
-  //cout << "dist is " << result << endl;
   return result;
 }
