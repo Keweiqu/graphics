@@ -1,37 +1,17 @@
 #include "util.hpp"
 
-GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
-GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
-GLshort board_indices[SIDES * SIDES * 6];
-GLfloat ocean_vertices[12];
+GLfloat ocean_vertices[18];
 View v;
-extern mat4 view;
 extern Flock f;
 extern enum VIEW_TYPE v_mode;
+
 extern GLuint t, t2, program, boid_shader;
 extern float glTime, glOceanTime;
-extern GLuint pro, mo, vi;
-extern GLuint boid_model, boid_view, boid_project;
-extern bool isParallel;
+extern GLuint project, view, model;
+extern glm::mat4 project_mat, view_mat, model_mat;
 extern GLfloat eye_dist, scale_factor;
+extern GLuint boid_model, boid_view, boid_project;
 extern GLuint ocean_vbo_index;
-
-/*
- * calculate all vertices coordinates for checkerboard.
- * @param n n * n checkerboard
- * @param len side-length of the checkboard
- */
-void calc_checkerboard_vertices(int n, GLfloat len) {
-  GLfloat lx = -len / 2, ly = len / 2;
-  GLfloat num_of_points = pow(n + 1, 2);
-  for (int i = 0; i < num_of_points; i++) {
-    GLfloat xpos = lx + (i % (n + 1)) * (len / n);
-    GLfloat ypos = ly - (i / (n + 1)) * (len / n);
-    board_vertices[i][0] = xpos;
-    board_vertices[i][1] = ypos;
-    board_vertices[i][2] = 0; //z
-  }
-}
 
 void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[0] = -len / 2;
@@ -51,91 +31,16 @@ void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[11] = 0;
 }
 
-/*
- * Calculate the indices for each square.
- */
-void calc_checkerboard_indices(int n) {
-  int i;
-  for (i = 0; i < pow(n, 2); i++) {
-    board_indices[6 * i] = (i / n) * (n + 1) + i % n + 1;
-    board_indices[6 * i + 1] = (i / n) * (n + 1) + i % n;
-    board_indices[6 * i + 2] = (i / n) * (n + 1) + i % n + n + 1;
-    board_indices[6 * i + 3] = (i / n) * (n + 1) + i % n + n + 2;
-    board_indices[6 * i + 4] = (i / n) * (n + 1) + i % n + 1;
-    board_indices[6 * i + 5] = (i / n) * (n + 1) + i % n + n + 1;
-  }
-}
-
-void calc_checkerboard_colors(int n) {
-  if (n % 2 == 0) {
-    for (int i = 0; i < (n+1)*(n+1); i++) {
-      if (i % 2 == 1) {
-        board_colors[i][0] = 0.8;
-        board_colors[i][1] = 0.8;
-        board_colors[i][2] = 0.8;
-        board_colors[i][3] = 1.0;
-      } else {
-        board_colors[i][0] = 0.2;
-        board_colors[i][1] = 0.2;
-        board_colors[i][2] = 0.2;
-        board_colors[i][3] = 1.0;
-      }
-    }
-  } else {
-    for (int i = 0; i < (n+1)*(n+1); i++) {
-      if ((i / (n+1)) % 2 == 1) {
-        if (i % 2 == 0) {
-          board_colors[i][0] = 0.8;
-          board_colors[i][1] = 0.8;
-          board_colors[i][2] = 0.8;
-          board_colors[i][3] = 1.0;
-        } else {
-          board_colors[i][0] = 0.2;
-          board_colors[i][1] = 0.2;
-          board_colors[i][2] = 0.2;
-          board_colors[i][3] = 1.0;
-        }
-      } else {
-        if (i % 2 == 1) {
-          board_colors[i][0] = 0.8;
-          board_colors[i][1] = 0.8;
-          board_colors[i][2] = 0.8;
-          board_colors[i][3] = 1.0;
-        } else {
-          board_colors[i][0] = 0.2;
-          board_colors[i][1] = 0.2;
-          board_colors[i][2] = 0.2;
-          board_colors[i][3] = 1.0;
-        }
-      }
-    }
-  }
-}
-
-extern mat4 view, project;
-
 void draw_ocean(GLuint vao) {
   glUseProgram(program);
   update_ocean_time();
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ocean_vbo_index);
-  glm::mat4 model_mat = glm::mat4(1.0);
-  glUniformMatrix4fv(pro, 1, GL_FALSE, project.data);
-  glUniformMatrix4fv(vi, 1, GL_FALSE, view.data);
-  glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glm::mat4 ocean_model = glm::mat4(1.0);
+  glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(ocean_model));
+  glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
-}
-
-void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-
-  glm::mat4 model_mat = glm::mat4(1.0);
-  glUniformMatrix4fv(pro, 1, GL_FALSE, project.data);
-  glUniformMatrix4fv(vi, 1, GL_FALSE, view.data);
-  glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
-
-  glDrawElements(GL_TRIANGLES, SIDES * SIDES * 6, GL_UNSIGNED_SHORT, (void*)0);
 }
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
@@ -144,52 +49,18 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
 
   for(int i = 0; i < f->count; i++) {
-    mat4 model;
-    my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2], model);
-    GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
-    my_rotatef(xy_angle, 0, 0, 1, model);
-
-    glUniformMatrix4fv(boid_project, 1, GL_FALSE, project.data);
-    glUniformMatrix4fv(boid_view, 1, GL_FALSE, view.data);
-    glUniformMatrix4fv(boid_model, 1, GL_FALSE, model.data);
+    glm::vec3 translate_vec = glm::vec3((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2]);
+    glm::mat4 boid_model = glm::translate(translate_vec);
+    GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3);
+    boid_model = boid_model * glm::rotate(xy_angle, glm::vec3(0, 0, 1));
+    glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(boid_model));
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
     update_time(i);
   }
 }
 
-// void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
-//   glBindVertexArray(vao);
-//   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-
-//   for (int i = 0; i < f->count; i++) {
-//     mat4 result;
-//     result = project;
-//     result = result * view;
-
-//     my_translatef((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2] * 0, result);
-//     GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
-//     my_rotatef(xy_angle, 0, 0, 1, result);
-//     glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
-//     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
-//   }
-// }
-
-
-// void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
-//   glBindVertexArray(vao);
-//   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
-//   mat4 result;
-//   result = project;
-//   result = result * view;
-
-//   my_translatef(f->goal[0], f->goal[1], f->goal[2], result);
-//   glUniformMatrix4fv(matrix, 1, GL_FALSE, result.data);
-//   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
-// }
-
-void update_view(mat4 &view, Flock& f) {
-
+void update_view(glm::mat4 &view, Flock& f) {
   switch(v_mode) {
     case CENTER:
       center_view(view, f);
@@ -206,42 +77,46 @@ void update_view(mat4 &view, Flock& f) {
   }
 }
 
-void center_view(mat4& view, Flock &f) {
-  View v;
-  v.pos = vec3(0.0, 0.0, 1800);
-  v.up = vec3(0.0, 0.0, 1.0);
-  v.look = calc_middleway(f);
-  my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
+void center_view(glm::mat4& view, Flock &f) {
+  glm::vec3 pos = glm::vec3(0.0, 0.0, 1800);
+  glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
+  vec3 my_look = calc_middleway(f);
+  glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
+  view = glm::lookAt(pos, look, up);
 }
 
-void side_view(mat4& view, Flock &f) {
-  View v;
-  v.pos = get_side_pos(f);
-  v.look = calc_middleway(f);
-  v.up = vec3(0.0, 0.0, 1.0);
-  my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
+void side_view(glm::mat4& view, Flock &f) {
+  vec3 my_pos = get_side_pos(f);
+  glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]);
+
+  vec3 my_look = calc_middleway(f);
+  glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
+
+  glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
+  view = glm::lookAt(pos, look, up);
 }
 
-void trailing_view(mat4& view, Flock &f) {
-  View v;
-  v.pos = get_trailing_pos(f);
-  v.look = calc_middleway(f);
-  v.up = vec3(0.0, 0.0, 1.0);
-  my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
+void trailing_view(glm::mat4& view, Flock &f) {
+  vec3 my_pos = get_trailing_pos(f);
+  glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]);
+  vec3 my_look = calc_middleway(f);
+  glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
+  glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
+  view = glm::lookAt(pos, look, up);
 }
 
-void first_person_view(mat4& view, Flock &f) {
-  View v;
-  v.pos = f.pos->at(0);
-  v.look = get_center_pos(f);
-  v.up = vec3(0.0, 0.0, 1.0);
-  my_lookat(v.pos[0], v.pos[1], v.pos[2], v.look[0], v.look[1], v.look[2], v.up[0], v.up[1], v.up[2], view);
+void first_person_view(glm::mat4& view, Flock &f) {
+  vec3 boid_pos = f.pos->at(0);
+  glm::vec3 pos = glm::vec3(boid_pos[0], boid_pos[1], boid_pos[2]);
+  vec3 my_look = get_center_pos(f);
+  glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
+  glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
+  view = glm::lookAt(pos, look, up);
 }
 
 vec3 ave_flock_center(Flock& f) {
   return f.center;
 }
-
 
 vec3 calc_middleway(Flock& f) {
   vec3 ave_center = ave_flock_center(f);
@@ -342,27 +217,4 @@ void print_step_msg(Flock* f) {
   cout << "-------------------------------------------------------------------------------" << endl;
   f->print_goal();
   cout << "*******************************************************************************" << endl;
-}
-
-void zoom_in() {
-  // steps for eye_dist and scale_factor are magic numbers that make zoom in/out have the same effects on parallel and perspective mode
-  if (eye_dist > EYE_DIST_NEAR) {
-    eye_dist -= 2;
-  }
-  if (scale_factor < SCALE_FACTOR_MAX && scale_factor >= INITIAL_SCALE_FACTOR) {
-    scale_factor += 0.15;
-  } else if (scale_factor < INITIAL_SCALE_FACTOR) {
-    scale_factor += 0.04;
-  }
-}
-
-void zoom_out() {
-  if (eye_dist < EYE_DIST_FAR) {
-    eye_dist += 2;
-  }
-  if (scale_factor > SCALE_FACTOR_MIN && scale_factor <= INITIAL_SCALE_FACTOR) {
-    scale_factor -= 0.04;
-  } else if (scale_factor > INITIAL_SCALE_FACTOR) {
-    scale_factor -= 0.15;
-  }
 }

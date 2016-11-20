@@ -1,13 +1,8 @@
 #include "meshManager.hpp"
 
-extern GLuint program, mo, vi, pro;
+extern GLuint program, model;
 extern GLfloat angle;
-extern glm::mat4 view_mat, universe_rotate;
-extern enum draw_mode d_mode;
-extern enum shade_mode s_mode;
-extern GLfloat spin[3];
 extern GLfloat scale_factor;
-extern bool isParallel;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -20,26 +15,18 @@ static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
 meshManager::meshManager() {
   vn_offset = 0;
   idx_offset = 0;
-  edge_idx_offset = 0;
-  flat_offset = 0;
   vertices = new vector<GLfloat>();
   normals = new vector<GLfloat>();
   indices = new vector<GLuint>();
-  edge_indices = new vector<GLuint>();
   face_normals = new vector<glm::vec3>();
   index_faces = new map< GLuint, vector<GLuint> >();
   filename_metadata = new map< string, metadata>();
-  flat_vertices = new vector<GLfloat>();
-  flat_normals = new vector<GLfloat>();
 }
 
 meshManager::~meshManager() {
   delete vertices;
   delete normals;
   delete indices;
-  delete edge_indices;
-  delete flat_normals;
-  delete flat_vertices;
   delete index_faces;
   delete filename_metadata;
   delete face_normals;
@@ -77,8 +64,6 @@ void meshManager::readFile(char* filename) {
     string f_string = string(filename);
     (*filename_metadata)[f_string].vn_offset = this->vn_offset;
     (*filename_metadata)[f_string].indices_offset = this->idx_offset;
-    (*filename_metadata)[f_string].edge_indices_offset = this->edge_idx_offset;
-    (*filename_metadata)[f_string].flat_offset = this->flat_offset;
     cout << "Reading data for " << filename << "..." << endl;
     getline(source, line);
     int num_vertices, num_faces, num_edges;
@@ -131,25 +116,9 @@ void meshManager::readFile(char* filename) {
 	this->indices->push_back(n1 + this->vn_offset / 3);
 	this->indices->push_back(n2 + this->vn_offset / 3);
 	this->indices->push_back(n3 + this->vn_offset / 3);
-	this->edge_indices->push_back(n1 + this->vn_offset / 3);
-	this->edge_indices->push_back(n2 + this->vn_offset / 3);
-	this->edge_indices->push_back(n2 + this->vn_offset / 3);
-	this->edge_indices->push_back(n3 + this->vn_offset / 3);
-	this->edge_indices->push_back(n3 + this->vn_offset / 3);
-	this->edge_indices->push_back(n1 + this->vn_offset / 3);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3 + 2]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n2 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n2 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n2 * 3 + 2]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 2]);
-
 	glm::vec3 face_normal = this->calc_face_normal(n1 + this->vn_offset / 3, n2 + this->vn_offset / 3, n3 + this->vn_offset / 3);
 	this->face_normals->push_back(face_normal);
 	face_index++;
@@ -157,29 +126,12 @@ void meshManager::readFile(char* filename) {
       } else if (n == 4) {
 	GLuint n1, n2, n3, n4;
 	stream >> n1 >> n2 >> n3 >> n4;
-	this->edge_indices->push_back(n1 + this->vn_offset / 3);
-	this->edge_indices->push_back(n2 + this->vn_offset / 3);
-	this->edge_indices->push_back(n2 + this->vn_offset / 3);
-	this->edge_indices->push_back(n3 + this->vn_offset / 3);
-	this->edge_indices->push_back(n3 + this->vn_offset / 3);
-	this->edge_indices->push_back(n4 + this->vn_offset / 3);
-	this->edge_indices->push_back(n4 + this->vn_offset / 3);
-	this->edge_indices->push_back(n1 + this->vn_offset / 3);
 	this->indices->push_back(n1 + this->vn_offset / 3);
 	this->indices->push_back(n2 + this->vn_offset / 3);
 	this->indices->push_back(n3 + this->vn_offset / 3);
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n2].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3 + 2]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n2 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n2 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n2 * 3 + 2]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 2]);
 	glm::vec3 face_normal1 = this->calc_face_normal(n1 + this->vn_offset / 3, n2 + this->vn_offset / 3, n3 + this->vn_offset / 3);
 	this->face_normals->push_back(face_normal1);
 	face_index++;
@@ -190,15 +142,6 @@ void meshManager::readFile(char* filename) {
 	(*this->index_faces)[n1].push_back(face_index);
 	(*this->index_faces)[n3].push_back(face_index);
 	(*this->index_faces)[n4].push_back(face_index);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n1 * 3 + 2]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n3 * 3 + 2]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n4 * 3]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n4 * 3 + 1]);
-	this->flat_vertices->push_back((*this->vertices)[this->vn_offset + n4 * 3 + 2]);
 	glm::vec3 face_normal2 = this->calc_face_normal(n1 + this->vn_offset / 3, n3 + this->vn_offset / 3, n4 + this->vn_offset / 3);
 	this->face_normals->push_back(face_normal2);
 	face_index++;
@@ -207,11 +150,9 @@ void meshManager::readFile(char* filename) {
 
     (*filename_metadata)[f_string].num_of_vertices = num_vertices;
     (*this->filename_metadata)[f_string].num_of_indices = face_index * 3;
-    (*this->filename_metadata)[f_string].num_of_edge_indices = this->edge_indices->size() - this->edge_idx_offset;
+    
     this->vn_offset = this->vertices->size();
     this->idx_offset = this->indices->size();
-    this->edge_idx_offset = this->edge_indices->size();
-    this->flat_offset += face_index * 3;
     cout << "vn_offset: " << this->vn_offset << endl;
 
     if (getline(source, line)) {
@@ -246,15 +187,6 @@ void meshManager::calc_normal(string filename) {
     (*this->normals).push_back(normal.z);
   }
 
-  for (GLuint i = 0; i < md.num_of_indices / 3; i++) {
-    glm::vec3 normal = (*this->face_normals)[i];
-    for (int i = 0; i < 3; i++) {
-      (*this->flat_normals).push_back(normal.x);
-      (*this->flat_normals).push_back(normal.y);
-      (*this->flat_normals).push_back(normal.z);
-    }
-  }
-
   //Do this after all flat and smooth normals are calculated
   this->face_normals->clear();
 }
@@ -275,15 +207,7 @@ void meshManager::init() {
   this->ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
 		      &(this->indices->front()),
 		      this->indices->size() * sizeof(GLuint));
-  this->edge_ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
-			   &(this->edge_indices->front()),
-			   this->edge_indices->size() * sizeof(GLuint));
-  this->flat_vbo_pos = make_bo(GL_ARRAY_BUFFER,
-			       &(this->flat_vertices->front()),
-			       this->flat_vertices->size() * sizeof(GLfloat));
-  this->flat_vbo_normal = make_bo(GL_ARRAY_BUFFER,
-          &(this->flat_normals->front()),
-          this->flat_normals->size() * sizeof(GLfloat));
+  
   glGenVertexArrays(1, &(this->vao));
   glBindVertexArray(vao);
 
@@ -303,137 +227,23 @@ void meshManager::init() {
   glEnableVertexAttribArray(normal);
   glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
-
-  glGenVertexArrays(1, &(this->flat_vao));
-  glBindVertexArray(flat_vao);
-
-  glBindBuffer(GL_ARRAY_BUFFER, this->flat_vbo_pos);
-  glEnableVertexAttribArray(pos);
-  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, this->flat_vbo_normal);
-  glEnableVertexAttribArray(normal);
-  glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 }
 
-void meshManager::draw_default() {
+void meshManager::draw() {
   for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
     glm::vec3 scale_vector = glm::vec3(md.scale);
-    scale_vector += isParallel * (scale_factor - 1) * scale_vector;
     glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
-    translate_vector += isParallel * (scale_factor - 1) * translate_vector;
     glm::mat4 model_mat =
-      // universe_rotate *
       glm::translate(translate_vector) *
       glm::scale(scale_vector) *
-      // glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
-      // glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
-      // glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
       glm::translate(md.trans);
-
-    glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
-    glUniformMatrix4fv(vi, 1, GL_FALSE, glm::value_ptr(view_mat));
+    glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
     glDrawElements(GL_TRIANGLES, md.num_of_indices, GL_UNSIGNED_INT, (void*) (md.indices_offset * sizeof(GLuint)));
   }
 }
 
-void meshManager::draw_vertex_mode() {
-  for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
-    string filename = this->draw_sequence[i];
-    metadata md = (*this->filename_metadata)[filename];
-    glm::vec3 scale_vector = glm::vec3(md.scale);
-    scale_vector += isParallel * (scale_factor - 1) * scale_vector;
-    glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
-    translate_vector += isParallel * (scale_factor - 1) * translate_vector;
-    glm::mat4 model_mat =
-      universe_rotate *
-      glm::translate(translate_vector) *
-      glm::scale(scale_vector) *
-      glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
-      glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
-      glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
-      glm::translate(md.trans);
-
-    glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
-    glUniformMatrix4fv(vi, 1, GL_FALSE, glm::value_ptr(view_mat));
-    glDrawArrays(GL_POINTS, md.vn_offset / 3, md.num_of_vertices);
-  }
-}
-
-void meshManager::draw_edge_mode() {
-  for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
-    string filename = this->draw_sequence[i];
-    metadata md = (*this->filename_metadata)[filename];
-    glm::vec3 scale_vector = glm::vec3(md.scale);
-    scale_vector += isParallel * (scale_factor - 1) * scale_vector;
-    glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
-    translate_vector += isParallel * (scale_factor - 1) * translate_vector;
-    glm::mat4 model_mat =
-      universe_rotate *
-      glm::translate(translate_vector) *
-      glm::scale(scale_vector) *
-      glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
-      glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
-      glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
-      glm::translate(md.trans);
-
-    glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
-    glUniformMatrix4fv(vi, 1, GL_FALSE, glm::value_ptr(view_mat));
-    glDrawElements(GL_LINES,
-		   md.num_of_edge_indices,
-		   GL_UNSIGNED_INT,
-		   (void*) (md.edge_indices_offset * sizeof(GLuint)));
-  }
-}
-
-void meshManager::draw() {
-  switch(d_mode) {
-  case EDGE:
-    this->draw_edge_mode();
-    break;
-  case FACE:
-    switch (s_mode) {
-      case SMOOTH:
-        this->draw_default();
-        break;
-      case FLAT:
-        this->draw_flat_mode();
-        break;
-      case PHONG:
-        this->draw_default();
-        break;
-    }
-    break;
-  case VERTEX:
-    this->draw_vertex_mode();
-    break;
-  }
-}
-
-void meshManager::draw_flat_mode() {
-  for (GLuint i = 0; i < this->draw_sequence.size(); i++) {
-    string filename = this->draw_sequence[i];
-    metadata md = (*this->filename_metadata)[filename];
-    glm::vec3 scale_vector = glm::vec3(md.scale);
-    scale_vector += isParallel * (scale_factor - 1) * scale_vector;
-    glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
-    translate_vector += isParallel * (scale_factor - 1) * translate_vector;
-    glm::mat4 model_mat =
-      universe_rotate *
-      glm::translate(translate_vector) *
-      glm::scale(scale_vector) *
-      glm::rotate(spin[0], glm::vec3(1.0, 0.0, 0.0)) *
-      glm::rotate(spin[1], glm::vec3(0.0, 1.0, 0.0)) *
-      glm::rotate(spin[2], glm::vec3(0.0, 0.0, 1.0)) *
-      glm::translate(md.trans);
-
-    glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
-    glUniformMatrix4fv(vi, 1, GL_FALSE, glm::value_ptr(view_mat));
-    glDrawArrays(GL_TRIANGLES, md.flat_offset, md.num_of_indices);
-  }
-}
 
 void meshManager::calc_grid_trans_and_scale() {
 
@@ -463,18 +273,3 @@ void meshManager::calc_grid_trans_and_scale() {
     this->grid_trans.push_back(glm::vec3(x_trans, y_trans, 0));
   }
 }
-
-void meshManager::update_angle() {
-  spin[0] += ROTATE_X_SPEED;
-  spin[1] += ROTATE_Y_SPEED;
-  spin[2] += ROTATE_Z_SPEED;
-  if (spin[0] > 2 * M_PI) {
-    spin[0] -= 2 * M_PI;
-  }
-  if (spin[1] > 2 * M_PI) {
-    spin[1] -= 2 * M_PI;
-  }
-  if (spin[2] > 2 * M_PI) {
-    spin[2] -= 2 * M_PI;
-  }
- }

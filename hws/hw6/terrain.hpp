@@ -10,6 +10,7 @@ using namespace std;
 
 #define RECURSE 7
 #define SIDE_LEN 129
+#define MIDDLE 64.5
 #define RAND_RANGE 4000
 
 void initCorner(GLfloat height);
@@ -23,3 +24,4 @@ void genMeshOff();
 void genVertex(ofstream &mesh);
 void genFaces(ofstream &mesh);
 void clampContour();
+GLfloat distToCenter(GLint x, GLint y);

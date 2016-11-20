@@ -20,11 +20,8 @@
 #define DRAG_SPEED_FACTOR 250.0
 #define INITIAL_EYE_DIST 30.0
 #define INITIAL_SCALE_FACTOR 1.0
-
+#define DEGREE_TO_RADIAN M_PI / 180.0
+#define RADIAN_TO_DEGREE 180 / M_PI
 using namespace std;
-
-// coming from main.hpp
-enum draw_mode {VERTEX, EDGE, FACE};
-enum shade_mode {SMOOTH, FLAT, PHONG};
 
 #endif

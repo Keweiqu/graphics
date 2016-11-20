@@ -12,7 +12,7 @@
 #define SPEED_LIMIT 20
 #define GOAL_SPEED 15
 #define KNN 5
-#define WORLD_SIZE 10000
+#define WORLD_SIZE 20000
 using namespace std;
 
 class Flock {

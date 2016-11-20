@@ -5,25 +5,11 @@ int pause = FALSE, to_left = FALSE, to_right = FALSE;
 int up = FALSE, down = FALSE;
 float glTime, glOceanTime;
 enum VIEW_TYPE v_mode;
-glm::mat4 model_mat, view_mat, project_mat, parallel_mat;
+glm::mat4 model_mat, view_mat, project_mat;
 
-// coming from main.cpp
-// GLuint fs_shader, phong_shader;
-// GLuint model, view, project, vbo, ebo, vao, pos;
-GLfloat spin[3] = {0.0f, 0.0f, 0.0f};
-GLfloat scale_factor = INITIAL_SCALE_FACTOR, eye_dist = INITIAL_EYE_DIST;
-bool isParallel = false; // bool isPaused = false, isParallel = false;
-enum draw_mode d_mode = FACE;
-enum shade_mode s_mode = SMOOTH;
+GLfloat eye_dist = INITIAL_EYE_DIST;
 int clicked = FALSE;
-double m_xpos, m_ypos;
-GLfloat last_x_diff, last_y_diff;
-GLfloat x_diff, y_diff;
-GLfloat x_angle, y_angle;
-glm::mat4 universe_rotate;
-
 meshManager mesh;
-mat4 view, project;
 
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -42,24 +28,6 @@ GLfloat boid_flap_vertices[4][3] = {
   {8, -3.5, 14.75}
 };
 
-GLfloat colors[6][4] = {
-  {0.0, 1.0, 0.0, 1.0},
-  {1.0, 0.0, 0.0, 1.0},
-  {0.0, 0.0, 1.0, 1.0},
-  {1.0, 1.0, 0.0, 1.0},
-  {1.0, 0.0, 1.0, 1.0},
-  {0.0, 1.0, 1.0, 1.0},
-};
-
-GLfloat shadow_colors[6][4] = {
-  {0.0, 0.0, 0.0, 1.0},
-  {0.0, 0.0, 0.0, 1.0},
-  {0.0, 0.0, 0.0, 1.0},
-  {0.0, 0.0, 0.0, 1.0},
-  {0.0, 0.0, 0.0, 1.0},
-  {0.0, 0.0, 0.0, 1.0},
-};
-
 GLubyte boid_indices[] = {
   0, 1, 2, // right wing
   3, 1, 0, // left wing
@@ -72,17 +40,14 @@ GLfloat boid_normals[] = {
   0.0, 0.0, 1.0,
 };
 
-GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_pos1, board_c;
 
-extern GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
-extern GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
-extern GLshort board_indices[SIDES * SIDES * 6];
 extern GLfloat ocean_vertices[12];
 extern GLfloat ocean_tex_coords[8];
 extern GLubyte ocean_indices[6];
 extern GLfloat ocean_normals[12];
-GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, shadow_vbo, shadow_vao, boid_vao, goal_vao, boid_idx, goal_idx;
-GLuint program, boid_shader, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, mo, vi, pro, modelView;
+GLuint vao2;
+GLuint boid_vao, boid_vbo1, boid_vbo3, boid_idx;
+GLuint program, boid_shader, pos, pos1, model, view, project;
 GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1;
 GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sampler, boid_view, boid_project, boid_model;
 GLuint t, t2;
@@ -173,35 +138,6 @@ void init_ocean() {
 
 }
 
-void init_checkerboard() {
-  glShadeModel(GL_FLAT);
-
-  calc_checkerboard_vertices(SIDES, WORLD_SIZE * 2);
-  calc_checkerboard_indices(SIDES);
-  calc_checkerboard_colors(SIDES);
-
-  vbo3 = make_bo(GL_ARRAY_BUFFER, board_vertices, sizeof(board_vertices));
-  vbo4 = make_bo(GL_ARRAY_BUFFER, board_colors, sizeof(board_colors));
-  board_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, board_indices, sizeof(board_indices));
-
-  glGenVertexArrays(1, &vao2);
-  glBindVertexArray(vao2);
-
-  glBindBuffer(GL_ARRAY_BUFFER, vbo3);
-  board_pos = glGetAttribLocation(program, "vPos0");
-  glEnableVertexAttribArray(board_pos);
-  glVertexAttribPointer(board_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-  board_pos1 = glGetAttribLocation(program, "vPos1");
-  glEnableVertexAttribArray(board_pos1);
-  glVertexAttribPointer(board_pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, vbo4);
-  board_c = glGetAttribLocation(program, "vColor");
-  glEnableVertexAttribArray(board_c);
-  glVertexAttribPointer(board_c, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-}
-
 void init() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
@@ -212,21 +148,14 @@ void init() {
   glGenTextures(4, textures);
 
   boid_vbo1 = make_bo(GL_ARRAY_BUFFER, boid_vertices, sizeof(boid_vertices));
-  boid_vbo2 = make_bo(GL_ARRAY_BUFFER, colors, sizeof(colors));
   boid_vbo3 = make_bo(GL_ARRAY_BUFFER, boid_flap_vertices, sizeof(boid_flap_vertices));
   boid_vbo_normal = make_bo(GL_ARRAY_BUFFER, boid_normals, sizeof(boid_normals));
   boid_vbo_tex = make_bo(GL_ARRAY_BUFFER, ocean_tex_coords, sizeof(ocean_tex_coords));
 
-  shadow_vbo = make_bo(GL_ARRAY_BUFFER, shadow_colors, sizeof(shadow_colors));
-
-  goal_vbo1 = make_bo(GL_ARRAY_BUFFER, goal_vertices, sizeof(goal_vertices));
-  goal_vbo2 = make_bo(GL_ARRAY_BUFFER, goal_colors, sizeof(goal_colors));
   boid_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, boid_indices, sizeof(boid_indices));
-  goal_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, goal_indices, sizeof(goal_indices));
 
   boid_shader = initshader("boid_vs.glsl", "boid_fs.glsl");
   glUseProgram(boid_shader);
-
 
   //Boid
   feather_tex_sampler = glGetUniformLocation(boid_shader, "feather_tex");
@@ -262,51 +191,13 @@ void init() {
   glEnableVertexAttribArray(boid_texc);
   glVertexAttribPointer(boid_texc, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo2);
-  color = glGetAttribLocation(boid_shader, "vColor");
-  glEnableVertexAttribArray(color);
-  glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
-  // Shadow
-  // glGenVertexArrays(1, &shadow_vao);
-  // glBindVertexArray(shadow_vao);
-  // glBindBuffer(GL_ARRAY_BUFFER, boid_vbo1);
-  // glEnableVertexAttribArray(pos);
-  // glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-  // glBindBuffer(GL_ARRAY_BUFFER, boid_vbo3);
-  // glEnableVertexAttribArray(pos1);
-  // glVertexAttribPointer(pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-  //
-  // glBindBuffer(GL_ARRAY_BUFFER, shadow_vbo);
-  // shadow_color = glGetAttribLocation(program, "vColor");
-  // glEnableVertexAttribArray(shadow_color);
-  // glVertexAttribPointer(shadow_color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-  //
-  // //Goal
-  // glGenVertexArrays(1, &goal_vao);
-  // glBindVertexArray(goal_vao);
-  //
-  // glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
-  // goal_pos = glGetAttribLocation(program, "vPos0");
-  // glEnableVertexAttribArray(goal_pos);
-  // glVertexAttribPointer(goal_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-  //
-  // glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
-  // goal_pos1 = glGetAttribLocation(program, "vPos1");
-  // glEnableVertexAttribArray(goal_pos1);
-  // glVertexAttribPointer(goal_pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-  //
-  // glBindBuffer(GL_ARRAY_BUFFER, goal_vbo2);
-  // glEnableVertexAttribArray(color);
-  // glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-  // init_checkerboard();
   init_ocean();
   init_time();
 
-  mo = glGetUniformLocation(program, "Model");
-  vi = glGetUniformLocation(program, "View");
-  pro = glGetUniformLocation(program, "Project");
+  model = glGetUniformLocation(program, "Model");
+  view = glGetUniformLocation(program, "View");
+  project = glGetUniformLocation(program, "Project");
 
   boid_view = glGetUniformLocation(boid_shader, "View");
   boid_model = glGetUniformLocation(boid_shader, "Model");
@@ -387,48 +278,8 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   }
 }
 
-void mouse(GLFWwindow *w, int button, int action, int mods) {
-  switch(button) {
-  case GLFW_MOUSE_BUTTON_LEFT:
-    if(action== GLFW_PRESS){
-      glfwGetCursorPos(w, &m_xpos, &m_ypos);
-      printf("pressed\n");
-      clicked = TRUE;
-    } else {
-      last_x_diff += x_diff;
-      last_y_diff += y_diff;
-      x_diff = 0;
-      y_diff = 0;
-      printf("released\n");
-      clicked = FALSE;
-    }
-  default:
-    break;
-  }
-}
-
-void cursor(GLFWwindow* window, double xpos, double ypos) {
-  if(clicked) {
-    x_diff = (xpos - m_xpos) / DRAG_SPEED_FACTOR;
-    y_diff = (ypos - m_ypos) / DRAG_SPEED_FACTOR;
-    if(x_diff < 0) {
-      x_diff += 2 * M_PI;
-    } else if(x_diff > 2 * M_PI) {
-      x_diff -= 2 * M_PI;
-    }
-
-    if(y_diff < 0) {
-      y_diff += 2 * M_PI;
-    } else if (y_diff > 2 * M_PI) {
-      y_diff -= 2 * M_PI;
-    }
-  }
-}
-
 void reshape(GLFWwindow *w, int width, int height) {
-  mat4 result;
-  result = project;
-  glUniformMatrix4fv(modelView, 1, GL_FALSE, result.data);
+  glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
 }
 
 void framebuffer_resize(GLFWwindow *w, int width, int height) {
@@ -437,12 +288,13 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   v_mode = SIDE;
-  my_lookat(0, 0, 1700.0, 0, 0, 0, 0, 1, 0, view);
-  my_perspective(60.0, 1.0, 5.0, 21000.0, project);
-  // my_lookat(0.0, 1.0, eye_dist, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, view);
-  // my_perspective(35 * DEGREES_TO_RADIANS, 1.0, 0.1, 1000.0, project);
+  glm::vec3 eye = glm::vec3(0.0, 0.0, 1700.0);
+  glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
+  glm::vec3 up = glm::vec3(0, 1, 0);
+  view_mat = glm::lookAt(eye, center, up);
+  project_mat = glm::perspective(30.0 * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
 
-if(!glfwInit()) {
+  if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
     glfwTerminate();
     exit(EXIT_FAILURE);
@@ -465,8 +317,6 @@ if(!glfwInit()) {
   glewInit();
 
   glfwSetKeyCallback(window, keyboard);
-  glfwSetMouseButtonCallback(window, mouse);
-  glfwSetCursorPosCallback(window, cursor);
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
 
@@ -474,27 +324,23 @@ if(!glfwInit()) {
   init();
   mesh.readFiles(argc - 1, argv + 1);
   mesh.init();
+
+  glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glBindVertexArray(mesh.vao);
-
   while(!glfwWindowShouldClose(window)) {
-    GLfloat new_x = last_x_diff + x_diff;
-    GLfloat new_y = last_y_diff + y_diff;
-    universe_rotate =
-      glm::rotate(new_y, glm::vec3(cos(new_x), 0.0, sin(-new_x))) *
-      glm::rotate(new_x, glm::vec3(0.0, 1.0, 0.0));
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    update_view(view, f);
-    // draw_checkerboard(&f, modelView, vao2, board_idx);
+    update_view(view_mat, f);
+    glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
     draw_ocean(vao2);
-    draw_flock(&f, modelView, boid_vao, boid_idx);
+    draw_flock(&f, model, boid_vao, boid_idx);
     if(!pause) {
       f.update_centers();
       f.update_ave_v();
       f.update_goal();
       f.update_boids();
     }
-    mesh.draw_default();
+    mesh.draw();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

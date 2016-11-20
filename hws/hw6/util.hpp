@@ -30,31 +30,25 @@ enum VIEW_TYPE {CENTER, SIDE, TRAILING, FIRST_PERSON};
 
 class View {
 public:
-  vec3 pos;
-  vec3 look;
-  vec3 up;
+  glm::vec3 pos;
+  glm::vec3 look;
+  glm::vec3 up;
   View() {
-    pos = vec3();
-    look = vec3();
-    up = vec3();
+    pos = glm::vec3(0.0);
+    look = glm::vec3(0.0);
+    up = glm::vec3(0.0);
   }
 };
 
-void calc_checkerboard_indices(int n);
-void calc_checkerboard_colors(int n);
-void calc_checkerboard_vertices(int n, GLfloat len);
 void calc_ocean_vertices(GLfloat len);
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index);
-void draw_shadows(Flock* f, GLuint matrix, GLuint vao, GLuint index);
-void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_ocean(GLuint vao);
-void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index);
-void center_view(mat4 &v, Flock& f);
-void side_view(mat4 &v, Flock& f);
-void update_view(mat4 &view, Flock& f);
-void trailing_view(mat4 &view, Flock& f);
-void first_person_view(mat4 &view, Flock& f);
+void center_view(glm::mat4 &v, Flock& f);
+void side_view(glm::mat4 &v, Flock& f);
+void update_view(glm::mat4 &view, Flock& f);
+void trailing_view(glm::mat4 &view, Flock& f);
+void first_person_view(glm::mat4 &view, Flock& f);
 vec3 ave_flock_center(Flock& f);
 vec3 calc_middleway(Flock& f);
 vec3 get_side_pos(Flock& f);
@@ -66,6 +60,4 @@ void print_step_msg(Flock* f);
 void init_time();
 void update_time(int index);
 void update_ocean_time();
-void zoom_in();
-void zoom_out();
 #endif
