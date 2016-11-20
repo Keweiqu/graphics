@@ -3,16 +3,18 @@
 GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
 GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
 GLshort board_indices[SIDES * SIDES * 6];
-GLfloat ocean_vertices[18];
+GLfloat ocean_vertices[12];
 View v;
 extern mat4 view;
 extern Flock f;
 extern enum VIEW_TYPE v_mode;
-extern GLuint t, program;
+extern GLuint t, t2, program, boid_shader;
 extern float glTime, glOceanTime;
 extern GLuint pro, mo, vi;
+extern GLuint boid_model, boid_view, boid_project;
 extern bool isParallel;
 extern GLfloat eye_dist, scale_factor;
+extern GLuint ocean_vbo_index;
 
 /*
  * calculate all vertices coordinates for checkerboard.
@@ -41,20 +43,12 @@ void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[5] = 0;
 
   ocean_vertices[6] = len / 2;
-  ocean_vertices[7] = len / 2;
+  ocean_vertices[7] = -len / 2;
   ocean_vertices[8] = 0;
 
-  ocean_vertices[9] = -len / 2;
-  ocean_vertices[10] = -len / 2;
+  ocean_vertices[9] = len / 2;
+  ocean_vertices[10] = len / 2;
   ocean_vertices[11] = 0;
-
-  ocean_vertices[12] = len / 2;
-  ocean_vertices[13] = -len / 2;
-  ocean_vertices[14] = 0;
-
-  ocean_vertices[15] = len / 2;
-  ocean_vertices[16] = len / 2;
-  ocean_vertices[17] = 0;
 }
 
 /*
@@ -121,12 +115,15 @@ void calc_checkerboard_colors(int n) {
 extern mat4 view, project;
 
 void draw_ocean(GLuint vao) {
+  glUseProgram(program);
+  update_ocean_time();
   glBindVertexArray(vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ocean_vbo_index);
   glm::mat4 model_mat = glm::mat4(1.0);
   glUniformMatrix4fv(pro, 1, GL_FALSE, project.data);
   glUniformMatrix4fv(vi, 1, GL_FALSE, view.data);
   glUniformMatrix4fv(mo, 1, GL_FALSE, glm::value_ptr(model_mat));
-  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
 }
 
 void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
@@ -142,6 +139,7 @@ void draw_checkerboard(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
 }
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
+  glUseProgram(boid_shader);
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
 
@@ -151,9 +149,9 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
     GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3) * 180.0 / 3.1415926;
     my_rotatef(xy_angle, 0, 0, 1, model);
 
-    glUniformMatrix4fv(pro, 1, GL_FALSE, project.data);
-    glUniformMatrix4fv(vi, 1, GL_FALSE, view.data);
-    glUniformMatrix4fv(mo, 1, GL_FALSE, model.data);
+    glUniformMatrix4fv(boid_project, 1, GL_FALSE, project.data);
+    glUniformMatrix4fv(boid_view, 1, GL_FALSE, view.data);
+    glUniformMatrix4fv(boid_model, 1, GL_FALSE, model.data);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
     update_time(i);
@@ -320,20 +318,22 @@ GLfloat max_boid_goal_dist(Flock& f) {
 
 void init_time() {
   glTime = (sin(glfwGetTime() * 10) + 1) / 2;
-  t = glGetUniformLocation(program, "time");
+  t = glGetUniformLocation(boid_shader, "time");
   glUniform1f(t, glTime);
+
+  t2 = glGetUniformLocation(program, "ocean_time");
+  glOceanTime = sin(glfwGetTime());
+  glUniform1f(t2, glOceanTime);
 }
 
 void update_time(int index) {
   glTime = (sin(glfwGetTime() * 10 + (*(f.seed))[index]) + 1) / 2;
   glUniform1f(t, glTime);
-
-  update_ocean_time();
 }
 
 void update_ocean_time() {
-  glOceanTime = sin(glfwGetTime());
-  glUniform1f(glGetUniformLocation(program, "ocean_time"), glOceanTime);
+  glOceanTime = sin(glfwGetTime() / 2);
+  glUniform1f(t2, glOceanTime);
 }
 
 void print_step_msg(Flock* f) {

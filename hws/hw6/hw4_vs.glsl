@@ -20,7 +20,7 @@ uniform mat4 Project;
 uniform float time;
 
 void main() {
-	vec4 LightPosition = View * vec4(0.0, 0.0, 5.0, 1.0);
+	vec4 LightPosition = View * vec4(0.0, 0.0, 1000.0, 1.0);
 	vec4 P = vPos0 + (vPos1 - vPos0) * time;
 	pos_eye = vec3(View * Model * P);
     normal_eye = vec3(View * Model * vec4(vNormal, 0.0));

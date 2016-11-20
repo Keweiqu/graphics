@@ -65,20 +65,29 @@ GLubyte boid_indices[] = {
   3, 1, 0, // left wing
 };
 
+GLfloat boid_normals[] = {
+  0.0, 0.0, 1.0,
+  0.0, 0.0, 1.0,
+  0.0, 0.0, 1.0,
+  0.0, 0.0, 1.0,
+};
+
 GLuint vbo3, vbo4, vao2, board_idx, board_pos, board_pos1, board_c;
 
 extern GLfloat board_vertices[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH];
 extern GLfloat board_colors[(SIDES+1)*(SIDES+1)][VECTOR_LENGTH+1];
 extern GLshort board_indices[SIDES * SIDES * 6];
-extern GLfloat ocean_vertices[18];
-extern GLfloat ocean_tex_coords[12];
-extern GLfloat ocean_normals[3];
+extern GLfloat ocean_vertices[12];
+extern GLfloat ocean_tex_coords[8];
+extern GLubyte ocean_indices[6];
+extern GLfloat ocean_normals[12];
 GLuint boid_vbo1, boid_vbo2, boid_vbo3, goal_vbo1, goal_vbo2, shadow_vbo, shadow_vao, boid_vao, goal_vao, boid_idx, goal_idx;
-GLuint program, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, mo, vi, pro, modelView;
-GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1;
-GLuint t;
+GLuint program, boid_shader, pos, pos1, goal_pos, goal_pos1, shadow_pos, shadow_pos1, color, shadow_color, mo, vi, pro, modelView;
+GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1;
+GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sampler, boid_view, boid_project, boid_model;
+GLuint t, t2;
 GLuint textures[4];
-Image ocean0, ocean1;
+Image ocean0, ocean1, feather;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -98,22 +107,29 @@ void read_images() {
     cout << "Fail to read image for ocean1\n" << endl;
     exit(EXIT_FAILURE);
   }
+
+  if (!read_ppm("feather2.ppm", &feather)) {
+    cout << "Fail to read image for feather\n" << endl;
+    exit(EXIT_FAILURE);
+  }
 }
 
 void init_ocean() {
   calc_ocean_vertices(WORLD_SIZE * 2);
 
+  program = initshader("hw4_vs.glsl", "hw4_fs.glsl");
+  glUseProgram(program);
+
   ocean_vbo_pos = make_bo(GL_ARRAY_BUFFER, ocean_vertices, sizeof(ocean_vertices));
   ocean_vbo_tex = make_bo(GL_ARRAY_BUFFER, ocean_tex_coords, sizeof(ocean_tex_coords));
+  ocean_vbo_index = make_bo(GL_ELEMENT_ARRAY_BUFFER, ocean_indices, sizeof(ocean_indices));
   ocean_vbo_normal = make_bo(GL_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
   ocean_tex_sampler0 = glGetUniformLocation(program, "ocean_tex0");
   ocean_tex_sampler1 = glGetUniformLocation(program, "ocean_tex1");
 
-  glGenTextures(4, textures);
-
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2048, 2048, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean0.data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 3160, 2592, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean0.data);
   glUniform1i(ocean_tex_sampler0, 0);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -123,7 +139,7 @@ void init_ocean() {
 
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2048, 2048, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean1.data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2804, 2592, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean1.data);
   glUniform1i(ocean_tex_sampler1, 1);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -142,6 +158,8 @@ void init_ocean() {
   ocean_pos = glGetAttribLocation(program, "vPos1");
   glEnableVertexAttribArray(ocean_pos);
   glVertexAttribPointer(ocean_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ocean_vbo_index);
 
   glBindBuffer(GL_ARRAY_BUFFER, ocean_vbo_normal);
   ocean_normal = glGetAttribLocation(program, "vNormal");
@@ -188,10 +206,16 @@ void init() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
+
   read_images();
+
+  glGenTextures(4, textures);
+
   boid_vbo1 = make_bo(GL_ARRAY_BUFFER, boid_vertices, sizeof(boid_vertices));
   boid_vbo2 = make_bo(GL_ARRAY_BUFFER, colors, sizeof(colors));
   boid_vbo3 = make_bo(GL_ARRAY_BUFFER, boid_flap_vertices, sizeof(boid_flap_vertices));
+  boid_vbo_normal = make_bo(GL_ARRAY_BUFFER, boid_normals, sizeof(boid_normals));
+  boid_vbo_tex = make_bo(GL_ARRAY_BUFFER, ocean_tex_coords, sizeof(ocean_tex_coords));
 
   shadow_vbo = make_bo(GL_ARRAY_BUFFER, shadow_colors, sizeof(shadow_colors));
 
@@ -199,67 +223,94 @@ void init() {
   goal_vbo2 = make_bo(GL_ARRAY_BUFFER, goal_colors, sizeof(goal_colors));
   boid_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, boid_indices, sizeof(boid_indices));
   goal_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, goal_indices, sizeof(goal_indices));
-  program = initshader("hw4_vs.glsl", "hw4_fs.glsl");
-  glUseProgram(program);
+
+  boid_shader = initshader("boid_vs.glsl", "boid_fs.glsl");
+  glUseProgram(boid_shader);
+
 
   //Boid
+  feather_tex_sampler = glGetUniformLocation(boid_shader, "feather_tex");
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, textures[2]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1200, 800, 0, GL_RGB, GL_UNSIGNED_BYTE, feather.data);
+  glUniform1i(feather_tex_sampler, 2);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
   glGenVertexArrays(1, &boid_vao);
   glBindVertexArray(boid_vao);
   glBindBuffer(GL_ARRAY_BUFFER, boid_vbo1);
-  pos = glGetAttribLocation(program, "vPos0");
+  pos = glGetAttribLocation(boid_shader, "vPos0");
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, boid_vbo3);
-  pos1 = glGetAttribLocation(program, "vPos1");
+  pos1 = glGetAttribLocation(boid_shader, "vPos1");
   glEnableVertexAttribArray(pos1);
   glVertexAttribPointer(pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
+  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo_normal);
+  boid_normal = glGetAttribLocation(boid_shader, "vNormal");
+  glEnableVertexAttribArray(boid_normal);
+  glVertexAttribPointer(boid_normal, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo_tex);
+  boid_texc = glGetAttribLocation(boid_shader, "vTex");
+  glEnableVertexAttribArray(boid_texc);
+  glVertexAttribPointer(boid_texc, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
   glBindBuffer(GL_ARRAY_BUFFER, boid_vbo2);
-  color = glGetAttribLocation(program, "vColor");
+  color = glGetAttribLocation(boid_shader, "vColor");
   glEnableVertexAttribArray(color);
   glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
   // Shadow
-  glGenVertexArrays(1, &shadow_vao);
-  glBindVertexArray(shadow_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo1);
-  glEnableVertexAttribArray(pos);
-  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-  glBindBuffer(GL_ARRAY_BUFFER, boid_vbo3);
-  glEnableVertexAttribArray(pos1);
-  glVertexAttribPointer(pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  // glGenVertexArrays(1, &shadow_vao);
+  // glBindVertexArray(shadow_vao);
+  // glBindBuffer(GL_ARRAY_BUFFER, boid_vbo1);
+  // glEnableVertexAttribArray(pos);
+  // glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  // glBindBuffer(GL_ARRAY_BUFFER, boid_vbo3);
+  // glEnableVertexAttribArray(pos1);
+  // glVertexAttribPointer(pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  //
+  // glBindBuffer(GL_ARRAY_BUFFER, shadow_vbo);
+  // shadow_color = glGetAttribLocation(program, "vColor");
+  // glEnableVertexAttribArray(shadow_color);
+  // glVertexAttribPointer(shadow_color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  //
+  // //Goal
+  // glGenVertexArrays(1, &goal_vao);
+  // glBindVertexArray(goal_vao);
+  //
+  // glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
+  // goal_pos = glGetAttribLocation(program, "vPos0");
+  // glEnableVertexAttribArray(goal_pos);
+  // glVertexAttribPointer(goal_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  //
+  // glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
+  // goal_pos1 = glGetAttribLocation(program, "vPos1");
+  // glEnableVertexAttribArray(goal_pos1);
+  // glVertexAttribPointer(goal_pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  //
+  // glBindBuffer(GL_ARRAY_BUFFER, goal_vbo2);
+  // glEnableVertexAttribArray(color);
+  // glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-  glBindBuffer(GL_ARRAY_BUFFER, shadow_vbo);
-  shadow_color = glGetAttribLocation(program, "vColor");
-  glEnableVertexAttribArray(shadow_color);
-  glVertexAttribPointer(shadow_color, 4, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-  //Goal
-  glGenVertexArrays(1, &goal_vao);
-  glBindVertexArray(goal_vao);
-
-  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
-  goal_pos = glGetAttribLocation(program, "vPos0");
-  glEnableVertexAttribArray(goal_pos);
-  glVertexAttribPointer(goal_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
-  goal_pos1 = glGetAttribLocation(program, "vPos1");
-  glEnableVertexAttribArray(goal_pos1);
-  glVertexAttribPointer(goal_pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo2);
-  glEnableVertexAttribArray(color);
-  glVertexAttribPointer(color, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-  init_ocean();
   // init_checkerboard();
+  init_ocean();
   init_time();
 
   mo = glGetUniformLocation(program, "Model");
   vi = glGetUniformLocation(program, "View");
   pro = glGetUniformLocation(program, "Project");
+
+  boid_view = glGetUniformLocation(boid_shader, "View");
+  boid_model = glGetUniformLocation(boid_shader, "Model");
+  boid_project = glGetUniformLocation(boid_shader, "Project");
 
   glClearColor(0.0, 0.0, 0.0, 1.0);
 }
