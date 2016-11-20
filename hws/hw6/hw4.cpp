@@ -33,13 +33,6 @@ GLubyte boid_indices[] = {
   3, 1, 0, // left wing
 };
 
-<<<<<<< HEAD
-extern GLfloat ocean_vertices[18];
-extern GLfloat ocean_tex_coords[12];
-extern GLfloat ocean_normals[3];
-extern GLfloat terrain_vertices[];
-extern GLuint terrain_indices[];
-=======
 GLfloat boid_normals[] = {
   0.0, 0.0, 1.0,
   0.0, 0.0, 1.0,
@@ -47,7 +40,6 @@ GLfloat boid_normals[] = {
   0.0, 0.0, 1.0,
 };
 
->>>>>>> 486f7c51b367895099ec629329c655b0b753474d
 
 extern GLfloat ocean_vertices[12];
 extern GLfloat ocean_tex_coords[8];
