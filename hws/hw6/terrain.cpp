@@ -22,7 +22,7 @@ int main() {
   */
 
   genTerrain(123.5);
-  clampContour();
+  //clampContour();
   //printSquare();
   genMeshOff();
   return 0;
@@ -90,9 +90,10 @@ void fillSquareCenter(GLint top_left_x, GLint top_left_y, GLint side) {
   sum += heights[top_left_x][top_left_y + side];
   sum += heights[top_left_x + side][top_left_y + side];
   sum /= 4.0;
-  sum += (rand() / (GLfloat) RAND_MAX) * rand_range;
   GLint center_x = top_left_x + (side / 2);
   GLint center_y = top_left_y + (side / 2);
+  sum += (rand() / (GLfloat) RAND_MAX) * rand_range * 10.0 / distToCenter(center_x, center_y);
+  cout << "sum is " << sum << endl;
   heights[center_x][center_y] = sum;
 }
 
@@ -121,7 +122,7 @@ void fillDiamondCenter(GLint center_x, GLint center_y, GLint side) {
   }
 
   sum /= (GLfloat) divider;
-  sum += (rand() / (GLfloat) RAND_MAX) * rand_range;
+  sum += (rand() / (GLfloat) RAND_MAX) * rand_range  * 10.0 / distToCenter(center_x, center_y);
   heights[center_x][center_y] = sum;
 }
 
@@ -183,4 +184,11 @@ void clampContour() {
       heights[j + i][SIDE_LEN - i] = heights[j + i][SIDE_LEN - i - 1] - drop + (rand() / (GLfloat) RAND_MAX) * range;
     }
   }
+}
+
+
+GLfloat distToCenter(GLint x, GLint y) {
+  GLfloat result = sqrt(sqrt(pow(x - MIDDLE, 2) +  pow(y - MIDDLE, 2)));
+  //cout << "dist is " << result << endl;
+  return result;
 }
