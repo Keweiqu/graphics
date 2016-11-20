@@ -1,8 +1,9 @@
 #include "meshManager.hpp"
 
-extern GLuint program, model;
+extern GLuint program, model, view;
 extern GLfloat angle;
 extern GLfloat scale_factor;
+extern glm::mat4 view_mat;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -150,7 +151,7 @@ void meshManager::readFile(char* filename) {
 
     (*filename_metadata)[f_string].num_of_vertices = num_vertices;
     (*this->filename_metadata)[f_string].num_of_indices = face_index * 3;
-    
+
     this->vn_offset = this->vertices->size();
     this->idx_offset = this->indices->size();
     cout << "vn_offset: " << this->vn_offset << endl;
@@ -207,7 +208,7 @@ void meshManager::init() {
   this->ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
 		      &(this->indices->front()),
 		      this->indices->size() * sizeof(GLuint));
-  
+
   glGenVertexArrays(1, &(this->vao));
   glBindVertexArray(vao);
 
@@ -230,10 +231,13 @@ void meshManager::init() {
 }
 
 void meshManager::draw() {
+  glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   for(GLuint i = 0; i < this->draw_sequence.size(); i++) {
+    glBindVertexArray(this->vao);
     string filename = this->draw_sequence[i];
     metadata md = (*this->filename_metadata)[filename];
-    glm::vec3 scale_vector = glm::vec3(md.scale);
+    //    glm::vec3 scale_vector = glm::vec3(md.scale);
+    glm::vec3 scale_vector = glm::vec3(1.0);
     glm::vec3 translate_vector = glm::vec3(this->grid_trans[i]);
     glm::mat4 model_mat =
       glm::translate(translate_vector) *
@@ -270,6 +274,6 @@ void meshManager::calc_grid_trans_and_scale() {
       x_trans = (row - side / 2) * grid_width;
       y_trans = (side / 2 - col) * grid_width;
     }
-    this->grid_trans.push_back(glm::vec3(x_trans, y_trans, 0));
+    this->grid_trans.push_back(glm::vec3(x_trans, y_trans, -2500.0));
   }
 }

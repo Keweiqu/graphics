@@ -138,6 +138,11 @@ void init_ocean() {
 
 }
 
+
+void init_terrain() {
+
+}
+
 void init() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
@@ -331,6 +336,7 @@ int main(int argc, char** argv) {
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_view(view_mat, f);
+    mesh.draw();
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
     if(!pause) {
@@ -339,7 +345,7 @@ int main(int argc, char** argv) {
       f.update_goal();
       f.update_boids();
     }
-    mesh.draw();
+
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

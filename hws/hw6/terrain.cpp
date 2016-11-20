@@ -3,16 +3,19 @@
 GLfloat heights[SIDE_LEN][SIDE_LEN];
 int recurse = RECURSE;
 GLfloat rand_range = (GLfloat) RAND_RANGE;
-
+GLfloat terrain_vertices[SIDE_LEN * SIDE_LEN * 3];
+GLuint terrain_indices[SIDE_LEN * SIDE_LEN * 2 * 3]; // s * s grids * 2 triangle each gird * 3 indices per triangle
 
 int main() {
   srand(time(NULL));
-  initCorner(123.5);
+  initCorner(0.5);
 
-  genTerrain(123.5);
+  genTerrain(0.5);
   //clampContour();
   //printSquare();
   genMeshOff();
+  genVertex();
+  genFaces();
   return 0;
 }
 
@@ -128,11 +131,11 @@ void genMeshOff() {
   mesh << SIDE_LEN * SIDE_LEN << " ";
   mesh << (SIDE_LEN - 1) * (SIDE_LEN - 1) * 2 << " ";
   mesh << SIDE_LEN * (SIDE_LEN - 1) * 2 + (SIDE_LEN - 1) * (SIDE_LEN - 1) << "\n";
-  genVertex(mesh);
-  genFaces(mesh);
+  genVertexOFF(mesh);
+  genFacesOFF(mesh);
 }
 
-void genVertex(ofstream &mesh) {
+void genVertexOFF(ofstream &mesh) {
   GLfloat width = 50;
   int row, col;
   for(row = 0; row < SIDE_LEN; row++) {
@@ -140,10 +143,37 @@ void genVertex(ofstream &mesh) {
       mesh << row * width << " " << col * width << " " << heights[row][col] << "\n";
     }
   }
-  
 }
 
-void genFaces(ofstream &mesh) {
+void genVertex() {
+  GLfloat width = 50;
+  int row, col;
+  for(row = 0; row < SIDE_LEN; row++) {
+    for(col = 0; col < SIDE_LEN; col++) {
+      terrain_vertices[row * SIDE_LEN + col] = row * width;
+      terrain_vertices[row * SIDE_LEN + col + 1] = col * width;
+      terrain_vertices[row * SIDE_LEN + col + 2] = heights[row][col];
+    }
+  }
+}
+
+void genFaces() {
+  int counter = 0, index = 0;
+  for(int i = 0; i < SIDE_LEN; i++) {
+    for(int j = 0; j < SIDE_LEN; j++) {
+      terrain_indices[counter++] = index + j;
+      terrain_indices[counter++] = index + j + SIDE_LEN + 1;
+      terrain_indices[counter++] = index + j + 1;
+
+      terrain_indices[counter++] = index + j;
+      terrain_indices[counter++] = index + j + SIDE_LEN;
+      terrain_indices[counter++] = index + j + SIDE_LEN + 1;
+    }
+    index += SIDE_LEN;
+  }
+  
+}
+void genFacesOFF(ofstream &mesh) {
   int index = 0;
   for(int i = 0; i < SIDE_LEN - 1; i++) {
     for(int j = 0; j < SIDE_LEN - 1; j++) {
