@@ -34,26 +34,28 @@ void calc_ocean_vertices(GLfloat len) {
 void draw_ocean(GLuint vao) {
   glUseProgram(program);
   update_ocean_time();
+  glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ocean_vbo_index);
   glm::mat4 ocean_model = glm::mat4(1.0);
   glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(ocean_model));
-  glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
-  glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
 }
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glUseProgram(boid_shader);
+  glUniformMatrix4fv(boid_view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glUniformMatrix4fv(boid_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
 
   for(int i = 0; i < f->count; i++) {
     glm::vec3 translate_vec = glm::vec3((*f->pos)[i][0], (*f->pos)[i][1], (*f->pos)[i][2]);
-    glm::mat4 boid_model = glm::translate(translate_vec);
+    glm::mat4 b_model = glm::translate(translate_vec);
     GLfloat xy_angle = (atan2((*f->vel)[i][1], (*f->vel)[i][0]) + 1.5708 * 3);
-    boid_model = boid_model * glm::rotate(xy_angle, glm::vec3(0, 0, 1));
-    glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(boid_model));
+    b_model = b_model * glm::rotate(xy_angle, glm::vec3(0, 0, 1));
+    glUniformMatrix4fv(boid_model, 1, GL_FALSE, glm::value_ptr(b_model));
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
     update_time(i);

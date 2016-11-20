@@ -331,7 +331,6 @@ int main(int argc, char** argv) {
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_view(view_mat, f);
-    glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
     if(!pause) {

@@ -39,5 +39,4 @@ void main() {
   shadeLight.a = 1.0;
   vec4 shadeTex = vec4(mix(texture(ocean_tex0, texCoord).rgb, texture(ocean_tex1, texCoord).rgb, ocean_time), 1.0);
   fColor = shadeLight * shadeTex;
-    //fColor = color;
 }
