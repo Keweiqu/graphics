@@ -1,7 +1,5 @@
 #version 150
 
-//flat in vec4 color;
-
 out vec4 fColor;
 in vec3 fN;
 in vec3 fL;
@@ -10,7 +8,6 @@ in vec3 pos_eye, normal_eye;
 in vec2 texCoord;
 uniform sampler2D ocean_tex0;
 uniform sampler2D ocean_tex1;
-uniform sampler2D feather_tex;
 uniform float ocean_time;
 
 void main() {
