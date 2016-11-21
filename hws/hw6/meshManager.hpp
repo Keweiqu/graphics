@@ -29,8 +29,7 @@ using namespace std;
 class meshManager {
 public:
   GLuint vbo_pos;
-  GLuint vbo_pos0;
-  GLuint vbo_pos1;
+  GLuint vbo_tex;
   GLuint vbo_normal;
   GLuint ebo;
   GLuint vao;
@@ -40,6 +39,7 @@ public:
 
   vector<GLfloat> *vertices;
   vector<GLfloat> *normals;
+  vector<GLfloat> *tex_coords;
   vector<GLuint> *indices;
 
   GLuint num_of_vertices;

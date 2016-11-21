@@ -40,19 +40,24 @@ GLfloat boid_normals[] = {
   0.0, 0.0, 1.0,
 };
 
-
 extern GLfloat ocean_vertices[12];
 extern GLfloat ocean_tex_coords[8];
 extern GLubyte ocean_indices[6];
 extern GLfloat ocean_normals[12];
-GLuint vao2;
-GLuint boid_vao, boid_vbo1, boid_vbo3, boid_idx;
-GLuint program, boid_shader, pos, pos1, model, view, project;
-GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1;
+
+GLuint program, boid_shader, athena_shader;
+
+GLuint boid_vao, boid_vbo1, boid_vbo3, boid_idx, pos, pos1;
 GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sampler, boid_view, boid_project, boid_model;
+
+GLuint vao2, ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1, model, view, project;
+
 GLuint t, t2;
+
 GLuint textures[4];
-Image ocean0, ocean1, feather;
+GLuint cube_texture;
+
+Image ocean0, ocean1, feather, cube[6];
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
   GLuint bufnum;
@@ -76,6 +81,21 @@ void read_images() {
   if (!read_ppm("feather2.ppm", &feather)) {
     cout << "Fail to read image for feather\n" << endl;
     exit(EXIT_FAILURE);
+  }
+
+  char* env_text_names[] = {
+    "env/posx.ppm",
+    "env/negx.ppm",
+    "env/posy.ppm",
+    "env/negy.ppm",
+    "env/posz.ppm",
+    "env/negz.ppm"
+  };
+  for(int i = 0; i < 6; i++) {
+    if(!read_ppm(env_text_names[i], cube + i)) {
+      cout << "Fail to read image " << i << "for cube map" << endl;
+      exit(EXIT_FAILURE);
+    }
   }
 }
 
@@ -138,9 +158,11 @@ void init_ocean() {
 
 }
 
+void init_cube_map() {
+  athena_shader = initshader("athena_vs.glsl", "athena_fs.glsl");
+  glUseProgram(athena_shader);
 
-void init_terrain() {
-
+  
 }
 
 void init() {

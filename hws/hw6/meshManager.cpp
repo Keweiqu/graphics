@@ -158,33 +158,27 @@ void meshManager::calc_normal() {
 }
 
 void meshManager::init() {
-  this->vbo_pos0 = make_bo(GL_ARRAY_BUFFER,
-			  &(this->vertices->front()),
-			  this->vertices->size() * sizeof(GLfloat));
-
-  this->vbo_pos1 = make_bo(GL_ARRAY_BUFFER,
+  this->vbo_pos = make_bo(GL_ARRAY_BUFFER,
 			  &(this->vertices->front()),
 			  this->vertices->size() * sizeof(GLfloat));
 
   this->vbo_normal = make_bo(GL_ARRAY_BUFFER,
 			     &(this->normals->front()),
 			     this->normals->size() * sizeof(GLfloat));
-
+  
+  this->vbo_tex = make_bo(GL_ARRAY_BUFFER,
+			  &(this->tex_coords->front()),
+			  this->tex_coords->size() * sizeof(GLfloat));
+  
   this->ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
 		      &(this->indices->front()),
 		      this->indices->size() * sizeof(GLuint));
 
   glGenVertexArrays(1, &(this->vao));
   glBindVertexArray(vao);
-
-  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_pos0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
-  GLuint pos = glGetAttribLocation(program, "vPos0");
-  glEnableVertexAttribArray(pos);
-  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_pos1);
-  pos = glGetAttribLocation(program, "vPos1");
+  
+  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_pos);
+  GLuint pos = glGetAttribLocation(program, "vPos");
   glEnableVertexAttribArray(pos);
   glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
@@ -192,7 +186,6 @@ void meshManager::init() {
   GLuint normal = glGetAttribLocation(program, "vNormal");
   glEnableVertexAttribArray(normal);
   glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-
 }
 
 void meshManager::draw() {
