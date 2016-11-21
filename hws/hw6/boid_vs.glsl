@@ -4,8 +4,6 @@ in vec4 vPos0;
 in vec4 vPos1;
 in vec3 vNormal;
 in vec2 vTex;
-//in vec4 vColor;
-//flat out vec4 color;
 
 out vec3 fN;
 out vec3 fE;
@@ -35,5 +33,4 @@ void main() {
     }
 
 	gl_Position = Project * vec4(pos_eye, 1.0);
-	//color = vColor;
 }

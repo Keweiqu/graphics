@@ -40,6 +40,29 @@ GLfloat boid_normals[] = {
   0.0, 0.0, 1.0,
 };
 
+GLfloat dawn[] = {
+  0.4, 0.4, 0.1,
+  0.3, 0.3, 0.3,
+  0.3, 0.3, 0.3
+};
+
+GLfloat day[] = {
+  1.0, 1.0, 1.0,
+  1.0, 1.0, 1.0,
+  1.0, 1.0, 1.0
+};
+
+GLfloat dusk[] = {
+  0.8, 0.2, 0.8,
+  0.8, 0.5, 0.8,
+  1.0, 0.5, 0.8
+};
+
+GLfloat night[] = {
+  0.0, 0.0, 0.6,
+  0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0
+};
 
 extern GLfloat ocean_vertices[12];
 extern GLfloat ocean_tex_coords[8];
@@ -52,6 +75,7 @@ GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal, ocean_po
 GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sampler, boid_view, boid_project, boid_model;
 GLuint t, t2;
 GLuint textures[4];
+GLuint light;
 Image ocean0, ocean1, feather;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
@@ -91,6 +115,7 @@ void init_ocean() {
   ocean_vbo_normal = make_bo(GL_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
   ocean_tex_sampler0 = glGetUniformLocation(program, "ocean_tex0");
   ocean_tex_sampler1 = glGetUniformLocation(program, "ocean_tex1");
+  light = glGetUniformLocation(program, "light1");
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -116,11 +141,7 @@ void init_ocean() {
   glBindVertexArray(vao2);
 
   glBindBuffer(GL_ARRAY_BUFFER, ocean_vbo_pos);
-  ocean_pos = glGetAttribLocation(program, "vPos0");
-  glEnableVertexAttribArray(ocean_pos);
-  glVertexAttribPointer(ocean_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-  ocean_pos = glGetAttribLocation(program, "vPos1");
+  ocean_pos = glGetAttribLocation(program, "vPos");
   glEnableVertexAttribArray(ocean_pos);
   glVertexAttribPointer(ocean_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
@@ -135,6 +156,8 @@ void init_ocean() {
   ocean_texc = glGetAttribLocation(program, "vTex");
   glEnableVertexAttribArray(ocean_texc);
   glVertexAttribPointer(ocean_texc, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+  glUniformMatrix3fv(light, 1, GL_FALSE, day);
 
 }
 

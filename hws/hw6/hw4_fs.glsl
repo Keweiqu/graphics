@@ -9,11 +9,13 @@ in vec2 texCoord;
 uniform sampler2D ocean_tex0;
 uniform sampler2D ocean_tex1;
 uniform float ocean_time;
+uniform mat3 light1;
+uniform mat3 light2;
 
 void main() {
-  vec4 AmbientProduct = vec4(1.0, 1.0, 1.0, 1.0);
-  vec4 DiffuseProduct = vec4(1.0, 1.0, 1.0, 1.0);
-  vec4 SpecularProduct = vec4(1.0, 1.0, 1.0, 1.0);
+  vec4 AmbientProduct = vec4(light1[0].x, light1[0].y, light1[0].z, 1.0);
+  vec4 DiffuseProduct = vec4(light1[1].x, light1[1].y, light1[1].z, 1.0);
+  vec4 SpecularProduct = vec4(light1[2].x, light1[2].y, light1[2].z, 1.0);
   float Shininess = 0.9 * 128;
 
   vec3 N = normalize(fN);
