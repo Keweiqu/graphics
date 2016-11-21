@@ -16,9 +16,10 @@ uniform mat4 View;
 uniform mat4 Project;
 
 uniform float time;
+uniform vec3 light_position;
 
 void main() {
-	vec4 LightPosition = View * vec4(0.0, 0.0, 1000.0, 1.0);
+	vec4 LightPosition = View * vec4(light_position.x, light_position.y, light_position.z, 1.0);
 	vec4 P = vPos0 + (vPos1 - vPos0) * time;
 	pos_eye = vec3(View * Model * P);
     normal_eye = vec3(View * Model * vec4(vNormal, 0.0));

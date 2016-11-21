@@ -3,7 +3,7 @@
 #include "common.hpp"
 #include "Flock.hpp"
 #include "gl_replace.hpp"
-#include "hw4.hpp"
+#include "hw6.hpp"
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
@@ -60,6 +60,7 @@ void print_step_msg(Flock* f);
 void init_time();
 void update_time(int index);
 void update_ocean_time();
-void update_day_time();
+void update_day_time(GLuint shader);
 void update_frame_counter();
+void update_light_position();
 #endif

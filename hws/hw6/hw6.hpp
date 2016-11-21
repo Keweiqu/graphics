@@ -1,5 +1,5 @@
-#ifndef HW4_H
-#define HW4_H
+#ifndef HW6_H
+#define HW6_H
 
 #include <iostream>
 #include <string>

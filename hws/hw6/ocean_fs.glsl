@@ -14,10 +14,6 @@ uniform mat3 light1;
 uniform mat3 light2;
 
 void main() {
-  //vec4 AmbientProduct = vec4(light2[0].x, light2[0].y, light2[0].z, 1.0);
-  //vec4 DiffuseProduct = vec4(light2[1].x, light2[1].y, light2[1].z, 1.0);
-  //vec4 SpecularProduct = vec4(light2[2].x, light2[2].y, light2[2].z, 1.0);
-
   vec4 AmbientProduct = vec4(light1[0].x * (1 - day_time) + light2[0].x * day_time,
                              light1[0].y * (1 - day_time) + light2[0].y * day_time,
                              light1[0].z * (1 - day_time) + light2[0].z * day_time,
