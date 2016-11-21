@@ -5,13 +5,19 @@ View v;
 extern Flock f;
 extern enum VIEW_TYPE v_mode;
 
-extern GLuint t, t2, program, boid_shader;
+extern GLuint t, t2, day_time, program, boid_shader;
 extern float glTime, glOceanTime;
 extern GLuint project, view, model;
 extern glm::mat4 project_mat, view_mat, model_mat;
 extern GLfloat eye_dist, scale_factor;
 extern GLuint boid_model, boid_view, boid_project;
 extern GLuint ocean_vbo_index;
+extern GLfloat dawn[9];
+extern GLfloat day[9];
+extern GLfloat dusk[9];
+extern GLfloat night[9];
+extern GLfloat light1, light2;
+extern GLuint frame_counter;
 
 void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[0] = -len / 2;
@@ -34,6 +40,7 @@ void calc_ocean_vertices(GLfloat len) {
 void draw_ocean(GLuint vao) {
   glUseProgram(program);
   update_ocean_time();
+  update_day_time();
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glBindVertexArray(vao);
@@ -211,6 +218,13 @@ void update_time(int index) {
 void update_ocean_time() {
   glOceanTime = sin(glfwGetTime() / 2);
   glUniform1f(t2, glOceanTime);
+}
+
+void update_frame_counter() {
+  frame_counter++;
+  if (frame_counter >= 7200) {
+    frame_counter -= 7200;
+  }
 }
 
 void print_step_msg(Flock* f) {

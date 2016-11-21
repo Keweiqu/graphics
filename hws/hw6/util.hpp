@@ -60,4 +60,6 @@ void print_step_msg(Flock* f);
 void init_time();
 void update_time(int index);
 void update_ocean_time();
+void update_day_time();
+void update_frame_counter();
 #endif

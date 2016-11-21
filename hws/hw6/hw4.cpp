@@ -6,6 +6,7 @@ int up = FALSE, down = FALSE;
 float glTime, glOceanTime;
 enum VIEW_TYPE v_mode;
 glm::mat4 model_mat, view_mat, project_mat;
+GLuint frame_counter = 0;
 
 GLfloat eye_dist = INITIAL_EYE_DIST;
 int clicked = FALSE;
@@ -40,26 +41,48 @@ GLfloat boid_normals[] = {
   0.0, 0.0, 1.0,
 };
 
-GLfloat dawn[] = {
+GLfloat dawn[9] = {
   0.4, 0.4, 0.1,
   0.3, 0.3, 0.3,
   0.3, 0.3, 0.3
 };
 
-GLfloat day[] = {
+GLfloat day[9] = {
   1.0, 1.0, 1.0,
   1.0, 1.0, 1.0,
   1.0, 1.0, 1.0
 };
 
-GLfloat dusk[] = {
+GLfloat dusk[9] = {
   0.8, 0.2, 0.8,
   0.8, 0.5, 0.8,
   1.0, 0.5, 0.8
 };
 
-GLfloat night[] = {
-  0.0, 0.0, 0.6,
+GLfloat night[9] = {
+  0.0, 0.0, 0.4,
+  0.0, 0.0, 0.0,
+  0.0, 0.0, 0.0
+};
+
+GLfloat lighting_conditions[36] = {
+  // dawn
+  0.4, 0.4, 0.1,
+  0.3, 0.3, 0.3,
+  0.3, 0.3, 0.3,
+
+  // day
+  1.0, 1.0, 1.0,
+  1.0, 1.0, 1.0,
+  1.0, 1.0, 1.0,
+
+  // dusk
+  0.8, 0.2, 0.8,
+  0.8, 0.5, 0.8,
+  1.0, 0.5, 0.8,
+
+  // night
+  0.0, 0.0, 0.4,
   0.0, 0.0, 0.0,
   0.0, 0.0, 0.0
 };
@@ -73,9 +96,8 @@ GLuint boid_vao, boid_vbo1, boid_vbo3, boid_idx;
 GLuint program, boid_shader, pos, pos1, model, view, project;
 GLuint ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal, ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1;
 GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sampler, boid_view, boid_project, boid_model;
-GLuint t, t2;
+GLuint t, t2, day_time, light1, light2;
 GLuint textures[4];
-GLuint light;
 Image ocean0, ocean1, feather;
 
 static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
@@ -115,7 +137,9 @@ void init_ocean() {
   ocean_vbo_normal = make_bo(GL_ARRAY_BUFFER, ocean_normals, sizeof(ocean_normals));
   ocean_tex_sampler0 = glGetUniformLocation(program, "ocean_tex0");
   ocean_tex_sampler1 = glGetUniformLocation(program, "ocean_tex1");
-  light = glGetUniformLocation(program, "light1");
+  light1 = glGetUniformLocation(program, "light1");
+  light2 = glGetUniformLocation(program, "light2");
+  day_time = glGetUniformLocation(program, "day_time");
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -141,7 +165,12 @@ void init_ocean() {
   glBindVertexArray(vao2);
 
   glBindBuffer(GL_ARRAY_BUFFER, ocean_vbo_pos);
-  ocean_pos = glGetAttribLocation(program, "vPos");
+  ocean_pos = glGetAttribLocation(program, "vPos0");
+  glEnableVertexAttribArray(ocean_pos);
+  glVertexAttribPointer(ocean_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, ocean_vbo_pos);
+  ocean_pos = glGetAttribLocation(program, "vPos1");
   glEnableVertexAttribArray(ocean_pos);
   glVertexAttribPointer(ocean_pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
@@ -156,9 +185,6 @@ void init_ocean() {
   ocean_texc = glGetAttribLocation(program, "vTex");
   glEnableVertexAttribArray(ocean_texc);
   glVertexAttribPointer(ocean_texc, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-  glUniformMatrix3fv(light, 1, GL_FALSE, day);
-
 }
 
 
@@ -306,6 +332,16 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   }
 }
 
+void update_day_time() {
+  int i = (frame_counter / 1800) % 4;
+  GLfloat *l1, *l2;
+  l1 = lighting_conditions + i * 9;
+  l2 = lighting_conditions + (i + 1) * 9 % 36;
+  glUniformMatrix3fv(light1, 1, GL_FALSE, l1);
+  glUniformMatrix3fv(light2, 1, GL_FALSE, l2);
+  glUniform1f(day_time, (frame_counter % 1800) / 1800.0);
+}
+
 void reshape(GLFWwindow *w, int width, int height) {
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
 }
@@ -360,6 +396,8 @@ int main(int argc, char** argv) {
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_view(view_mat, f);
+    update_day_time();
+    update_frame_counter();
     terrain_mesh.draw();
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
@@ -369,7 +407,6 @@ int main(int argc, char** argv) {
       f.update_goal();
       f.update_boids();
     }
-
     glfwSwapBuffers(window);
     glfwPollEvents();
   }

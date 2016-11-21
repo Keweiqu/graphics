@@ -9,13 +9,27 @@ in vec2 texCoord;
 uniform sampler2D ocean_tex0;
 uniform sampler2D ocean_tex1;
 uniform float ocean_time;
+uniform float day_time;
 uniform mat3 light1;
 uniform mat3 light2;
 
 void main() {
-  vec4 AmbientProduct = vec4(light1[0].x, light1[0].y, light1[0].z, 1.0);
-  vec4 DiffuseProduct = vec4(light1[1].x, light1[1].y, light1[1].z, 1.0);
-  vec4 SpecularProduct = vec4(light1[2].x, light1[2].y, light1[2].z, 1.0);
+  //vec4 AmbientProduct = vec4(light2[0].x, light2[0].y, light2[0].z, 1.0);
+  //vec4 DiffuseProduct = vec4(light2[1].x, light2[1].y, light2[1].z, 1.0);
+  //vec4 SpecularProduct = vec4(light2[2].x, light2[2].y, light2[2].z, 1.0);
+
+  vec4 AmbientProduct = vec4(light1[0].x * (1 - day_time) + light2[0].x * day_time,
+                             light1[0].y * (1 - day_time) + light2[0].y * day_time,
+                             light1[0].z * (1 - day_time) + light2[0].z * day_time,
+                             1.0);
+  vec4 DiffuseProduct = vec4(light1[1].x * (1 - day_time) + light2[1].x * day_time,
+                             light1[1].y * (1 - day_time) + light2[1].y * day_time,
+                             light1[1].z * (1 - day_time) + light2[1].z * day_time,
+                             1.0);
+  vec4 SpecularProduct = vec4(light1[2].x * (1 - day_time) + light2[2].x * day_time,
+                              light1[2].y * (1 - day_time) + light2[2].y * day_time,
+                              light1[2].z * (1 - day_time) + light2[2].z * day_time,
+                              1.0);
   float Shininess = 0.9 * 128;
 
   vec3 N = normalize(fN);

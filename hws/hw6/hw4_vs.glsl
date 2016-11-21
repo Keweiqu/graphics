@@ -1,6 +1,7 @@
 #version 150
 
-in vec4 vPos;
+in vec4 vPos0;
+in vec4 vPos1;
 in vec3 vNormal;
 in vec2 vTex;
 
@@ -18,7 +19,8 @@ uniform float time;
 
 void main() {
      vec4 LightPosition = View * vec4(0.0, 0.0, 10000.0, 1.0);
-     pos_eye = vec3(View * Model * vPos);
+     vec4 P = vPos0 + (vPos1 - vPos0) * time;
+     pos_eye = vec3(View * Model * P);
      normal_eye = vec3(View * Model * vec4(vNormal, 0.0));
      texCoord = vTex;
 
