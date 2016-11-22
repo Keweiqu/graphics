@@ -33,6 +33,7 @@ public:
 
   vector<GLfloat> *vertices;
   vector<GLfloat> *normals;
+  vector<GLfloat> *tex_coords;
   vector<GLuint> *indices;
 
   GLuint num_of_vertices;

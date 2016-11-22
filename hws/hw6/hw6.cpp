@@ -75,17 +75,17 @@ GLuint ocean_shader, boid_shader, terrain_shader, athena_shader;
 GLuint boid_vao, boid_vbo1, boid_vbo3, boid_idx, pos, pos1;
 GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sampler, boid_view, boid_project, boid_model;
 
-GLuint terrain_vao, terrain_vbo_pos, terrain_vbo_normal, terrain_ebo, terrain_pos, terrain_normal, terrain_view, terrain_project, terrain_model;
+GLuint terrain_vao, terrain_vbo_pos, terrain_vbo_normal, terrain_vbo_tex, terrain_ebo, terrain_pos, terrain_normal, terrain_tex_coord, terrain_sampler, terrain_sampler1, terrain_view, terrain_project, terrain_model;
 
 GLuint athena_vao, athena_vbo_pos, athena_vbo_normal, athena_ebo, athena_pos, athena_normal, athena_view, athena_project, athena_model;
 
 GLuint vao2, ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal;
 GLuint ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1, model, view, project;
 
-Image ocean0, ocean1, feather, rock, cube[6];
+Image ocean0, ocean1, feather, rock, ice, cube[6];
 
 GLuint t, t2, day_time, light1, light2;
-GLuint textures[4], cube_texture;
+GLuint textures[5], cube_texture;
 GLuint light_pos;
 
 
@@ -113,8 +113,13 @@ void read_images() {
     exit(EXIT_FAILURE);
   }
 
-  if(!read_ppm("rock.ppm", &rock)) {
-    cout << "Fail to read image for terrain\n" << endl;
+  if(!read_ppm("ice.ppm", &rock)) {
+    cout << "Fail to read blue ice image for terrain\n" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  if(!read_ppm("snow.ppm", &ice)) {
+    cout << "Fail to read white snow image for terrain\n" << endl;
     exit(EXIT_FAILURE);
   }
 
@@ -270,6 +275,30 @@ void init_boid() {
 
 void init_terrain() {
   glUseProgram(terrain_shader);
+
+  terrain_sampler = glGetUniformLocation(terrain_shader, "terrain_tex_blue");
+  terrain_sampler1 = glGetUniformLocation(terrain_shader, "terrain_tex_white");
+
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, textures[3]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 236, 337, 0, GL_RGB, GL_UNSIGNED_BYTE, rock.data);
+  glUniform1i(terrain_sampler, 3);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_2D, textures[4]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 509, 339, 0, GL_RGB, GL_UNSIGNED_BYTE, ice.data);
+  glUniform1i(terrain_sampler1, 4);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
   terrain_vbo_pos = make_bo(GL_ARRAY_BUFFER,
 			  &(terrain_mesh.vertices->front()),
 			  terrain_mesh.vertices->size() * sizeof(GLfloat));
@@ -277,6 +306,10 @@ void init_terrain() {
   terrain_vbo_normal = make_bo(GL_ARRAY_BUFFER,
 			     &(terrain_mesh.normals->front()),
 			     terrain_mesh.normals->size() * sizeof(GLfloat));
+
+  terrain_vbo_tex = make_bo(GL_ARRAY_BUFFER,
+			       &(terrain_mesh.tex_coords->front()),
+			       terrain_mesh.tex_coords->size() * sizeof(GLfloat));
 
   terrain_ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
 		      &(terrain_mesh.indices->front()),
@@ -294,6 +327,11 @@ void init_terrain() {
   terrain_normal = glGetAttribLocation(terrain_shader, "vNormal");
   glEnableVertexAttribArray(terrain_normal);
   glVertexAttribPointer(terrain_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, terrain_vbo_tex);
+  terrain_tex_coord = glGetAttribLocation(terrain_shader, "vTex");
+  glEnableVertexAttribArray(terrain_tex_coord);
+  glVertexAttribPointer(terrain_tex_coord, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain_ebo);
 
@@ -432,7 +470,7 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   v_mode = SIDE;
-  glm::vec3 eye = glm::vec3(0.0, 0.0, 1700.0);
+  glm::vec3 eye = glm::vec3(0.0, -50000.0, 1.0);
   glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
   glm::vec3 up = glm::vec3(0, 1, 0);
   view_mat = glm::lookAt(eye, center, up);

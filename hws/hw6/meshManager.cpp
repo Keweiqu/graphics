@@ -3,6 +3,7 @@
 meshManager::meshManager() {
   vertices = new vector<GLfloat>();
   normals = new vector<GLfloat>();
+  tex_coords = new vector<GLfloat>();
   indices = new vector<GLuint>();
   face_normals = new vector<glm::vec3>();
   index_faces = new map< GLuint, vector<GLuint> >();
@@ -13,6 +14,7 @@ meshManager::meshManager() {
 meshManager::~meshManager() {
   delete vertices;
   delete normals;
+  delete tex_coords;
   delete indices;
   delete index_faces;
   delete face_normals;
@@ -56,6 +58,8 @@ void meshManager::readFile(string filename) {
       this->vertices->push_back(x);
       this->vertices->push_back(y);
       this->vertices->push_back(z);
+      this->tex_coords->push_back(x / 50.0 / 129.0);
+      this->tex_coords->push_back(y / 50.0 / 129.0);
     }
 
     GLuint face_index = 0;
