@@ -98,7 +98,10 @@ void draw_athena() {
   glUniformMatrix4fv(athena_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glm::mat4 model_mat =
     glm::translate(athena_mesh.trans_vec) *
-    glm::scale(glm::vec3(athena_mesh.scale));
+    glm::scale(glm::vec3(athena_mesh.scale)) *
+    glm::rotate(athena_mesh.rotate_angles[0], glm::vec3(1.0, 0.0, 0.0)) *
+    glm::rotate(athena_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
+    glm::rotate(athena_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
   glUniformMatrix4fv(athena_model, 1, GL_FALSE, glm::value_ptr(model_mat));
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, athena_ebo);
   glDrawElements(GL_TRIANGLES, athena_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);

@@ -27,9 +27,10 @@
 using namespace std;
 
 class meshManager {
-public:  
+public:
   GLfloat scale;
   glm::vec3 trans_vec;
+  glm::vec3 rotate_angles;
 
   vector<GLfloat> *vertices;
   vector<GLfloat> *normals;

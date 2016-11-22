@@ -9,6 +9,7 @@ meshManager::meshManager() {
   index_faces = new map< GLuint, vector<GLuint> >();
   scale = 1.0;
   trans_vec = glm::vec3(0.0, 0.0, 0.0);
+  rotate_angles = glm::vec3(0.0, 0.0, 0.0);
 }
 
 meshManager::~meshManager() {
@@ -46,7 +47,7 @@ void meshManager::readFile(string filename) {
     cout << "Reading vertices..." << endl;
 
     this->num_of_vertices = num_vertices;
-    
+
     for(int i = 0; i < num_vertices; i++) {
       getline(source, line);
       if (source.fail()) {

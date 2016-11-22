@@ -51,10 +51,10 @@ in vec2 texCoord;
 uniform sampler2D feather_tex;
 
 void main() {
-  vec4 AmbientProduct = vec4(1.0, 1.0, 1.0, 1.0);
-  vec4 DiffuseProduct = vec4(1.0, 1.0, 1.0, 1.0);
-  vec4 SpecularProduct = vec4(1.0, 1.0, 1.0, 1.0);
-  float Shininess = 0.9 * 128;
+  vec4 AmbientProduct = vec4(0.2125, 0.1275, 0.054, 1.0);
+  vec4 DiffuseProduct = vec4(0.714, 0.4284, 0.18144, 1.0);
+  vec4 SpecularProduct = vec4(0.393548, 0.271906, 0.166721, 1.0);
+  float Shininess = 0.2 * 128;
 
   vec3 N = normalize(fN);
   vec3 E = normalize(fE);
@@ -72,8 +72,10 @@ void main() {
     specular = vec4(0.0, 0.0, 0.0, 1.0);
   }
 
-  vec4 shadeLight = ambient + diffuse + specular;
-  shadeLight.a = 1.0;
-  vec4 shadeTex = vec4(texture(feather_tex, texCoord).rgb, 1.0);
-  fColor = shadeLight * shadeTex;
+  //vec4 shadeLight = ambient + diffuse + specular;
+  //shadeLight.a = 1.0;
+  //vec4 shadeTex = vec4(texture(feather_tex, texCoord).rgb, 1.0);
+  //fColor = shadeLight * shadeTex;
+  fColor = ambient + diffuse + specular;
+  fColor.a = 1.0;
 }

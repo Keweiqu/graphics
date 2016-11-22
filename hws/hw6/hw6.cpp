@@ -355,7 +355,7 @@ void init_athena() {
   glVertexAttribPointer(athena_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, athena_vbo_normal);
-  terrain_normal = glGetAttribLocation(athena_shader, "vNormal");
+  athena_normal = glGetAttribLocation(athena_shader, "vNormal");
   glEnableVertexAttribArray(athena_normal);
   glVertexAttribPointer(athena_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
@@ -511,8 +511,9 @@ int main(int argc, char** argv) {
   ship_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
 
   athena_mesh.readFile("athena.off");
-  athena_mesh.scale = 10.0;
-  athena_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
+  athena_mesh.scale = 0.6;
+  athena_mesh.trans_vec = glm::vec3(3000.0, 3000.0, 2000.0);
+  athena_mesh.rotate_angles = glm::vec3(90.0 * DEGREE_TO_RADIAN, 0.0, 0.0);
 
   init();
   while(!glfwWindowShouldClose(window)) {
