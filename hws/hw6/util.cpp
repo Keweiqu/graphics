@@ -1,17 +1,24 @@
 #include "util.hpp"
 
-GLfloat ocean_vertices[18];
+GLfloat ocean_vertices[12];
 View v;
 extern Flock f;
+extern meshManager terrain_mesh;
 extern enum VIEW_TYPE v_mode;
 
-extern GLuint t, t2, program, boid_shader;
-extern float glTime, glOceanTime;
+extern GLuint t, t2, day_time, ocean_shader, boid_shader, terrain_shader;
+extern GLfloat glTime, glOceanTime;
 extern GLuint project, view, model;
 extern glm::mat4 project_mat, view_mat, model_mat;
 extern GLfloat eye_dist, scale_factor;
 extern GLuint boid_model, boid_view, boid_project;
+extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_project;
 extern GLuint ocean_vbo_index;
+extern GLuint light1, light2;
+extern GLuint frame_counter;
+extern GLfloat lighting_conditions[36];
+extern GLuint light_pos;
+extern glm::vec3 light_position;
 
 void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[0] = -len / 2;
@@ -32,8 +39,10 @@ void calc_ocean_vertices(GLfloat len) {
 }
 
 void draw_ocean(GLuint vao) {
-  glUseProgram(program);
+  glUseProgram(ocean_shader);
   update_ocean_time();
+  update_day_time(ocean_shader);
+  glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glBindVertexArray(vao);
@@ -45,6 +54,8 @@ void draw_ocean(GLuint vao) {
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glUseProgram(boid_shader);
+  update_day_time(boid_shader);
+  glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
   glUniformMatrix4fv(boid_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(boid_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glBindVertexArray(vao);
@@ -60,6 +71,19 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
     update_time(i);
   }
+}
+
+void draw_terrain() {
+  glUseProgram(terrain_shader);
+  glBindVertexArray(terrain_vao);
+  glUniformMatrix4fv(terrain_project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniformMatrix4fv(terrain_view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glm::mat4 model_mat =
+    glm::translate(terrain_mesh.trans_vec) *
+    glm::scale(glm::vec3(terrain_mesh.scale));
+  glUniformMatrix4fv(terrain_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain_ebo);
+  glDrawElements(GL_TRIANGLES, terrain_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
 void update_view(glm::mat4 &view, Flock& f) {
@@ -198,7 +222,7 @@ void init_time() {
   t = glGetUniformLocation(boid_shader, "time");
   glUniform1f(t, glTime);
 
-  t2 = glGetUniformLocation(program, "ocean_time");
+  t2 = glGetUniformLocation(ocean_shader, "ocean_time");
   glOceanTime = sin(glfwGetTime());
   glUniform1f(t2, glOceanTime);
 }
@@ -211,6 +235,33 @@ void update_time(int index) {
 void update_ocean_time() {
   glOceanTime = sin(glfwGetTime() / 2);
   glUniform1f(t2, glOceanTime);
+}
+
+void update_day_time(GLuint shader) {
+  light1 = glGetUniformLocation(shader, "light1");
+  light2 = glGetUniformLocation(shader, "light2");
+  int i = (frame_counter / 1800) % 4;
+  GLfloat *l1, *l2;
+  l1 = lighting_conditions + i * 9;
+  l2 = lighting_conditions + (i + 1) * 9 % 36;
+  glUniformMatrix3fv(light1, 1, GL_FALSE, l1);
+  glUniformMatrix3fv(light2, 1, GL_FALSE, l2);
+  glUniform1f(day_time, (frame_counter % 1800) / 1800.0);
+}
+
+void update_frame_counter() {
+  frame_counter++;
+  if (frame_counter >= 7200) {
+    frame_counter -= 7200;
+  }
+}
+
+void update_light_position() {
+  if (frame_counter >= 0 && frame_counter < 5400) {
+    light_position[0] += WORLD_SIZE / 5400.0;
+  } else {
+    light_position[0] -= WORLD_SIZE / 1800.0;
+  }
 }
 
 void print_step_msg(Flock* f) {

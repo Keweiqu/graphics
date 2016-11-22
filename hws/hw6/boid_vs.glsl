@@ -4,8 +4,6 @@ in vec4 vPos0;
 in vec4 vPos1;
 in vec3 vNormal;
 in vec2 vTex;
-//in vec4 vColor;
-//flat out vec4 color;
 
 out vec3 fN;
 out vec3 fE;
@@ -18,9 +16,10 @@ uniform mat4 View;
 uniform mat4 Project;
 
 uniform float time;
+uniform vec3 light_position;
 
 void main() {
-	vec4 LightPosition = View * vec4(0.0, 0.0, 1000.0, 1.0);
+	vec4 LightPosition = View * vec4(light_position.x, light_position.y, light_position.z, 1.0);
 	vec4 P = vPos0 + (vPos1 - vPos0) * time;
 	pos_eye = vec3(View * Model * P);
     normal_eye = vec3(View * Model * vec4(vNormal, 0.0));
@@ -35,5 +34,4 @@ void main() {
     }
 
 	gl_Position = Project * vec4(pos_eye, 1.0);
-	//color = vColor;
 }

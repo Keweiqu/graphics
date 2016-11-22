@@ -27,31 +27,22 @@
 using namespace std;
 
 class meshManager {
-public:
-  GLuint vbo_pos;
-  GLuint vbo_tex;
-  GLuint vbo_normal;
-  GLuint ebo;
-  GLuint vao;
-  
+public:  
   GLfloat scale;
   glm::vec3 trans_vec;
 
   vector<GLfloat> *vertices;
   vector<GLfloat> *normals;
-  vector<GLfloat> *tex_coords;
   vector<GLuint> *indices;
 
   GLuint num_of_vertices;
   GLuint num_of_indices;
-  
+
   map< GLuint, vector<GLuint> > *index_faces; // per mesh
 
   meshManager();
   ~meshManager();
   void readFile(string filename);
-  void init();
-  void draw();
 private:
   vector<glm::vec3> *face_normals; // should be for per mesh
   void calc_normal();// next round of meshManager offsets should be available

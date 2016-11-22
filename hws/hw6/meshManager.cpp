@@ -1,18 +1,5 @@
 #include "meshManager.hpp"
 
-extern GLuint program, model, view;
-extern GLfloat angle;
-extern GLfloat scale_factor;
-extern glm::mat4 view_mat;
-
-static GLuint make_bo(GLenum type, const void *buf, GLsizei buf_size) {
-  GLuint bufnum;
-  glGenBuffers(1, &bufnum);
-  glBindBuffer(type, bufnum);
-  glBufferData(type, buf_size, buf, GL_STATIC_DRAW);
-  return bufnum;
-}
-
 meshManager::meshManager() {
   vertices = new vector<GLfloat>();
   normals = new vector<GLfloat>();
@@ -155,46 +142,4 @@ void meshManager::calc_normal() {
 
   //Do this after all flat and smooth normals are calculated
   this->face_normals->clear();
-}
-
-void meshManager::init() {
-  this->vbo_pos = make_bo(GL_ARRAY_BUFFER,
-			  &(this->vertices->front()),
-			  this->vertices->size() * sizeof(GLfloat));
-
-  this->vbo_normal = make_bo(GL_ARRAY_BUFFER,
-			     &(this->normals->front()),
-			     this->normals->size() * sizeof(GLfloat));
-  
-  this->vbo_tex = make_bo(GL_ARRAY_BUFFER,
-			  &(this->tex_coords->front()),
-			  this->tex_coords->size() * sizeof(GLfloat));
-  
-  this->ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
-		      &(this->indices->front()),
-		      this->indices->size() * sizeof(GLuint));
-
-  glGenVertexArrays(1, &(this->vao));
-  glBindVertexArray(vao);
-  
-  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_pos);
-  GLuint pos = glGetAttribLocation(program, "vPos");
-  glEnableVertexAttribArray(pos);
-  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, this->vbo_normal);
-  GLuint normal = glGetAttribLocation(program, "vNormal");
-  glEnableVertexAttribArray(normal);
-  glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-}
-
-void meshManager::draw() {
-  glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
-  glBindVertexArray(this->vao);
-  glm::vec3 scale_vector = glm::vec3(1.0);
-  glm::mat4 model_mat =
-    glm::translate(this->trans_vec) *
-    glm::scale(scale_vector);
-  glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(model_mat));
-  glDrawElements(GL_TRIANGLES, this->num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
