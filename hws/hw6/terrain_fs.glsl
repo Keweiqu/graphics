@@ -1,12 +1,13 @@
 #version 150
 
 out vec4 fColor;
+in vec4 pos;
 in vec3 fN;
 in vec3 fL;
 in vec3 fE;
 in vec2 texCoord;
-uniform sampler2D feather_tex;
-uniform float ocean_time;
+uniform sampler2D terrain_tex_blue;
+uniform sampler2D terrain_tex_white;
 
 void main() {
   vec4 AmbientProduct = vec4(1.0, 1.0, 1.0, 1.0);
@@ -32,6 +33,6 @@ void main() {
 
   vec4 shadeLight = ambient + diffuse + specular;
   shadeLight.a = 1.0;
-  vec4 shadeTex = vec4(texture(feather_tex, texCoord).rgb, 1.0);
+  vec4 shadeTex = vec4(mix(texture(terrain_tex_blue, texCoord).rgb, texture(terrain_tex_white, texCoord).rgb, pos.z / 17000), 1.0);
   fColor = shadeLight * shadeTex;
 }
