@@ -11,7 +11,7 @@ glm::vec3 light_position = glm::vec3(-10000, 0.0, 10000.0);
 
 GLfloat eye_dist = INITIAL_EYE_DIST;
 int clicked = FALSE;
-meshManager terrain_mesh;
+meshManager terrain_mesh, ship_mesh, athena_mesh;
 
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -76,6 +76,8 @@ GLuint boid_vao, boid_vbo1, boid_vbo3, boid_idx, pos, pos1;
 GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sampler, boid_view, boid_project, boid_model;
 
 GLuint terrain_vao, terrain_vbo_pos, terrain_vbo_normal, terrain_ebo, terrain_pos, terrain_normal, terrain_view, terrain_project, terrain_model;
+
+GLuint athena_vao, athena_vbo_pos, athena_vbo_normal, athena_ebo, athena_pos, athena_normal, athena_view, athena_project, athena_model;
 
 GLuint vao2, ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal;
 GLuint ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1, model, view, project;
@@ -214,7 +216,7 @@ void init_cube_map() {
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  
+
 }
 
 void init_boid() {
@@ -275,14 +277,14 @@ void init_terrain() {
   terrain_vbo_normal = make_bo(GL_ARRAY_BUFFER,
 			     &(terrain_mesh.normals->front()),
 			     terrain_mesh.normals->size() * sizeof(GLfloat));
-    
+
   terrain_ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
 		      &(terrain_mesh.indices->front()),
 		      terrain_mesh.indices->size() * sizeof(GLuint));
 
   glGenVertexArrays(1, &(terrain_vao));
   glBindVertexArray(terrain_vao);
-  
+
   glBindBuffer(GL_ARRAY_BUFFER, terrain_vbo_pos);
   terrain_pos = glGetAttribLocation(terrain_shader, "vPos");
   glEnableVertexAttribArray(terrain_pos);
@@ -300,6 +302,32 @@ void init_terrain() {
   terrain_project = glGetUniformLocation(terrain_shader, "Project");
 }
 
+void init_athena() {
+  glUseProgram(athena_shader);
+  athena_vbo_pos = make_bo(GL_ARRAY_BUFFER, &(athena_mesh.vertices->front()), athena_mesh.vertices->size() * sizeof(GLfloat));
+  athena_vbo_normal = make_bo(GL_ARRAY_BUFFER, &(athena_mesh.normals->front()), athena_mesh.normals->size() * sizeof(GLfloat));
+  athena_ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER, &(athena_mesh.indices->front()), athena_mesh.indices->size() * sizeof(GLfloat));
+
+  glGenVertexArrays(1, &(athena_vao));
+  glBindVertexArray(athena_vao);
+
+  glBindBuffer(GL_ARRAY_BUFFER, athena_vbo_pos);
+  athena_pos = glGetAttribLocation(athena_shader, "vPos");
+  glEnableVertexAttribArray(athena_pos);
+  glVertexAttribPointer(athena_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, athena_vbo_normal);
+  terrain_normal = glGetAttribLocation(athena_shader, "vNormal");
+  glEnableVertexAttribArray(athena_normal);
+  glVertexAttribPointer(athena_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, athena_ebo);
+
+  athena_view = glGetUniformLocation(athena_shader, "View");
+  athena_model = glGetUniformLocation(athena_shader, "Model");
+  athena_project = glGetUniformLocation(athena_shader, "Project");
+}
+
 void init() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
@@ -311,10 +339,12 @@ void init() {
   ocean_shader = initshader("ocean_vs.glsl", "ocean_fs.glsl");
   boid_shader = initshader("boid_vs.glsl", "boid_fs.glsl");
   terrain_shader = initshader("terrain_vs.glsl", "terrain_fs.glsl");
+  athena_shader = initshader("athena_vs.glsl", "athena_fs.glsl");
 
   init_boid();
   init_ocean();
   init_terrain();
+  init_athena();
   init_time();
 
   glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -437,7 +467,15 @@ int main(int argc, char** argv) {
   terrain_mesh.readFile("terrain.off");
   terrain_mesh.scale = 1.0;
   terrain_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
-  
+
+  ship_mesh.readFile("ship.off");
+  ship_mesh.scale = 1.0;
+  ship_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
+
+  athena_mesh.readFile("athena.off");
+  athena_mesh.scale = 10.0;
+  athena_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
+
   init();
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -445,6 +483,8 @@ int main(int argc, char** argv) {
     update_light_position();
     update_view(view_mat, f);
     draw_terrain();
+    // draw_ship();
+    draw_athena();
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
     if(!pause) {

@@ -45,6 +45,8 @@ void calc_ocean_vertices(GLfloat len);
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_ocean(GLuint vao);
 void draw_terrain();
+void draw_ship();
+void draw_athena();
 void center_view(glm::mat4 &v, Flock& f);
 void side_view(glm::mat4 &v, Flock& f);
 void update_view(glm::mat4 &view, Flock& f);

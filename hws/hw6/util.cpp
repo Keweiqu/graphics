@@ -3,16 +3,17 @@
 GLfloat ocean_vertices[12];
 View v;
 extern Flock f;
-extern meshManager terrain_mesh;
+extern meshManager terrain_mesh, ship_mesh, athena_mesh;
 extern enum VIEW_TYPE v_mode;
 
-extern GLuint t, t2, day_time, ocean_shader, boid_shader, terrain_shader;
+extern GLuint t, t2, day_time, ocean_shader, boid_shader, terrain_shader, athena_shader;
 extern GLfloat glTime, glOceanTime;
 extern GLuint project, view, model;
 extern glm::mat4 project_mat, view_mat, model_mat;
 extern GLfloat eye_dist, scale_factor;
 extern GLuint boid_model, boid_view, boid_project;
 extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_project;
+extern GLuint athena_vao, athena_ebo, athena_view, athena_project, athena_model;
 extern GLuint ocean_vbo_index;
 extern GLuint light1, light2;
 extern GLuint frame_counter;
@@ -84,6 +85,23 @@ void draw_terrain() {
   glUniformMatrix4fv(terrain_model, 1, GL_FALSE, glm::value_ptr(model_mat));
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain_ebo);
   glDrawElements(GL_TRIANGLES, terrain_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
+}
+
+void draw_ship() {
+
+}
+
+void draw_athena() {
+  glUseProgram(athena_shader);
+  glBindVertexArray(athena_vao);
+  glUniformMatrix4fv(athena_project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniformMatrix4fv(athena_view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glm::mat4 model_mat =
+    glm::translate(athena_mesh.trans_vec) *
+    glm::scale(glm::vec3(athena_mesh.scale));
+  glUniformMatrix4fv(athena_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, athena_ebo);
+  glDrawElements(GL_TRIANGLES, athena_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
 void update_view(glm::mat4 &view, Flock& f) {
