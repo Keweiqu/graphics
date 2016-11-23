@@ -6,12 +6,20 @@ in vec3 fL;
 in vec3 fE;
 in vec3 pos_eye, normal_eye;
 in vec2 texCoord;
+in vec4 P;
 uniform sampler2D ocean_tex0;
 uniform sampler2D ocean_tex1;
 uniform float ocean_time;
 uniform float day_time;
 uniform mat3 light1;
 uniform mat3 light2;
+
+uniform vec3 spotlight_position;
+uniform vec3 spotlight_direction;
+uniform float spotlight_angle;
+uniform int atNight;
+
+uniform mat4 Model;
 
 void main() {
   vec4 AmbientProduct = vec4(light1[0].x * (1 - day_time) + light2[0].x * day_time,
@@ -44,7 +52,18 @@ void main() {
     specular = vec4(0.0, 0.0, 0.0, 1.0);
   }
 
+  float attenuation = 1.0;
+  vec3 cone_direction = normalize(spotlight_direction);
+  vec3 ray_direction = normalize((Model * P).xyz - spotlight_position);
+  float ray_angle = degrees(acos(dot(ray_direction, cone_direction)));
+  if (ray_angle > 10) {
+    attenuation /= (1.0 + (ray_angle - 10) / 5.0);
+  }
+
   vec4 shadeLight = ambient + diffuse + specular;
+  if (atNight == 1) {
+    shadeLight += attenuation * vec4(1.0, 1.0, 1.0, 1.0);
+  }
   shadeLight.a = 1.0;
   vec4 shadeTex = vec4(mix(texture(ocean_tex0, texCoord).rgb, texture(ocean_tex1, texCoord).rgb, ocean_time), 1.0);
   fColor = shadeLight * shadeTex;

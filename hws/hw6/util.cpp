@@ -16,10 +16,10 @@ extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_pro
 extern GLuint athena_vao, athena_ebo, athena_view, athena_project, athena_model;
 extern GLuint ocean_vbo_index;
 extern GLuint light1, light2;
-extern GLuint frame_counter;
+extern GLuint frame_counter, at_night;
 extern GLfloat lighting_conditions[36];
-extern GLuint light_pos;
-extern glm::vec3 light_position;
+extern GLuint light_pos, spotlight_pos, spotlight_dire;
+extern glm::vec3 light_position, spotlight_position, spotlight_direction;
 
 void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[0] = -len / 2;
@@ -43,9 +43,18 @@ void draw_ocean(GLuint vao) {
   glUseProgram(ocean_shader);
   update_ocean_time();
   update_day_time(ocean_shader);
+
+  vec3 boid_pos = f.pos->at(0);
+  spotlight_position = glm::vec3(boid_pos[0], boid_pos[1] + 10, boid_pos[2]);
+  vec3 center_pos = get_center_pos(f);
+  spotlight_direction = glm::vec3(center_pos[0] - boid_pos[0], center_pos[1] - (boid_pos[1] + 10), center_pos[2] - boid_pos[2]);
+  glUniform3fv(spotlight_pos, 1, glm::value_ptr(spotlight_position));
+  glUniform3fv(spotlight_dire, 1, glm::value_ptr(spotlight_direction));
+
   glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniform1i(glGetUniformLocation(ocean_shader, "atNight"), 1);
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ocean_vbo_index);
   glm::mat4 ocean_model = glm::mat4(1.0);
@@ -56,6 +65,9 @@ void draw_ocean(GLuint vao) {
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glUseProgram(boid_shader);
   update_day_time(boid_shader);
+  glUniform3fv(glGetUniformLocation(boid_shader, "spotlight_position"), 1, glm::value_ptr(spotlight_position));
+  glUniform3fv(glGetUniformLocation(boid_shader, "spotlight_direction"), 1, glm::value_ptr(spotlight_direction));
+  glUniform1i(glGetUniformLocation(boid_shader, "atNight"), 1);
   glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
   glUniformMatrix4fv(boid_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(boid_project, 1, GL_FALSE, glm::value_ptr(project_mat));
@@ -265,6 +277,8 @@ void update_day_time(GLuint shader) {
   GLfloat *l1, *l2;
   l1 = lighting_conditions + i * 9;
   l2 = lighting_conditions + (i + 1) * 9 % 36;
+  // l1 = lighting_conditions + 3 * 9;
+  // l2 = lighting_conditions + 3 * 9;
   glUniformMatrix3fv(light1, 1, GL_FALSE, l1);
   glUniformMatrix3fv(light2, 1, GL_FALSE, l2);
   glUniform1f(day_time, (frame_counter % 1800) / 1800.0);
@@ -275,6 +289,7 @@ void update_frame_counter() {
   if (frame_counter >= 7200) {
     frame_counter -= 7200;
   }
+  at_night = frame_counter >= 5400 && frame_counter < 7200;
 }
 
 void update_light_position() {

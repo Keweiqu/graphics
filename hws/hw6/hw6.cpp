@@ -6,8 +6,11 @@ int up = FALSE, down = FALSE;
 GLfloat glTime, glOceanTime;
 enum VIEW_TYPE v_mode;
 glm::mat4 model_mat, view_mat, project_mat;
-GLuint frame_counter = 0;
+GLuint frame_counter = 0, at_night = 0;
 glm::vec3 light_position = glm::vec3(-10000, 0.0, 10000.0);
+glm::vec3 spotlight_position = glm::vec3(1.0, 1.0, 1.0);
+glm::vec3 spotlight_direction = glm::vec3(1.0, 1.0, 1.0);
+GLfloat spotlight_angle = 30.0;
 
 GLfloat eye_dist = INITIAL_EYE_DIST;
 int clicked = FALSE;
@@ -82,7 +85,10 @@ GLuint athena_vao, athena_vbo_pos, athena_vbo_normal, athena_ebo, athena_pos, at
 GLuint vao2, ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal;
 GLuint ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1, model, view, project;
 
+GLuint spotlight_pos, spotlight_dire;
+
 Image ocean0, ocean1, feather, rock, ice, cube[6];
+
 
 GLuint t, t2, day_time, light1, light2;
 GLuint textures[5], cube_texture;
@@ -157,6 +163,8 @@ void init_ocean() {
   light2 = glGetUniformLocation(ocean_shader, "light2");
   day_time = glGetUniformLocation(ocean_shader, "day_time");
   light_pos = glGetUniformLocation(ocean_shader, "light_position");
+  spotlight_pos = glGetUniformLocation(ocean_shader, "spotlight_position");
+  spotlight_dire = glGetUniformLocation(ocean_shader, "spotlight_direction");
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
