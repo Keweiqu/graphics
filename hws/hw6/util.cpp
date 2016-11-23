@@ -2,6 +2,7 @@
 
 GLfloat ocean_vertices[12];
 View v;
+extern glm::vec3 eye;
 extern Flock f;
 extern meshManager terrain_mesh, ship_mesh, athena_mesh;
 extern enum VIEW_TYPE v_mode;
@@ -13,13 +14,13 @@ extern glm::mat4 project_mat, view_mat, model_mat;
 extern GLfloat eye_dist, scale_factor;
 extern GLuint boid_model, boid_view, boid_project;
 extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_project;
-extern GLuint athena_vao, athena_ebo, athena_view, athena_project, athena_model;
+extern GLuint athena_vao, athena_ebo, athena_view_pos, athena_view, athena_project, athena_model;
 extern GLuint ocean_vbo_index;
 extern GLuint light1, light2;
 extern GLuint frame_counter, at_night;
 extern GLfloat lighting_conditions[36];
 extern GLuint light_pos, spotlight_pos, spotlight_dire;
-extern glm::vec3 light_position, spotlight_position, spotlight_direction;
+extern glm::vec3 light_position, spotlight_position, spotlight_direction, cursor_position;
 
 void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[0] = -len / 2;
@@ -45,11 +46,17 @@ void draw_ocean(GLuint vao) {
   update_day_time(ocean_shader);
 
   vec3 boid_pos = f.pos->at(0);
+  vec3 boid_vel = f.vel->at(0);
   spotlight_position = glm::vec3(boid_pos[0], boid_pos[1] + 10, boid_pos[2]);
   vec3 center_pos = get_center_pos(f);
   spotlight_direction = glm::vec3(center_pos[0] - boid_pos[0], center_pos[1] - (boid_pos[1] + 10), center_pos[2] - boid_pos[2]);
   glUniform3fv(spotlight_pos, 1, glm::value_ptr(spotlight_position));
   glUniform3fv(spotlight_dire, 1, glm::value_ptr(spotlight_direction));
+  glUniform3fv(glGetUniformLocation(ocean_shader, "cursor_position"), 1, glm::value_ptr(cursor_position));
+  glm::vec3 translate_vec = glm::vec3(boid_pos[0], boid_pos[1], 0);
+  GLfloat xy_angle = (atan2(boid_vel[1], boid_vel[0]) + 1.5708 * 3);
+  glm::mat4 b_model = glm::translate(translate_vec) * glm::rotate(xy_angle, glm::vec3(0, 0, 1));
+  glUniformMatrix4fv(glGetUniformLocation(ocean_shader, "spotlightModel"), 1, GL_FALSE, glm::value_ptr(b_model));
 
   glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
@@ -86,17 +93,17 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   }
 }
 
-void draw_terrain() {
+void draw_terrain(meshManager& mesh, GLuint vao, GLuint ebo) {
   glUseProgram(terrain_shader);
-  glBindVertexArray(terrain_vao);
+  glBindVertexArray(vao);
   glUniformMatrix4fv(terrain_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glUniformMatrix4fv(terrain_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glm::mat4 model_mat =
-    glm::translate(terrain_mesh.trans_vec) *
-    glm::scale(glm::vec3(terrain_mesh.scale));
+    glm::translate(mesh.trans_vec) *
+    glm::scale(glm::vec3(mesh.scale));
   glUniformMatrix4fv(terrain_model, 1, GL_FALSE, glm::value_ptr(model_mat));
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain_ebo);
-  glDrawElements(GL_TRIANGLES, terrain_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glDrawElements(GL_TRIANGLES, mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
 void draw_ship() {
@@ -115,6 +122,7 @@ void draw_athena() {
     glm::rotate(athena_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
     glm::rotate(athena_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
   glUniformMatrix4fv(athena_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glUniform4fv(athena_view_pos, 1, glm::value_ptr(eye));
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, athena_ebo);
   glDrawElements(GL_TRIANGLES, athena_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
@@ -275,10 +283,10 @@ void update_day_time(GLuint shader) {
   light2 = glGetUniformLocation(shader, "light2");
   int i = (frame_counter / 1800) % 4;
   GLfloat *l1, *l2;
-  l1 = lighting_conditions + i * 9;
-  l2 = lighting_conditions + (i + 1) * 9 % 36;
-  // l1 = lighting_conditions + 3 * 9;
-  // l2 = lighting_conditions + 3 * 9;
+  // l1 = lighting_conditions + i * 9;
+  // l2 = lighting_conditions + (i + 1) * 9 % 36;
+  l1 = lighting_conditions + 3 * 9;
+  l2 = lighting_conditions + 3 * 9;
   glUniformMatrix3fv(light1, 1, GL_FALSE, l1);
   glUniformMatrix3fv(light2, 1, GL_FALSE, l2);
   glUniform1f(day_time, (frame_counter % 1800) / 1800.0);
