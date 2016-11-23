@@ -2,6 +2,7 @@
 
 GLfloat ocean_vertices[12];
 View v;
+extern glm::vec3 eye;
 extern Flock f;
 extern meshManager terrain_mesh, ship_mesh, athena_mesh;
 extern enum VIEW_TYPE v_mode;
@@ -13,7 +14,7 @@ extern glm::mat4 project_mat, view_mat, model_mat;
 extern GLfloat eye_dist, scale_factor;
 extern GLuint boid_model, boid_view, boid_project;
 extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_project;
-extern GLuint athena_vao, athena_ebo, athena_view, athena_project, athena_model;
+extern GLuint athena_vao, athena_ebo, athena_view_pos, athena_view, athena_project, athena_model;
 extern GLuint ocean_vbo_index;
 extern GLuint light1, light2;
 extern GLuint frame_counter;
@@ -74,17 +75,17 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   }
 }
 
-void draw_terrain() {
+void draw_terrain(meshManager& mesh, GLuint vao, GLuint ebo) {
   glUseProgram(terrain_shader);
-  glBindVertexArray(terrain_vao);
+  glBindVertexArray(vao);
   glUniformMatrix4fv(terrain_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glUniformMatrix4fv(terrain_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glm::mat4 model_mat =
-    glm::translate(terrain_mesh.trans_vec) *
-    glm::scale(glm::vec3(terrain_mesh.scale));
+    glm::translate(mesh.trans_vec) *
+    glm::scale(glm::vec3(mesh.scale));
   glUniformMatrix4fv(terrain_model, 1, GL_FALSE, glm::value_ptr(model_mat));
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain_ebo);
-  glDrawElements(GL_TRIANGLES, terrain_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glDrawElements(GL_TRIANGLES, mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
 void draw_ship() {
@@ -103,6 +104,7 @@ void draw_athena() {
     glm::rotate(athena_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
     glm::rotate(athena_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
   glUniformMatrix4fv(athena_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glUniform4fv(athena_view_pos, 1, glm::value_ptr(eye));
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, athena_ebo);
   glDrawElements(GL_TRIANGLES, athena_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }

@@ -1,8 +1,6 @@
 #ifndef MESH_MANAGER_H
 #define MESH_MANAGER_H
 #include "common.hpp"
-#include "util.hpp"
-// #include "main.hpp"
 #include <vector>
 #include <string>
 #include <map>

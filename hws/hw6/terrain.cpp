@@ -11,7 +11,7 @@ int main() {
   initCorner(0.5);
 
   genTerrain(0.5);
-  //clampContour();
+  clampContour();
   //printSquare();
   genMeshOff();
   genVertex();
@@ -82,7 +82,7 @@ void fillSquareCenter(GLint top_left_x, GLint top_left_y, GLint side) {
   sum /= 4.0;
   GLint center_x = top_left_x + (side / 2);
   GLint center_y = top_left_y + (side / 2);
-  sum += (rand() / (GLfloat) RAND_MAX) * rand_range * 10.0 / distToCenter(center_x, center_y);
+  sum += (rand() / (GLfloat) RAND_MAX) * rand_range * 10 / distToCenter(center_x, center_y);
   heights[center_x][center_y] = sum;
 }
 
@@ -111,7 +111,7 @@ void fillDiamondCenter(GLint center_x, GLint center_y, GLint side) {
   }
 
   sum /= (GLfloat) divider;
-  sum += (rand() / (GLfloat) RAND_MAX) * rand_range  * 10.0 / distToCenter(center_x, center_y);
+  sum += (rand() / (GLfloat) RAND_MAX) * rand_range * 10 / distToCenter(center_x, center_y);
   heights[center_x][center_y] = sum;
 }
 
@@ -126,7 +126,7 @@ void printSquare() {
 
 void genMeshOff() {
   ofstream mesh;
-  mesh.open("terrain.off");
+  mesh.open("terrain3.off");
   mesh << "OFF\n";
   mesh << SIDE_LEN * SIDE_LEN << " ";
   mesh << (SIDE_LEN - 1) * (SIDE_LEN - 1) * 2 << " ";
@@ -187,7 +187,7 @@ void genFacesOFF(ofstream &mesh) {
 void clampContour() {
   GLfloat range = 350.0;
   GLfloat drop = 350;
-  for(int i = 10; i > 0; i--) {
+  for(int i = 5; i > 0; i--) {
     cout << "i is " << i << endl;
     for(int j = 0; j < SIDE_LEN - i; j++) {
       //top

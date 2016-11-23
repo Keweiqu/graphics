@@ -8,10 +8,11 @@ enum VIEW_TYPE v_mode;
 glm::mat4 model_mat, view_mat, project_mat;
 GLuint frame_counter = 0;
 glm::vec3 light_position = glm::vec3(-10000, 0.0, 10000.0);
+glm::vec3 eye = glm::vec3(1.0);
 
 GLfloat eye_dist = INITIAL_EYE_DIST;
 int clicked = FALSE;
-meshManager terrain_mesh, ship_mesh, athena_mesh;
+meshManager terrain_mesh, terrain_mesh2, ship_mesh, athena_mesh;
 
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -75,9 +76,13 @@ GLuint ocean_shader, boid_shader, terrain_shader, athena_shader;
 GLuint boid_vao, boid_vbo1, boid_vbo3, boid_idx, pos, pos1;
 GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sampler, boid_view, boid_project, boid_model;
 
-GLuint terrain_vao, terrain_vbo_pos, terrain_vbo_normal, terrain_vbo_tex, terrain_ebo, terrain_pos, terrain_normal, terrain_tex_coord, terrain_sampler, terrain_sampler1, terrain_view, terrain_project, terrain_model;
+GLuint terrain_vao, terrain_vbo_pos, terrain_vbo_normal, terrain_vbo_tex, terrain_ebo;
 
-GLuint athena_vao, athena_vbo_pos, athena_vbo_normal, athena_ebo, athena_pos, athena_normal, athena_view, athena_project, athena_model;
+GLuint terrain_vao2, terrain_vbo_pos2, terrain_vbo_normal2, terrain_vbo_tex2, terrain_ebo2;
+
+GLuint terrain_pos, terrain_normal, terrain_tex_coord, terrain_sampler, terrain_sampler1, terrain_view, terrain_project, terrain_model;
+
+GLuint athena_vao, athena_vbo_pos, athena_vbo_normal, athena_ebo, athena_pos, athena_normal, athena_sampler, athena_view_pos, athena_view, athena_project, athena_model;
 
 GLuint vao2, ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal;
 GLuint ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1, model, view, project;
@@ -123,27 +128,25 @@ void read_images() {
     exit(EXIT_FAILURE);
   }
 
+  //posx, negx, posy, negy, posz, negz
   const char* env_text_names[] = {
-    "env/posx.ppm",
-    "env/negx.ppm",
-    "env/posy.ppm",
-    "env/negy.ppm",
-    "env/posz.ppm",
-    "env/negz.ppm"
+    "env/back_cw90.ppm",//back
+    "env/front_ccw90.ppm",//front
+    "env/right_180.ppm",//right
+    "env/left.ppm",//check
+    "env/bottom.ppm",//check
+    "env/top.ppm"//check
   };
-  /*
   for(int i = 0; i < 6; i++) {
     if(!read_ppm(env_text_names[i], cube + i)) {
       cout << "Fail to read image " << i << "for cube map" << endl;
       exit(EXIT_FAILURE);
     }
   }
-  */
 }
 
 void init_ocean() {
   calc_ocean_vertices(WORLD_SIZE * 2);
-
 
   glUseProgram(ocean_shader);
 
@@ -209,21 +212,6 @@ void init_ocean() {
 
 }
 
-void init_cube_map() {
-  athena_shader = initshader("athena_vs.glsl", "athena_fs.glsl");
-  glUseProgram(athena_shader);
-  glGenTextures(1, &cube_texture);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, cube_texture);
-  for(int i = 0; i < 6; i++) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2048, 2048, 0, GL_RGB, GL_UNSIGNED_BYTE, cube[i].data);
-  }
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-}
-
 void init_boid() {
   boid_vbo1 = make_bo(GL_ARRAY_BUFFER, boid_vertices, sizeof(boid_vertices));
   boid_vbo3 = make_bo(GL_ARRAY_BUFFER, boid_flap_vertices, sizeof(boid_flap_vertices));
@@ -273,7 +261,7 @@ void init_boid() {
   boid_project = glGetUniformLocation(boid_shader, "Project");
 }
 
-void init_terrain() {
+void init_terrain_shader() {
   glUseProgram(terrain_shader);
 
   terrain_sampler = glGetUniformLocation(terrain_shader, "terrain_tex_blue");
@@ -281,7 +269,7 @@ void init_terrain() {
 
   glActiveTexture(GL_TEXTURE3);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 236, 337, 0, GL_RGB, GL_UNSIGNED_BYTE, rock.data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rock.sizeX, rock.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, rock.data);
   glUniform1i(terrain_sampler, 3);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -291,7 +279,7 @@ void init_terrain() {
 
   glActiveTexture(GL_TEXTURE4);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 509, 339, 0, GL_RGB, GL_UNSIGNED_BYTE, ice.data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ice.sizeX, ice.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, ice.data);
   glUniform1i(terrain_sampler1, 4);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -299,49 +287,75 @@ void init_terrain() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-  terrain_vbo_pos = make_bo(GL_ARRAY_BUFFER,
-			  &(terrain_mesh.vertices->front()),
-			  terrain_mesh.vertices->size() * sizeof(GLfloat));
-
-  terrain_vbo_normal = make_bo(GL_ARRAY_BUFFER,
-			     &(terrain_mesh.normals->front()),
-			     terrain_mesh.normals->size() * sizeof(GLfloat));
-
-  terrain_vbo_tex = make_bo(GL_ARRAY_BUFFER,
-			       &(terrain_mesh.tex_coords->front()),
-			       terrain_mesh.tex_coords->size() * sizeof(GLfloat));
-
-  terrain_ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
-		      &(terrain_mesh.indices->front()),
-		      terrain_mesh.indices->size() * sizeof(GLuint));
-
-  glGenVertexArrays(1, &(terrain_vao));
-  glBindVertexArray(terrain_vao);
-
-  glBindBuffer(GL_ARRAY_BUFFER, terrain_vbo_pos);
   terrain_pos = glGetAttribLocation(terrain_shader, "vPos");
-  glEnableVertexAttribArray(terrain_pos);
-  glVertexAttribPointer(terrain_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, terrain_vbo_normal);
   terrain_normal = glGetAttribLocation(terrain_shader, "vNormal");
-  glEnableVertexAttribArray(terrain_normal);
-  glVertexAttribPointer(terrain_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, terrain_vbo_tex);
   terrain_tex_coord = glGetAttribLocation(terrain_shader, "vTex");
-  glEnableVertexAttribArray(terrain_tex_coord);
-  glVertexAttribPointer(terrain_tex_coord, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrain_ebo);
-
+   
   terrain_view = glGetUniformLocation(terrain_shader, "View");
   terrain_model = glGetUniformLocation(terrain_shader, "Model");
   terrain_project = glGetUniformLocation(terrain_shader, "Project");
 }
 
+void init_terrain(meshManager &mesh, GLuint* vao, GLuint* vbo_pos, GLuint* vbo_normal, GLuint* vbo_tex, GLuint* ebo) {
+   glUseProgram(terrain_shader);
+  
+   *vbo_pos = make_bo(GL_ARRAY_BUFFER,
+			    &(mesh.vertices->front()),
+			    mesh.vertices->size() * sizeof(GLfloat));
+
+   *vbo_normal = make_bo(GL_ARRAY_BUFFER,
+			     &(mesh.normals->front()),
+			     mesh.normals->size() * sizeof(GLfloat));
+
+   *vbo_tex = make_bo(GL_ARRAY_BUFFER,
+			       &(mesh.tex_coords->front()),
+			       mesh.tex_coords->size() * sizeof(GLfloat));
+
+   *ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER,
+		      &(mesh.indices->front()),
+		      mesh.indices->size() * sizeof(GLuint));
+
+  glGenVertexArrays(1, vao);
+  glBindVertexArray(*vao);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, *vbo_pos);
+  glEnableVertexAttribArray(terrain_pos);
+  glVertexAttribPointer(terrain_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, *vbo_normal);
+  glEnableVertexAttribArray(terrain_normal);
+  glVertexAttribPointer(terrain_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, *vbo_tex);
+  glEnableVertexAttribArray(terrain_tex_coord);
+  glVertexAttribPointer(terrain_tex_coord, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+}
+
 void init_athena() {
   glUseProgram(athena_shader);
+
+  athena_sampler = glGetUniformLocation(athena_shader, "athena_tex");
+  athena_view_pos = glGetUniformLocation(athena_shader, "viewPos");
+  glActiveTexture(GL_TEXTURE5);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, cube_texture);
+  for(int i = 0; i < 6; i++) {
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+		 0,
+		 GL_RGB,
+		 cube[i].sizeX,
+		 cube[i].sizeY,
+		 0,
+		 GL_RGB,
+		 GL_UNSIGNED_BYTE,
+		 cube[i].data);
+  }
+  glUniform1i(athena_sampler, 5);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  
   athena_vbo_pos = make_bo(GL_ARRAY_BUFFER, &(athena_mesh.vertices->front()), athena_mesh.vertices->size() * sizeof(GLfloat));
   athena_vbo_normal = make_bo(GL_ARRAY_BUFFER, &(athena_mesh.normals->front()), athena_mesh.normals->size() * sizeof(GLfloat));
   athena_ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER, &(athena_mesh.indices->front()), athena_mesh.indices->size() * sizeof(GLfloat));
@@ -381,7 +395,9 @@ void init() {
 
   init_boid();
   init_ocean();
-  init_terrain();
+  init_terrain_shader();
+  init_terrain(terrain_mesh, &terrain_vao, &terrain_vbo_pos, &terrain_vbo_normal, &terrain_vbo_tex, &terrain_ebo);
+  init_terrain(terrain_mesh2, &terrain_vao2, &terrain_vbo_pos2, &terrain_vbo_normal2, &terrain_vbo_tex2, &terrain_ebo2);
   init_athena();
   init_time();
 
@@ -470,9 +486,9 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   v_mode = SIDE;
-  glm::vec3 eye = glm::vec3(0.0, -50000.0, 1.0);
-  glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
-  glm::vec3 up = glm::vec3(0, 1, 0);
+  eye = glm::vec3(0.0, -50000.0, 10.0);
+  glm::vec3 center = glm::vec3(5000.0, 0.0, 2000.0);
+  glm::vec3 up = glm::vec3(0, 0, 1);
   view_mat = glm::lookAt(eye, center, up);
   project_mat = glm::perspective(30.0 * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
 
@@ -503,29 +519,40 @@ int main(int argc, char** argv) {
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
 
   terrain_mesh.readFile("terrain.off");
-  terrain_mesh.scale = 1.0;
-  terrain_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
+  terrain_mesh.scale = 2.0;
+  terrain_mesh.trans_vec = glm::vec3(-8500.0, 0.0, -13000.0);
+
+  terrain_mesh2.readFile("terrain2.off");
+  terrain_mesh2.scale = 2.0;
+  terrain_mesh2.trans_vec = glm::vec3(7500, 0.0, -5000.0);
 
   ship_mesh.readFile("ship.off");
   ship_mesh.scale = 1.0;
   ship_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
 
   athena_mesh.readFile("athena.off");
-  athena_mesh.scale = 0.6;
-  athena_mesh.trans_vec = glm::vec3(3000.0, 3000.0, 2000.0);
-  athena_mesh.rotate_angles = glm::vec3(90.0 * DEGREE_TO_RADIAN, 0.0, 0.0);
+  athena_mesh.scale = 2.0; //0.6
+  athena_mesh.trans_vec = glm::vec3(-2000.0, 3000.0, 1000.0);
+  athena_mesh.rotate_angles = glm::vec3(90 * DEGREE_TO_RADIAN, 0.0, 0.0);
 
   init();
+  
+  GLfloat angle = 0.0;
+  GLfloat radius = 15000.0;
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_frame_counter();
     update_light_position();
-    update_view(view_mat, f);
-    draw_terrain();
+    //update_view(view_mat, f);
+    //eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 20000.0);
+    //view_mat = glm::lookAt(eye, center, up);
+    angle += 0.005;
+    draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
+    draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
     // draw_ship();
     draw_athena();
     draw_ocean(vao2);
-    draw_flock(&f, model, boid_vao, boid_idx);
+    //draw_flock(&f, model, boid_vao, boid_idx);
     if(!pause) {
       f.update_centers();
       f.update_ave_v();
