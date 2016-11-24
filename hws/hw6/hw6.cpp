@@ -578,8 +578,8 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    //eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 20000.0);
-    //view_mat = glm::lookAt(eye, center, up);
+    // eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 20000.0);
+    // view_mat = glm::lookAt(eye, center, up);
     angle += 0.005;
     // draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
     // draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);

@@ -41,6 +41,12 @@ void main() {
   shadeLight.a = 1.0;
 
   fColor = shadeLight * texColor;
+
+  vec3 fogc = vec3(0.3, 0.3, 0.3);
+  float fogmin = 1000.0, fogmax = 20000.0;
+  float dist = length(V_eye);
+  float fogf = (dist - fogmin) / (fogmax - fogmin);
+  fogf = clamp(fogf, 0.0, 1.0);
+
+  fColor.rgb = mix(fColor.rgb, fogc, fogf);
 }
-
-
