@@ -12,6 +12,7 @@ extern GLfloat glTime, glOceanTime;
 extern GLuint project, view, model;
 extern glm::mat4 project_mat, view_mat, model_mat;
 extern GLfloat eye_dist, scale_factor;
+extern GLfloat view_angle;
 extern GLuint boid_model, boid_view, boid_project;
 extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_project;
 extern GLuint athena_vao, athena_ebo, athena_view_pos, athena_view, athena_project, athena_model;
@@ -306,6 +307,20 @@ void update_light_position() {
   } else {
     light_position[0] -= WORLD_SIZE / 1800.0;
   }
+}
+
+void zoom_in() {
+  if (view_angle > 10.0) {
+    view_angle -= 1.0;
+  }
+  project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
+}
+
+void zoom_out() {
+  if (view_angle < 75.0) {
+    view_angle += 1.0;
+  }
+  project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
 }
 
 void print_step_msg(Flock* f) {

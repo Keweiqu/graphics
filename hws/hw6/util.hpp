@@ -66,4 +66,6 @@ void update_ocean_time();
 void update_day_time(GLuint shader);
 void update_frame_counter();
 void update_light_position();
+void zoom_in();
+void zoom_out();
 #endif

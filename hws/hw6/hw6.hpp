@@ -23,6 +23,7 @@
 #define INITIAL_SCALE_FACTOR 1.0
 #define DEGREE_TO_RADIAN M_PI / 180.0
 #define RADIAN_TO_DEGREE 180 / M_PI
+#define DEFAULT_VIEW_ANGLE 30.0
 using namespace std;
 
 #endif
