@@ -43,6 +43,7 @@ public:
 void calc_ocean_vertices(GLfloat len);
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index);
+void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_ocean(GLuint vao);
 void draw_terrain(meshManager& mesh, GLuint vao, GLuint ebo);
 void draw_ship();
@@ -56,7 +57,7 @@ vec3 ave_flock_center(Flock& f);
 vec3 calc_middleway(Flock& f);
 vec3 get_side_pos(Flock& f);
 vec3 get_trailing_pos(Flock &f);
-vec3 get_center_pos(Flock &f);
+vec3 get_first_person_center_pos(Flock &f);
 GLfloat center_goal_dist(Flock& f);
 GLfloat max_boid_goal_dist(Flock& f);
 void print_step_msg(Flock* f);

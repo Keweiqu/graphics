@@ -6,7 +6,7 @@ extern glm::vec3 eye;
 extern Flock f;
 extern meshManager terrain_mesh, ship_mesh, athena_mesh;
 extern enum VIEW_TYPE v_mode;
-
+extern int up_down, left_right;
 extern GLuint t, t2, day_time, ocean_shader, boid_shader, terrain_shader, athena_shader;
 extern GLfloat glTime, glOceanTime;
 extern GLuint project, view, model;
@@ -48,15 +48,15 @@ void draw_ocean(GLuint vao) {
   vec3 boid_pos = f.pos->at(0);
   vec3 boid_vel = f.vel->at(0);
   spotlight_position = glm::vec3(boid_pos[0], boid_pos[1] + 10, boid_pos[2]);
-  vec3 center_pos = get_center_pos(f);
+  vec3 center_pos = get_first_person_center_pos(f);
   spotlight_direction = glm::vec3(center_pos[0] - boid_pos[0], center_pos[1] - (boid_pos[1] + 10), center_pos[2] - boid_pos[2]);
   glUniform3fv(spotlight_pos, 1, glm::value_ptr(spotlight_position));
   glUniform3fv(spotlight_dire, 1, glm::value_ptr(spotlight_direction));
-  glUniform3fv(glGetUniformLocation(ocean_shader, "cursor_position"), 1, glm::value_ptr(cursor_position));
-  glm::vec3 translate_vec = glm::vec3(boid_pos[0], boid_pos[1], 0);
-  GLfloat xy_angle = (atan2(boid_vel[1], boid_vel[0]) + 1.5708 * 3);
-  glm::mat4 b_model = glm::translate(translate_vec) * glm::rotate(xy_angle, glm::vec3(0, 0, 1));
-  glUniformMatrix4fv(glGetUniformLocation(ocean_shader, "spotlightModel"), 1, GL_FALSE, glm::value_ptr(b_model));
+  //glUniform3fv(glGetUniformLocation(ocean_shader, "cursor_position"), 1, glm::value_ptr(cursor_position));
+  //glm::vec3 translate_vec = glm::vec3(boid_pos[0], boid_pos[1], 0);
+  //GLfloat xy_angle = (atan2(boid_vel[1], boid_vel[0]) + 1.5708 * 3);
+  //glm::mat4 b_model = glm::translate(translate_vec) * glm::rotate(xy_angle, glm::vec3(0, 0, 1));
+  //glUniformMatrix4fv(glGetUniformLocation(ocean_shader, "spotlightModel"), 1, GL_FALSE, glm::value_ptr(b_model));
 
   glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
@@ -127,6 +127,18 @@ void draw_athena() {
   glDrawElements(GL_TRIANGLES, athena_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
+
+void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
+  glUseProgram(boid_shader);
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index);
+  glUniformMatrix4fv(boid_project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniformMatrix4fv(boid_view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glm::mat4 model_mat = glm::translate(glm::vec3(f->goal[0], f->goal[1], f->goal[2]));
+  glUniformMatrix4fv(boid_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, (void*)0);
+}
+
 void update_view(glm::mat4 &view, Flock& f) {
   switch(v_mode) {
     case CENTER:
@@ -175,7 +187,7 @@ void trailing_view(glm::mat4& view, Flock &f) {
 void first_person_view(glm::mat4& view, Flock &f) {
   vec3 boid_pos = f.pos->at(0);
   glm::vec3 pos = glm::vec3(boid_pos[0], boid_pos[1], boid_pos[2]);
-  vec3 my_look = get_center_pos(f);
+  vec3 my_look = get_first_person_center_pos(f);
   glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
   view = glm::lookAt(pos, look, up);
@@ -233,11 +245,11 @@ vec3 get_trailing_pos(Flock& f) {
   return m;
 }
 
-vec3 get_center_pos(Flock& f) {
+vec3 get_first_person_center_pos(Flock& f) {
   vec3 boid_pos = f.pos->at(0);
   vec3 boid_v = f.vel->at(0);
-  vec3 center = boid_pos + (boid_v * 100);
-  center[2] = 0;
+  vec3 center = boid_pos + vec3::normalize(boid_v) * 10000;
+  center[2] = up_down * 50;
   return center;
 }
 

@@ -2,7 +2,7 @@
 
 Flock f;
 int pause = FALSE, to_left = FALSE, to_right = FALSE;
-int up = FALSE, down = FALSE;
+int up_down = 0, left_right = 0;
 GLfloat glTime, glOceanTime;
 enum VIEW_TYPE v_mode;
 glm::mat4 model_mat, view_mat, project_mat;
@@ -91,6 +91,7 @@ GLuint athena_vao, athena_vbo_pos, athena_vbo_normal, athena_ebo, athena_pos, at
 GLuint vao2, ocean_vbo_pos, ocean_vbo_tex, ocean_vbo_index, ocean_vbo_normal;
 GLuint ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sampler1, model, view, project;
 
+GLuint goal_vao, goal_vbo1, goal_idx;
 GLuint spotlight_pos, spotlight_dire;
 
 Image ocean0, ocean1, feather, rock, ice, cube[6];
@@ -270,6 +271,24 @@ void init_boid() {
   boid_project = glGetUniformLocation(boid_shader, "Project");
 }
 
+void init_goal() {
+  glUseProgram(boid_shader);
+
+  goal_vbo1 = make_bo(GL_ARRAY_BUFFER, goal_vertices, sizeof(goal_vertices));
+  goal_idx = make_bo(GL_ELEMENT_ARRAY_BUFFER, goal_indices, sizeof(goal_indices));
+  
+  glGenVertexArrays(1, &goal_vao);
+  glBindVertexArray(goal_vao);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
+  glEnableVertexAttribArray(pos1);
+  glVertexAttribPointer(pos1, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+  
+  glBindBuffer(GL_ARRAY_BUFFER, goal_vbo1);
+  glEnableVertexAttribArray(pos);
+  glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, (void*) 0);
+}
+
 void init_terrain_shader() {
   glUseProgram(terrain_shader);
 
@@ -403,6 +422,7 @@ void init() {
   athena_shader = initshader("athena_vs.glsl", "athena_fs.glsl");
 
   init_boid();
+  init_goal();
   init_ocean();
   init_terrain_shader();
   init_terrain(terrain_mesh, &terrain_vao, &terrain_vbo_pos, &terrain_vbo_normal, &terrain_vbo_tex, &terrain_ebo);
@@ -439,14 +459,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 	f.update_boids();
       }
       break;
-    case GLFW_KEY_UP:
-      up = GOAL_DELTA;
-      down = 0;
-      break;
-    case GLFW_KEY_DOWN:
-      down = GOAL_DELTA;
-      up = 0;
-      break;
+   
     case GLFW_KEY_LEFT:
       to_left = TRUE;
       to_right = FALSE;
@@ -483,8 +496,25 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       break;
     }
   }
+  if(action == GLFW_PRESS || action == GLFW_REPEAT) {
+    switch(key) {
+    case GLFW_KEY_UP:
+      if(up_down < 50) {
+	up_down += 1;
+      }
+      break;
+    case GLFW_KEY_DOWN:
+    if(up_down > -50) {
+      up_down -= 1;
+    }
+    default:
+      break;
+    }
+  }
+  
 }
 
+/*
 glm::vec3 MouseToWorld(int x, int y)
 {
     GLint viewport[4];
@@ -508,7 +538,7 @@ glm::vec3 MouseToWorld(int x, int y)
 void cursor(GLFWwindow* window, double xpos, double ypos) {
   cursor_position = MouseToWorld((int)xpos, (int)ypos);
 }
-
+*/
 void reshape(GLFWwindow *w, int width, int height) {
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
 }
@@ -548,13 +578,13 @@ int main(int argc, char** argv) {
   glewInit();
 
   glfwSetKeyCallback(window, keyboard);
-  glfwSetCursorPosCallback(window, cursor);
+  //glfwSetCursorPosCallback(window, cursor);
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
 
   terrain_mesh.readFile("terrain.off");
   terrain_mesh.scale = 2.0;
-  terrain_mesh.trans_vec = glm::vec3(-8500.0, 0.0, -13000.0);
+  terrain_mesh.trans_vec = glm::vec3(-8500.0, 0.0, -15000.0);
 
   terrain_mesh2.readFile("terrain2.off");
   terrain_mesh2.scale = 2.0;
@@ -580,13 +610,14 @@ int main(int argc, char** argv) {
     update_view(view_mat, f);
     //eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 20000.0);
     //view_mat = glm::lookAt(eye, center, up);
-    angle += 0.005;
-    // draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
-    // draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
+    //angle += 0.005;
+    draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
+    draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
     // draw_ship();
     draw_athena();
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
+    draw_goal(&f, model, goal_vao, goal_idx);
     if(!pause) {
       f.update_centers();
       f.update_ave_v();

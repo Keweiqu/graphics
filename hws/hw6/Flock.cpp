@@ -49,30 +49,20 @@ void Flock::update_goal() {
   if(to_left) {
     vec3 z = vec3(0.0, 0.0, 1.0);
     vec3 left = vec3::cross(z, goal_v);
-    left = vec3::normalize(left) * 4;
-    goal_v = goal_v + left;
+    left = vec3::normalize(left) * 0.5;
+    goal_v = vec3::normalize(vec3::normalize(goal_v) + left) * speed;
     to_left = FALSE;
   }
 
   if(to_right) {
     vec3 z = vec3(0.0, 0.0, 1.0);
     vec3 right = vec3::cross(goal_v, z);
-    right = vec3::normalize(right) * 4;
-    goal_v = goal_v + right;
+    right = vec3::normalize(right) * 0.5;
+    goal_v = vec3::normalize(vec3::normalize(goal_v) + right) * speed;
     to_right = FALSE;
   }
 
-  goal_v = vec3::normalize(goal_v) * speed;
   goal = goal + goal_v;
-
-  if(up > 0 && goal[2] < 1700) {
-    goal[2] += 1;
-    up--;
-  }
-  if(down > 0 && goal[2] > 300) {
-    goal[2] -= 1;
-    down--;
-  }
 }
 
 void Flock::update_centers() {
@@ -112,7 +102,7 @@ void Flock::update_boids() {
     v = v + v4;
     v = v * 4.0;
 
-    (*vel)[i] = (*vel)[i] * 0.99;
+    //(*vel)[i] = (*vel)[i] * 0.99;
     (*vel)[i] = (*vel)[i] + v;
     (*vel)[i] = limit_speed((*vel)[i]);
     (*pos)[i] = (*pos)[i] + (*vel)[i];
@@ -125,7 +115,7 @@ vec3 Flock::v_to_align(int i) {
   for(unsigned int j = 0; j < knn.size(); j++) {
     result = result + (*vel)[knn[j]];
   }
-  result = result * (1.0 / (KNN * 1.0)) * 0.001;
+  result = result * (1.0 / (KNN * 1.0)) * 0.0001;
   return result;
 }
 

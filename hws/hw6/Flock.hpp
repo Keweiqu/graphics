@@ -9,7 +9,7 @@
 #include "common.hpp"
 #include <cmath>
 #define NUM_GROUP 2
-#define SPEED_LIMIT 20
+#define SPEED_LIMIT 16
 #define GOAL_SPEED 15
 #define KNN 5
 #define WORLD_SIZE 20000
