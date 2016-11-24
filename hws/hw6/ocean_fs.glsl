@@ -54,9 +54,11 @@ void main() {
     specular = vec4(0.0, 0.0, 0.0, 1.0);
   }
 
+
   float attenuation = 0.0;
   vec3 cone_direction = normalize(spotlight_direction);
   //vec3 cone_direction = normalize((spotlightModel * vec4(cursor_position, 1.0)).xyz - spotlight_position);
+
   vec3 ray_direction = normalize((Model * P).xyz - spotlight_position);
   float ray_angle = degrees(acos(dot(ray_direction, cone_direction)));
   if (ray_angle < 10) {
@@ -71,4 +73,12 @@ void main() {
   shadeLight.a = 1.0;
   vec4 shadeTex = vec4(mix(texture(ocean_tex0, texCoord).rgb, texture(ocean_tex1, texCoord).rgb, ocean_time), 1.0);
   fColor = shadeLight * shadeTex;
+
+  vec3 fogc = vec3(0.3, 0.3, 0.3);
+  float fogmin = 1000.0, fogmax = 20000.0;
+  float dist = length(-pos_eye);
+  float fogf = (dist - fogmin) / (fogmax - fogmin);
+  fogf = clamp(fogf, 0.0, 1.0);
+
+  fColor.rgb = mix(fColor.rgb, fogc, fogf);
 }

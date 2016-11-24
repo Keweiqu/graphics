@@ -12,6 +12,7 @@ glm::vec3 spotlight_position = glm::vec3(1.0, 1.0, 1.0);
 glm::vec3 spotlight_direction = glm::vec3(1.0, 1.0, 1.0);
 glm::vec3 cursor_position = glm::vec3(0.0, 0.0, 0.0);
 GLfloat spotlight_angle = 30.0;
+GLfloat view_angle = DEFAULT_VIEW_ANGLE;
 glm::vec3 eye = glm::vec3(1.0);
 
 GLfloat eye_dist = INITIAL_EYE_DIST;
@@ -494,6 +495,21 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 	f.speed += 1.0;
       }
       break;
+    case GLFW_KEY_N:
+      view_angle = DEFAULT_VIEW_ANGLE;
+      project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
+      break;
+    }
+  }
+
+  if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+    switch (key) {
+      case GLFW_KEY_I:
+        zoom_in();
+        break;
+      case GLFW_KEY_O:
+        zoom_out();
+        break;
     }
   }
   if(action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -553,7 +569,7 @@ int main(int argc, char** argv) {
   glm::vec3 center = glm::vec3(5000.0, 0.0, 2000.0);
   glm::vec3 up = glm::vec3(0, 0, 1);
   view_mat = glm::lookAt(eye, center, up);
-  project_mat = glm::perspective(30.0 * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
+  project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
 
   if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;

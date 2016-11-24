@@ -9,6 +9,7 @@ out vec3 fN;
 out vec3 fE;
 out vec3 fL;
 out vec2 texCoord;
+out vec3 pos_eye;
 
 uniform mat4 Model;
 uniform mat4 View;
