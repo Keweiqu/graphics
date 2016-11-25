@@ -14,6 +14,9 @@ glm::vec3 cursor_position = glm::vec3(0.0, 0.0, 0.0);
 GLfloat spotlight_angle = 30.0;
 GLfloat view_angle = DEFAULT_VIEW_ANGLE;
 glm::vec3 eye = glm::vec3(1.0);
+glm::vec3 eye_pos = eye;
+glm::vec3 look_pos = glm::vec3(0.0, 0.0, 2000.0);
+glm::vec3 eye_trans = glm::vec3(0.0, 0.0, 0.0);
 
 GLfloat eye_dist = INITIAL_EYE_DIST;
 int clicked = FALSE;
@@ -630,8 +633,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       }
       break;
     case GLFW_KEY_N:
-      view_angle = DEFAULT_VIEW_ANGLE;
-      project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
+      view_mat = glm::lookAt(glm::vec3(0.0, 0.0, 10.0), glm::vec3(0.0, 0.0, 2000.0), glm::vec3(0.0, 0.0, 1.0));
       break;
     }
   }
@@ -688,7 +690,7 @@ int main(int argc, char** argv) {
   glm::vec3 center = glm::vec3(0.0, 0.0, 2000.0);
   glm::vec3 up = glm::vec3(0, 0, 1);
   view_mat = glm::lookAt(eye, center, up);
-  project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
+  project_mat = glm::perspective(DEFAULT_VIEW_ANGLE * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
 
   if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
@@ -740,7 +742,7 @@ int main(int argc, char** argv) {
 
   bear_mesh.readFile("meshes/bear.off");
   bear_mesh.scale = 100.0;
-  bear_mesh.trans_vec = glm::vec3(15500.0, 3500.0, 6500.0);
+  bear_mesh.trans_vec = glm::vec3(0.0, -2500.0, 5500.0);
   bear_mesh.rotate_angles = glm::vec3(0.0, 0.0, 90 * DEGREE_TO_RADIAN);
 
   init();
@@ -752,9 +754,9 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    //eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 10000.0);
-    //view_mat = glm::lookAt(eye, center, up);
-    //angle += 0.005;
+    // eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 10000.0);
+    // view_mat = glm::lookAt(eye, center, up);
+    // angle += 0.005;
     draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
     draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
     draw_statue(athena_mesh, athena_vao, athena_ebo);

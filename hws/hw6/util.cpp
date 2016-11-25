@@ -27,6 +27,7 @@ extern GLfloat sphere_trans[9];
 extern GLfloat sphere_scale[3];
 extern GLuint light_pos, spotlight_pos, spotlight_dire;
 extern glm::vec3 light_position, spotlight_position, spotlight_direction, cursor_position;
+extern glm::vec3 eye_pos, look_pos, eye_trans;
 
 void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[0] = -len / 2;
@@ -193,40 +194,48 @@ void update_view(glm::mat4 &view, Flock& f) {
 }
 
 void center_view(glm::mat4& view, Flock &f) {
-  glm::vec3 pos = glm::vec3(0.0, 0.0, 1800);
+  glm::vec3 pos = glm::vec3(0.0, 0.0, 1800) + eye_trans;
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
   vec3 my_look = calc_middleway(f);
   glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
   view = glm::lookAt(pos, look, up);
+  eye_pos = pos;
+  look_pos = look;
 }
 
 void side_view(glm::mat4& view, Flock &f) {
   vec3 my_pos = get_side_pos(f);
-  glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]);
+  glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]) + eye_trans;
 
   vec3 my_look = calc_middleway(f);
   glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
 
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
   view = glm::lookAt(pos, look, up);
+  eye_pos = pos;
+  look_pos = look;
 }
 
 void trailing_view(glm::mat4& view, Flock &f) {
   vec3 my_pos = get_trailing_pos(f);
-  glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]);
+  glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]) + eye_trans;
   vec3 my_look = calc_middleway(f);
   glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
   view = glm::lookAt(pos, look, up);
+  eye_pos = pos;
+  look_pos = look;
 }
 
 void first_person_view(glm::mat4& view, Flock &f) {
   vec3 boid_pos = f.pos->at(0);
-  glm::vec3 pos = glm::vec3(boid_pos[0], boid_pos[1], boid_pos[2]);
+  glm::vec3 pos = glm::vec3(boid_pos[0], boid_pos[1], boid_pos[2]) + eye_trans;
   vec3 my_look = get_first_person_center_pos(f);
   glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
   view = glm::lookAt(pos, look, up);
+  eye_pos = pos;
+  look_pos = look;
 }
 
 vec3 ave_flock_center(Flock& f) {
@@ -360,17 +369,25 @@ void update_light_position() {
 }
 
 void zoom_in() {
-  if (view_angle > 10.0) {
-    view_angle -= 1.0;
+  glm::vec3 look_direction = look_pos - eye_pos;
+  if (glm::length(look_direction) > 500) {
+    eye_trans += 50.0f * glm::normalize(look_direction);
   }
-  project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
+  // view_mat = glm::lookAt(eye_pos, look_pos, glm::vec3(0.0, 0.0, 1.0));
+  cout << glm::length(look_direction) << endl;
+  cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
+  cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
 }
 
 void zoom_out() {
-  if (view_angle < 75.0) {
-    view_angle += 1.0;
+  glm::vec3 look_direction = look_pos - eye_pos;
+  if (glm::length(look_direction) < 20000) {
+    eye_trans -= 50.0f * glm::normalize(look_direction);
   }
-  project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
+  // view_mat = glm::lookAt(eye_pos, look_pos, glm::vec3(0.0, 0.0, 1.0));
+  cout << glm::length(look_direction) << endl;
+  cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
+  cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
 }
 
 void print_step_msg(Flock* f) {
