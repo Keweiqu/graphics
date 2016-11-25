@@ -112,25 +112,21 @@ void draw_terrain(meshManager& mesh, GLuint vao, GLuint ebo) {
   glDrawElements(GL_TRIANGLES, mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
-void draw_ship() {
-
-}
-
-void draw_athena() {
+void draw_statue(meshManager& mesh, GLuint vao, GLuint ebo) {
   glUseProgram(athena_shader);
-  glBindVertexArray(athena_vao);
+  glBindVertexArray(vao);
   glUniformMatrix4fv(athena_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glUniformMatrix4fv(athena_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glm::mat4 model_mat =
-    glm::translate(athena_mesh.trans_vec) *
-    glm::scale(glm::vec3(athena_mesh.scale)) *
-    glm::rotate(athena_mesh.rotate_angles[0], glm::vec3(1.0, 0.0, 0.0)) *
-    glm::rotate(athena_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
-    glm::rotate(athena_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
+    glm::translate(mesh.trans_vec) *
+    glm::scale(glm::vec3(mesh.scale)) *
+    glm::rotate(mesh.rotate_angles[0], glm::vec3(1.0, 0.0, 0.0)) *
+    glm::rotate(mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
+    glm::rotate(mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
   glUniformMatrix4fv(athena_model, 1, GL_FALSE, glm::value_ptr(model_mat));
   glUniform4fv(athena_view_pos, 1, glm::value_ptr(eye));
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, athena_ebo);
-  glDrawElements(GL_TRIANGLES, athena_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glDrawElements(GL_TRIANGLES, mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
 void draw_sphere() {

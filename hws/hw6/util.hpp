@@ -47,7 +47,7 @@ void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index);
 void draw_ocean(GLuint vao);
 void draw_terrain(meshManager& mesh, GLuint vao, GLuint ebo);
 void draw_ship();
-void draw_athena();
+void draw_statue(meshManager& mesh, GLuint vao, GLuint ebo);
 void draw_sphere();
 void draw_nike();
 void draw_bear();

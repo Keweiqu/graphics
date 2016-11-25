@@ -551,7 +551,7 @@ void init() {
   boid_shader = initshader("boid_vs.glsl", "boid_fs.glsl");
   terrain_shader = initshader("terrain_vs.glsl", "terrain_fs.glsl");
   athena_shader = initshader("athena_vs.glsl", "athena_fs.glsl");
-  bear_shader = initshader("bear_vs.glsl", "bear_fs.glsl");
+  //bear_shader = initshader("bear_vs.glsl", "bear_fs.glsl");
 
   init_boid();
   init_goal();
@@ -740,10 +740,6 @@ int main(int argc, char** argv) {
   terrain_mesh2.scale = 2.0;
   terrain_mesh2.trans_vec = glm::vec3(7500, 0.0, -5000.0);
 
-  ship_mesh.readFile("ship.off");
-  ship_mesh.scale = 1.0;
-  ship_mesh.trans_vec = glm::vec3(0.0, 0.0, -8000.0);
-
   athena_mesh.readFile("meshes/athena.off");
   athena_mesh.scale = 2.0; //0.6
   athena_mesh.trans_vec = glm::vec3(-1000.0, 6500.0, 4500.0);
@@ -759,11 +755,12 @@ int main(int argc, char** argv) {
   nike_mesh.trans_vec = glm::vec3(12000.0, 5500.0, 3500.0);
   nike_mesh.rotate_angles = glm::vec3(90 * DEGREE_TO_RADIAN, 0.0, 0.0);
 
+  /*
   bear_mesh.readFile("meshes/bear.off");
   bear_mesh.scale = 100.0;
   bear_mesh.trans_vec = glm::vec3(15500.0, 3500.0, 6500.0);
   bear_mesh.rotate_angles = glm::vec3(0.0, 0.0, 90 * DEGREE_TO_RADIAN);
-
+  */
   init();
 
   GLfloat angle = 0.0;
@@ -773,16 +770,15 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 10000.0);
-    view_mat = glm::lookAt(eye, center, up);
-    angle += 0.005;
+    //eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 10000.0);
+    //view_mat = glm::lookAt(eye, center, up);
+    //angle += 0.005;
     draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
     draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
-    // draw_ship();
-    draw_athena();
+    draw_statue(athena_mesh, athena_vao, athena_ebo);
+    draw_statue(nike_mesh, nike_vao, nike_ebo);
     draw_sphere();
-    draw_nike();
-    draw_bear();
+    //draw_bear();
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
     draw_goal(&f, model, goal_vao, goal_idx);
