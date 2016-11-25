@@ -82,7 +82,7 @@ void fillSquareCenter(GLint top_left_x, GLint top_left_y, GLint side) {
   sum /= 4.0;
   GLint center_x = top_left_x + (side / 2);
   GLint center_y = top_left_y + (side / 2);
-  sum += (rand() / (GLfloat) RAND_MAX) * rand_range * 10 / distToCenter(center_x, center_y);
+  sum += (rand() / (GLfloat) RAND_MAX) * rand_range;
   heights[center_x][center_y] = sum;
 }
 
@@ -111,7 +111,7 @@ void fillDiamondCenter(GLint center_x, GLint center_y, GLint side) {
   }
 
   sum /= (GLfloat) divider;
-  sum += (rand() / (GLfloat) RAND_MAX) * rand_range * 10 / distToCenter(center_x, center_y);
+  sum += (rand() / (GLfloat) RAND_MAX) * rand_range;
   heights[center_x][center_y] = sum;
 }
 
@@ -187,7 +187,7 @@ void genFacesOFF(ofstream &mesh) {
 void clampContour() {
   GLfloat range = 350.0;
   GLfloat drop = 350;
-  for(int i = 5; i > 0; i--) {
+  for(int i = 20; i > 0; i--) {
     cout << "i is " << i << endl;
     for(int j = 0; j < SIDE_LEN - i; j++) {
       //top

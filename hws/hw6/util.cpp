@@ -52,7 +52,6 @@ void draw_ocean(GLuint vao) {
   update_day_time(ocean_shader);
 
   vec3 boid_pos = f.pos->at(0);
-  vec3 boid_vel = f.vel->at(0);
   spotlight_position = glm::vec3(boid_pos[0], boid_pos[1] + 10, boid_pos[2]);
   vec3 center_pos = get_first_person_center_pos(f);
   spotlight_direction = glm::vec3(center_pos[0] - boid_pos[0], center_pos[1] - (boid_pos[1] + 10), center_pos[2] - boid_pos[2]);
@@ -147,23 +146,6 @@ void draw_sphere() {
       glUniformMatrix4fv(sphere_model, 1, GL_FALSE, glm::value_ptr(model_mat));
       glDrawElements(GL_TRIANGLES, sphere_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
   }
-}
-
-void draw_nike() {
-  glUseProgram(athena_shader);
-  glBindVertexArray(nike_vao);
-  glUniformMatrix4fv(nike_project, 1, GL_FALSE, glm::value_ptr(project_mat));
-  glUniformMatrix4fv(nike_view, 1, GL_FALSE, glm::value_ptr(view_mat));
-  glm::mat4 model_mat =
-    glm::translate(nike_mesh.trans_vec) *
-    glm::scale(glm::vec3(nike_mesh.scale)) *
-    glm::rotate(nike_mesh.rotate_angles[0], glm::vec3(1.0, 0.0, 0.0)) *
-    glm::rotate(nike_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
-    glm::rotate(nike_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
-  glUniformMatrix4fv(nike_model, 1, GL_FALSE, glm::value_ptr(model_mat));
-  glUniform4fv(nike_view_pos, 1, glm::value_ptr(eye));
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nike_ebo);
-  glDrawElements(GL_TRIANGLES, nike_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
 void draw_bear() {
@@ -301,8 +283,11 @@ vec3 get_trailing_pos(Flock& f) {
 
 vec3 get_first_person_center_pos(Flock& f) {
   vec3 boid_pos = f.pos->at(0);
-  vec3 boid_v = f.vel->at(0);
-  vec3 center = boid_pos + vec3::normalize(boid_v) * 10000;
+  vec3 boid_v = vec3::normalize(f.vel->at(0));
+  vec3 up = vec3(0.0, 0.0, 1.0);
+  vec3 to_right = vec3::normalize(vec3::cross(boid_v, up)) * left_right;
+  vec3 look_v = vec3::normalize(boid_v + to_right * 0.1);
+  vec3 center = boid_pos + look_v * 10000;
   center[2] = up_down * 50;
   return center;
 }

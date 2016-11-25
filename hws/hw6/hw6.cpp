@@ -551,7 +551,7 @@ void init() {
   boid_shader = initshader("boid_vs.glsl", "boid_fs.glsl");
   terrain_shader = initshader("terrain_vs.glsl", "terrain_fs.glsl");
   athena_shader = initshader("athena_vs.glsl", "athena_fs.glsl");
-  //bear_shader = initshader("bear_vs.glsl", "bear_fs.glsl");
+  bear_shader = initshader("bear_vs.glsl", "bear_fs.glsl");
 
   init_boid();
   init_goal();
@@ -657,6 +657,16 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     if(up_down > -50) {
       up_down -= 1;
     }
+    case GLFW_KEY_R:
+      if(left_right < 15) {
+	left_right += 1;
+      }
+      break;
+    case GLFW_KEY_L:
+      if(left_right > -15) {
+	left_right -= 1;
+      }
+      break;
     default:
       break;
     }
@@ -664,31 +674,6 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 
 }
 
-/*
-glm::vec3 MouseToWorld(int x, int y)
-{
-    GLint viewport[4];
-    GLdouble modelview[16];
-    GLdouble projection[16];
-    GLfloat winX, winY, winZ;
-    GLdouble posX, posY, posZ;
-
-    glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
-    glGetDoublev( GL_PROJECTION_MATRIX, projection );
-    glGetIntegerv( GL_VIEWPORT, viewport );
-
-    winX = (float)x;
-    winY = (float)viewport[3] - (float)y;
-    glReadPixels( x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ );
-
-    gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
-    return glm::vec3(posX * WORLD_SIZE, posY * WORLD_SIZE, 0.0);
-}
-
-void cursor(GLFWwindow* window, double xpos, double ypos) {
-  cursor_position = MouseToWorld((int)xpos, (int)ypos);
-}
-*/
 void reshape(GLFWwindow *w, int width, int height) {
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
 }
@@ -699,8 +684,8 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   v_mode = SIDE;
-  eye = glm::vec3(0.0, -50000.0, 10.0);
-  glm::vec3 center = glm::vec3(5000.0, 0.0, 2000.0);
+  eye = glm::vec3(0.0, 0.0, 10.0);
+  glm::vec3 center = glm::vec3(0.0, 0.0, 2000.0);
   glm::vec3 up = glm::vec3(0, 0, 1);
   view_mat = glm::lookAt(eye, center, up);
   project_mat = glm::perspective(view_angle * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
@@ -728,43 +713,40 @@ int main(int argc, char** argv) {
   glewInit();
 
   glfwSetKeyCallback(window, keyboard);
-  //glfwSetCursorPosCallback(window, cursor);
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
 
   terrain_mesh.readFile("terrain.off");
   terrain_mesh.scale = 2.0;
-  terrain_mesh.trans_vec = glm::vec3(-8500.0, 0.0, -15000.0);
+  terrain_mesh.trans_vec = glm::vec3(-20000.0, 0.0, -15000.0);
 
-  terrain_mesh2.readFile("terrain2.off");
+  terrain_mesh2.readFile("terrain3.off");
   terrain_mesh2.scale = 2.0;
-  terrain_mesh2.trans_vec = glm::vec3(7500, 0.0, -5000.0);
+  terrain_mesh2.trans_vec = glm::vec3(6500, 0.0, -6000.0);
 
   athena_mesh.readFile("meshes/athena.off");
   athena_mesh.scale = 2.0; //0.6
-  athena_mesh.trans_vec = glm::vec3(-1000.0, 6500.0, 4500.0);
+  athena_mesh.trans_vec = glm::vec3(-12500.0, 6500.0, 4500.0);
   athena_mesh.rotate_angles = glm::vec3(90 * DEGREE_TO_RADIAN, 0.0, 0.0);
 
   sphere_mesh.readFile("meshes/sphere2.off");
   sphere_mesh.scale = 100.0;
-  sphere_mesh.trans_vec = glm::vec3(-1000.0, 8500.0, 4500.0);
-  sphere_mesh.rotate_angles = glm::vec3(90 * DEGREE_TO_RADIAN, 0.0, 0.0);
+  sphere_mesh.trans_vec = glm::vec3(0.0, 0.0, 0.0);
 
   nike_mesh.readFile("meshes/nike.off");
   nike_mesh.scale = 100.0;
-  nike_mesh.trans_vec = glm::vec3(12000.0, 5500.0, 3500.0);
+  nike_mesh.trans_vec = glm::vec3(12500.0, 7500.0, 4500.0);
   nike_mesh.rotate_angles = glm::vec3(90 * DEGREE_TO_RADIAN, 0.0, 0.0);
 
-  /*
   bear_mesh.readFile("meshes/bear.off");
   bear_mesh.scale = 100.0;
   bear_mesh.trans_vec = glm::vec3(15500.0, 3500.0, 6500.0);
   bear_mesh.rotate_angles = glm::vec3(0.0, 0.0, 90 * DEGREE_TO_RADIAN);
-  */
+
   init();
 
   GLfloat angle = 0.0;
-  GLfloat radius = 15000.0;
+  GLfloat radius = 40000.0;
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_frame_counter();
@@ -778,7 +760,7 @@ int main(int argc, char** argv) {
     draw_statue(athena_mesh, athena_vao, athena_ebo);
     draw_statue(nike_mesh, nike_vao, nike_ebo);
     draw_sphere();
-    //draw_bear();
+    draw_bear();
     draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
     draw_goal(&f, model, goal_vao, goal_idx);
