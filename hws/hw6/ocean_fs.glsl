@@ -74,7 +74,7 @@ void main() {
   vec4 shadeTex = vec4(mix(texture(ocean_tex0, texCoord).rgb, texture(ocean_tex1, texCoord).rgb, ocean_time), 1.0);
   fColor = shadeLight * shadeTex;
 
-  vec3 fogc = vec3(0.3, 0.3, 0.3);
+  vec3 fogc = vec3(1.0, 1.0, 1.0);
   float fogmin = 1000.0, fogmax = 20000.0;
   float dist = length(-pos_eye);
   float fogf = (dist - fogmin) / (fogmax - fogmin);

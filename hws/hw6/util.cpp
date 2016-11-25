@@ -4,10 +4,10 @@ GLfloat ocean_vertices[12];
 View v;
 extern glm::vec3 eye;
 extern Flock f;
-extern meshManager terrain_mesh, ship_mesh, athena_mesh;
+extern meshManager terrain_mesh, ship_mesh, athena_mesh, sphere_mesh, nike_mesh, bear_mesh;
 extern enum VIEW_TYPE v_mode;
 extern int up_down, left_right;
-extern GLuint t, t2, day_time, ocean_shader, boid_shader, terrain_shader, athena_shader;
+extern GLuint t, t2, day_time, ocean_shader, boid_shader, terrain_shader, athena_shader, bear_shader;
 extern GLfloat glTime, glOceanTime;
 extern GLuint project, view, model;
 extern glm::mat4 project_mat, view_mat, model_mat;
@@ -16,10 +16,15 @@ extern GLfloat view_angle;
 extern GLuint boid_model, boid_view, boid_project;
 extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_project;
 extern GLuint athena_vao, athena_ebo, athena_view_pos, athena_view, athena_project, athena_model;
+extern GLuint sphere_vao, sphere_ebo, sphere_view_pos, sphere_view, sphere_project, sphere_model;
+extern GLuint nike_vao, nike_ebo, nike_view_pos, nike_view, nike_project, nike_model;
+extern GLuint bear_vao, bear_ebo, bear_view, bear_project, bear_model;
 extern GLuint ocean_vbo_index;
 extern GLuint light1, light2;
 extern GLuint frame_counter, at_night;
 extern GLfloat lighting_conditions[36];
+extern GLfloat sphere_trans[9];
+extern GLfloat sphere_scale[3];
 extern GLuint light_pos, spotlight_pos, spotlight_dire;
 extern glm::vec3 light_position, spotlight_position, spotlight_direction, cursor_position;
 
@@ -128,6 +133,58 @@ void draw_athena() {
   glDrawElements(GL_TRIANGLES, athena_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
 
+void draw_sphere() {
+  glUseProgram(athena_shader);
+  glBindVertexArray(sphere_vao);
+  glUniformMatrix4fv(sphere_project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniformMatrix4fv(sphere_view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glUniform4fv(sphere_view_pos, 1, glm::value_ptr(eye));
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere_ebo);
+
+  for (int i = 0; i < 3; i++) {
+    glm::mat4 model_mat =
+      glm::translate(sphere_mesh.trans_vec + glm::vec3(sphere_trans[i * 3], sphere_trans[i * 3 + 1], sphere_trans[i * 3 + 2])) *
+      glm::scale(glm::vec3(sphere_mesh.scale * sphere_scale[i])) *
+      glm::rotate(sphere_mesh.rotate_angles[0], glm::vec3(1.0, 0.0, 0.0)) *
+      glm::rotate(sphere_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate(sphere_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
+      glUniformMatrix4fv(sphere_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+      glDrawElements(GL_TRIANGLES, sphere_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
+  }
+}
+
+void draw_nike() {
+  glUseProgram(athena_shader);
+  glBindVertexArray(nike_vao);
+  glUniformMatrix4fv(nike_project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniformMatrix4fv(nike_view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glm::mat4 model_mat =
+    glm::translate(nike_mesh.trans_vec) *
+    glm::scale(glm::vec3(nike_mesh.scale)) *
+    glm::rotate(nike_mesh.rotate_angles[0], glm::vec3(1.0, 0.0, 0.0)) *
+    glm::rotate(nike_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
+    glm::rotate(nike_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
+  glUniformMatrix4fv(nike_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glUniform4fv(nike_view_pos, 1, glm::value_ptr(eye));
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nike_ebo);
+  glDrawElements(GL_TRIANGLES, nike_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
+}
+
+void draw_bear() {
+  glUseProgram(bear_shader);
+  glBindVertexArray(bear_vao);
+  glUniformMatrix4fv(bear_project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniformMatrix4fv(bear_view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glm::mat4 model_mat =
+    glm::translate(bear_mesh.trans_vec) *
+    glm::scale(glm::vec3(bear_mesh.scale)) *
+    glm::rotate(bear_mesh.rotate_angles[0], glm::vec3(1.0, 0.0, 0.0)) *
+    glm::rotate(bear_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
+    glm::rotate(bear_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
+  glUniformMatrix4fv(bear_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bear_ebo);
+  glDrawElements(GL_TRIANGLES, bear_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
+}
 
 void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glUseProgram(boid_shader);
