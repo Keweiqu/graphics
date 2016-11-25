@@ -595,11 +595,11 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       }
       break;
 
-    case GLFW_KEY_LEFT:
+    case GLFW_KEY_L:
       to_left = TRUE;
       to_right = FALSE;
       break;
-    case GLFW_KEY_RIGHT:
+    case GLFW_KEY_R:
       to_right = TRUE;
       to_left= FALSE;
       break;
@@ -657,12 +657,12 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     if(up_down > -50) {
       up_down -= 1;
     }
-    case GLFW_KEY_R:
+    case GLFW_KEY_RIGHT:
       if(left_right < 15) {
 	left_right += 1;
       }
       break;
-    case GLFW_KEY_L:
+    case GLFW_KEY_LEFT:
       if(left_right > -15) {
 	left_right -= 1;
       }
