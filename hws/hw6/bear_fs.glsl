@@ -5,6 +5,7 @@ in vec3 fN;
 in vec3 fL;
 in vec3 fE;
 in vec3 pos_eye;
+in vec4 P;
 uniform float day_time;
 uniform mat3 light1;
 uniform mat3 light2;

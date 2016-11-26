@@ -19,7 +19,7 @@ uniform vec4 viewPos;
 void main() {
 
      N_world = normalize((Model * vec4(vNormal, 0.0)).xyz);
-     V_world = normalize((Model * (viewPos - vPos)).xyz);
+     V_world = normalize((viewPos - Model * vPos).xyz);
 
      vec4 LightPosition = vec4(0.0, 0.0, 10000.0, 1.0);
      

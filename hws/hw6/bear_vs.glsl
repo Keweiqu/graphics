@@ -4,6 +4,7 @@ in vec4 vPos;
 in vec3 vNormal;
 in vec2 vTex;
 
+out vec4 P;
 out vec3 fN;
 out vec3 fE;
 out vec3 fL;
@@ -19,6 +20,7 @@ uniform vec3 spotlight_position;
 uniform int atNight;
 
 void main() {
+     P = vPos;
      vec4 LightPosition = View * vec4(light_position.x, light_position.y, light_position.z, 1.0);
      if (atNight == 1) {
       LightPosition = View * vec4(spotlight_position.x, spotlight_position.y, spotlight_position.z, 1.0);

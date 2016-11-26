@@ -4,7 +4,7 @@ in vec4 vPos;
 in vec3 vNormal;
 in vec2 vTex;
 
-out vec4 pos;
+out vec4 pos_model;
 out vec3 fN;
 out vec3 fE;
 out vec3 fL;
@@ -30,6 +30,6 @@ void main() {
      if (LightPosition.w != 0.0) {
      	fL = LightPosition.xyz - pos_eye;
      }
-     pos = vPos;
+     pos_model = vPos;
      gl_Position = Project * vec4(pos_eye, 1.0);
 }
