@@ -26,7 +26,7 @@ void main() {
 	if (atNight == 1) {
 	 LightPosition = View * vec4(spotlight_position.x, spotlight_position.y, spotlight_position.z, 1.0);
 	}
-	vec4 P = vPos0 + (vPos1 - vPos0) * time;
+	P = vPos0 + (vPos1 - vPos0) * time;
 	pos_eye = vec3(View * Model * P);
   normal_eye = vec3(View * Model * vec4(vNormal, 0.0));
   texCoord = vTex;

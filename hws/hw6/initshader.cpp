@@ -75,6 +75,7 @@ GLuint initshader(const char* vShaderFile, const char* fShaderFile){
   glGetProgramiv( program, GL_LINK_STATUS, &linked );
   if ( !linked ) {
     fprintf(stderr, "Shader program failed to link\n");
+    fprintf(stderr, vShaderFile);
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logSize);
     logMsg = (char *) malloc(logSize);
     glGetProgramInfoLog(program, logSize, NULL, logMsg);

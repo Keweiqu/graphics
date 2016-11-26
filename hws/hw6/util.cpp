@@ -85,7 +85,6 @@ void draw_ocean(GLuint vao) {
     glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(ocean_model));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
   }
-  // glm::mat4 ocean_model = glm::mat4(1.0);
 }
 
 void bind_ocean_texture(int i) {

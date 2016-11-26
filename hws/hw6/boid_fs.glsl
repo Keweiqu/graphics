@@ -4,7 +4,7 @@ out vec4 fColor;
 in vec3 fN;
 in vec3 fL;
 in vec3 fE;
-in vec3 pos_eye, normal_eye;
+in vec3 pos_eye;
 in vec2 texCoord;
 in vec4 P;
 uniform sampler2D feather_tex;

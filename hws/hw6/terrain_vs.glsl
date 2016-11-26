@@ -19,7 +19,7 @@ uniform float time;
 
 void main() {
      vec4 LightPosition = View * vec4(0.0, 0.0, 10000.0, 1.0);
-     vec3 pos_eye = vec3(View * Model * vPos);
+     pos_eye = vec3(View * Model * vPos);
      vec3 normal_eye = vec3(View * Model * vec4(vNormal, 0.0));
      texCoord = vTex;
 

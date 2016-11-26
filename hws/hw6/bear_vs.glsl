@@ -7,9 +7,7 @@ in vec2 vTex;
 out vec3 fN;
 out vec3 fE;
 out vec3 fL;
-out vec3 pos_eye, normal_eye;
-out vec2 texCoord;
-out vec4 P;
+out vec3 pos_eye;
 
 uniform mat4 Model;
 uniform mat4 View;
@@ -26,8 +24,7 @@ void main() {
       LightPosition = View * vec4(spotlight_position.x, spotlight_position.y, spotlight_position.z, 1.0);
      }
      pos_eye = vec3(View * Model * vPos);
-     normal_eye = vec3(View * Model * vec4(vNormal, 0.0));
-     texCoord = vTex;
+     vec3 normal_eye = vec3(View * Model * vec4(vNormal, 0.0));
 
      fN = normal_eye;
      fE = -pos_eye.xyz;

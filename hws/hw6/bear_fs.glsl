@@ -4,24 +4,16 @@ out vec4 fColor;
 in vec3 fN;
 in vec3 fL;
 in vec3 fE;
-in vec3 pos_eye, normal_eye;
-in vec2 texCoord;
-in vec4 P;
-uniform sampler2D ocean_tex0;
-uniform sampler2D ocean_tex1;
-uniform float ocean_time;
+in vec3 pos_eye;
 uniform float day_time;
 uniform mat3 light1;
 uniform mat3 light2;
 
 uniform vec3 spotlight_position;
 uniform vec3 spotlight_direction;
-//uniform vec3 cursor_position;
-//uniform float spotlight_angle;
 uniform int atNight;
 
 uniform mat4 Model;
-//uniform mat4 spotlightModel;
 
 void main() {
   vec4 AmbientProduct = vec4(0.65, 0.65, 0.65, 1.0);
@@ -48,7 +40,6 @@ void main() {
 
   float attenuation = 0.0;
   vec3 cone_direction = normalize(spotlight_direction);
-  //vec3 cone_direction = normalize((spotlightModel * vec4(cursor_position, 1.0)).xyz - spotlight_position);
 
   vec3 ray_direction = normalize((Model * P).xyz - spotlight_position);
   float ray_angle = degrees(acos(dot(ray_direction, cone_direction)));
