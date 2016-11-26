@@ -75,7 +75,7 @@ void main() {
   fColor = shadeLight * shadeTex;
 
   vec3 fogc = vec3(1.0, 1.0, 1.0);
-  float fogmin = 1000.0, fogmax = 20000.0;
+  float fogmin = 10000.0, fogmax = 100000.0;
   float dist = length(-pos_eye);
   float fogf = (dist - fogmin) / (fogmax - fogmin);
   fogf = clamp(fogf, 0.0, 1.0);

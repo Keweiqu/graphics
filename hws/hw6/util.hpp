@@ -51,6 +51,7 @@ void draw_statue(meshManager& mesh, GLuint vao, GLuint ebo);
 void draw_sphere();
 void draw_nike();
 void draw_bear();
+void bind_ocean_texture(int i);
 void center_view(glm::mat4 &v, Flock& f);
 void side_view(glm::mat4 &v, Flock& f);
 void update_view(glm::mat4 &view, Flock& f);

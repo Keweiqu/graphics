@@ -11,7 +11,6 @@ extern GLuint t, t2, day_time, ocean_shader, boid_shader, terrain_shader, athena
 extern GLfloat glTime, glOceanTime;
 extern GLuint project, view, model;
 extern glm::mat4 project_mat, view_mat, model_mat;
-extern GLfloat eye_dist, scale_factor;
 extern GLfloat view_angle;
 extern GLuint boid_model, boid_view, boid_project;
 extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_project;
@@ -20,11 +19,17 @@ extern GLuint sphere_vao, sphere_ebo, sphere_view_pos, sphere_view, sphere_proje
 extern GLuint nike_vao, nike_ebo, nike_view_pos, nike_view, nike_project, nike_model;
 extern GLuint bear_vao, bear_ebo, bear_view, bear_project, bear_model;
 extern GLuint ocean_vbo_index;
+extern GLuint ocean_tex_sampler0, ocean_tex_sampler1;
+extern Image ocean0, ocean1;
 extern GLuint light1, light2;
 extern GLuint frame_counter, at_night;
+extern GLuint textures[5], box_texture[4];
+extern Image box[4];
 extern GLfloat lighting_conditions[36];
 extern GLfloat sphere_trans[9];
 extern GLfloat sphere_scale[3];
+extern GLfloat ocean_trans[18];
+extern GLfloat ocean_rotate_angles[18];
 extern GLuint light_pos, spotlight_pos, spotlight_dire;
 extern glm::vec3 light_position, spotlight_position, spotlight_direction, cursor_position;
 extern glm::vec3 eye_pos, look_pos, eye_trans;
@@ -70,9 +75,37 @@ void draw_ocean(GLuint vao) {
   glUniform1i(glGetUniformLocation(ocean_shader, "atNight"), 1);
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ocean_vbo_index);
-  glm::mat4 ocean_model = glm::mat4(1.0);
-  glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(ocean_model));
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
+  for (int i = 0; i < 6; i++) {
+    bind_ocean_texture(i);
+    glm::mat4 ocean_model =
+      glm::translate(glm::vec3(ocean_trans[i * 3], ocean_trans[i * 3 + 1], ocean_trans[i * 3 + 2])) *
+      glm::rotate((float)(ocean_rotate_angles[i * 3] * DEGREE_TO_RADIAN), glm::vec3(1.0, 0.0, 0.0)) *
+      glm::rotate((float)(ocean_rotate_angles[i * 3 + 1] * DEGREE_TO_RADIAN), glm::vec3(0.0, 1.0, 0.0)) *
+      glm::rotate((float)(ocean_rotate_angles[i * 3 + 2] * DEGREE_TO_RADIAN), glm::vec3(0.0, 0.0, 1.0));
+    glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr(ocean_model));
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, (void*)0);
+  }
+  // glm::mat4 ocean_model = glm::mat4(1.0);
+}
+
+void bind_ocean_texture(int i) {
+  if (i == 0) {
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 3160, 2592, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean0.data);
+    glUniform1i(ocean_tex_sampler0, 0);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, textures[1]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2804, 2592, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean1.data);
+    glUniform1i(ocean_tex_sampler1, 1);
+  } else {
+    glActiveTexture(GL_TEXTURE6 + i - 1);
+    glBindTexture(GL_TEXTURE_2D, box_texture[i - 1]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, box[i - 1].data);
+    glUniform1i(ocean_tex_sampler0, 6 + i - 1);
+    glUniform1i(ocean_tex_sampler1, 6 + i - 1);
+  }
 }
 
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
@@ -343,10 +376,10 @@ void update_day_time(GLuint shader) {
   light2 = glGetUniformLocation(shader, "light2");
   int i = (frame_counter / 1800) % 4;
   GLfloat *l1, *l2;
-  // l1 = lighting_conditions + i * 9;
-  // l2 = lighting_conditions + (i + 1) * 9 % 36;
-  l1 = lighting_conditions + 3 * 9;
-  l2 = lighting_conditions + 3 * 9;
+  l1 = lighting_conditions + i * 9;
+  l2 = lighting_conditions + (i + 1) * 9 % 36;
+  // l1 = lighting_conditions + 3 * 9;
+  // l2 = lighting_conditions + 3 * 9;
   glUniformMatrix3fv(light1, 1, GL_FALSE, l1);
   glUniformMatrix3fv(light2, 1, GL_FALSE, l2);
   glUniform1f(day_time, (frame_counter % 1800) / 1800.0);

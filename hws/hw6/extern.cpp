@@ -1,4 +1,5 @@
 #include "common.hpp"
+#include "hw6.hpp"
 //Front face clockwise 0, 1, 2, 3
 //Back face clockwise, 4, 5, 6, 7
 GLfloat goal_vertices[] = {
@@ -70,4 +71,22 @@ GLfloat sphere_trans[9] = {
 
 GLfloat sphere_scale[3] = {
   20.0, 15.0, 15.0
+};
+
+GLfloat ocean_trans[18] = {
+  0.0, 0.0, 0.0,
+  0.0, WORLD_SIZE, 0.0,
+  0.0, -WORLD_SIZE, 0.0,
+  WORLD_SIZE, 0.0, 0.0,
+  -WORLD_SIZE, 0.0, 0.0,
+  0.0, 0.0, WORLD_SIZE
+};
+
+GLfloat ocean_rotate_angles[18] = {
+  0.0, 0.0, 0.0,
+  90.0, 0.0, 0.0,
+  -90.0, 0.0, 0.0,
+  0.0, -90.0, 0.0,
+  0.0, 90.0, 0.0,
+  180.0, 0.0, 0.0
 };

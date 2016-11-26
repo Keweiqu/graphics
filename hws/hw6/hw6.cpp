@@ -18,7 +18,6 @@ glm::vec3 eye_pos = eye;
 glm::vec3 look_pos = glm::vec3(0.0, 0.0, 2000.0);
 glm::vec3 eye_trans = glm::vec3(0.0, 0.0, 0.0);
 
-GLfloat eye_dist = INITIAL_EYE_DIST;
 int clicked = FALSE;
 meshManager terrain_mesh, terrain_mesh2, ship_mesh, athena_mesh, sphere_mesh, nike_mesh, bear_mesh;
 
@@ -77,6 +76,7 @@ extern GLfloat ocean_vertices[12];
 extern GLfloat ocean_tex_coords[8];
 extern GLubyte ocean_indices[6];
 extern GLfloat ocean_normals[12];
+extern GLfloat box_vertices[24];
 
 GLuint ocean_shader, boid_shader, terrain_shader, athena_shader, bear_shader;
 
@@ -103,11 +103,11 @@ GLuint ocean_pos, ocean_normal, ocean_texc, ocean_tex_sampler0, ocean_tex_sample
 GLuint goal_vao, goal_vbo1, goal_idx;
 GLuint spotlight_pos, spotlight_dire;
 
-Image ocean0, ocean1, feather, rock, ice, cube[6];
+Image ocean0, ocean1, feather, rock, ice, cube[6], box[5];
 
 
 GLuint t, t2, day_time, light1, light2;
-GLuint textures[5], cube_texture;
+GLuint textures[5], cube_texture, box_texture[5];
 GLuint light_pos;
 
 
@@ -154,11 +154,39 @@ void read_images() {
     "env/bottom.ppm",//check
     "env/top.ppm"//check
   };
+  const char* box_text_names[] = {
+    "env/front.ppm",
+    "env/back_180.ppm",
+    "env/left_cw90.ppm",
+    "env/right_ccw90.ppm",
+    "env/top_cw90.ppm"
+  };
   for(int i = 0; i < 6; i++) {
     if(!read_ppm(env_text_names[i], cube + i)) {
       cout << "Fail to read image " << i << "for cube map" << endl;
       exit(EXIT_FAILURE);
     }
+  }
+  for (int i = 0; i < 5; i++) {
+    if (!read_ppm(box_text_names[i], box + i)) {
+      cout << "Fail to read image " << i << "for box" << endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+}
+
+void init_box_textures() {
+  for (int i = 0; i < 5; i++) {
+    glActiveTexture(GL_TEXTURE6 + i);
+    glBindTexture(GL_TEXTURE_2D, box_texture[i]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, box[i].data);
+    glUniform1i(ocean_tex_sampler0, 6 + i);
+    glUniform1i(ocean_tex_sampler1, 6 + i);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   }
 }
 
@@ -199,6 +227,8 @@ void init_ocean() {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+  init_box_textures();
 
   glGenVertexArrays(1, &vao2);
   glBindVertexArray(vao2);
@@ -754,9 +784,10 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    // eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 10000.0);
-    // view_mat = glm::lookAt(eye, center, up);
-    // angle += 0.005;
+    eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 7000.0);
+    center = glm::vec3(0.0, 0.0, 7000.0);
+    view_mat = glm::lookAt(eye, center, up);
+    angle += 0.005;
     draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
     draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
     draw_statue(athena_mesh, athena_vao, athena_ebo);
