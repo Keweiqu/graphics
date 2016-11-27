@@ -693,7 +693,7 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   v_mode = SIDE;
-  project_mat = glm::perspective(DEFAULT_VIEW_ANGLE * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
+  project_mat = glm::perspective(DEFAULT_VIEW_ANGLE * DEGREE_TO_RADIAN, 1.0, 10.0, 100000.0);
 
   if(!glfwInit()) {
     cerr << "Error: cannot start GLFW3" << endl;
