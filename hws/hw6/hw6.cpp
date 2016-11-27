@@ -12,12 +12,11 @@ glm::vec3 spotlight_position = glm::vec3(1.0, 1.0, 1.0);
 glm::vec3 spotlight_direction = glm::vec3(1.0, 1.0, 1.0);
 GLfloat spotlight_angle = 30.0;
 GLfloat view_angle = DEFAULT_VIEW_ANGLE;
-glm::vec3 eye = glm::vec3(1.0);
-glm::vec3 eye_pos = eye;
+glm::vec3 eye_pos = glm::vec3(1.0);
 glm::vec3 look_pos = glm::vec3(0.0, 0.0, 2000.0);
 glm::vec3 eye_trans = glm::vec3(0.0, 0.0, 0.0);
 
-meshManager terrain_mesh, terrain_mesh2, athena_mesh, sphere_mesh, nike_mesh, bear_mesh;
+meshManager terrain_mesh, terrain_mesh_s, terrain_mesh2, terrain_mesh2_s, athena_mesh, sphere_mesh, nike_mesh, bear_mesh;
 
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -83,7 +82,11 @@ GLuint boid_vbo_normal, boid_vbo_tex, boid_normal, boid_texc, feather_tex_sample
 
 GLuint terrain_vao, terrain_vbo_pos, terrain_vbo_normal, terrain_vbo_tex, terrain_ebo;
 
+GLuint terrain_s_vao, terrain_s_vbo_pos, terrain_s_vbo_normal, terrain_s_vbo_tex, terrain_s_ebo;
+
 GLuint terrain_vao2, terrain_vbo_pos2, terrain_vbo_normal2, terrain_vbo_tex2, terrain_ebo2;
+
+GLuint terrain_s_vao2, terrain_s_vbo_pos2, terrain_s_vbo_normal2, terrain_s_vbo_tex2, terrain_s_ebo2;
 
 GLuint terrain_pos, terrain_normal, terrain_tex_coord, terrain_sampler, terrain_sampler1, terrain_view, terrain_project, terrain_model;
 
@@ -537,8 +540,30 @@ void init() {
   init_goal();
   init_ocean();
   init_terrain_shader();
-  init_terrain(terrain_mesh, &terrain_vao, &terrain_vbo_pos, &terrain_vbo_normal, &terrain_vbo_tex, &terrain_ebo);
-  init_terrain(terrain_mesh2, &terrain_vao2, &terrain_vbo_pos2, &terrain_vbo_normal2, &terrain_vbo_tex2, &terrain_ebo2);
+  init_terrain(terrain_mesh,
+	       &terrain_vao,
+	       &terrain_vbo_pos,
+	       &terrain_vbo_normal,
+	       &terrain_vbo_tex,
+	       &terrain_ebo);
+  init_terrain(terrain_mesh_s,
+	       &terrain_s_vao,
+	       &terrain_s_vbo_pos,
+	       &terrain_s_vbo_normal,
+	       &terrain_s_vbo_tex,
+	       &terrain_s_ebo); 
+  init_terrain(terrain_mesh2,
+	       &terrain_vao2,
+	       &terrain_vbo_pos2,
+	       &terrain_vbo_normal2,
+	       &terrain_vbo_tex2,
+	       &terrain_ebo2);
+  init_terrain(terrain_mesh2_s,
+	       &terrain_s_vao2,
+	       &terrain_s_vbo_pos2,
+	       &terrain_s_vbo_normal2,
+	       &terrain_s_vbo_tex2,
+	       &terrain_s_ebo2);
   init_athena_shader();
   init_athena();
   init_sphere();
@@ -552,12 +577,12 @@ void init() {
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     switch(key) {
-      case GLFW_KEY_EQUAL:
-        f.add_boid();
-        break;
-      case GLFW_KEY_BACKSPACE:
-        f.remove_boid();
-        break;
+    case GLFW_KEY_EQUAL:
+      f.add_boid();
+      break;
+    case GLFW_KEY_BACKSPACE:
+      f.remove_boid();
+      break;
     case 'P':
     case 'p':
       pause = !pause;
@@ -584,22 +609,25 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       to_right = TRUE;
       to_left= FALSE;
       break;
-      case GLFW_KEY_Q:
-      case GLFW_KEY_ESCAPE:
-        glfwSetWindowShouldClose(w, true);
-        break;
-      case GLFW_KEY_C:
-        v_mode = CENTER;
-        break;
-      case GLFW_KEY_T:
-        v_mode = TRAILING;
-        break;
-      case GLFW_KEY_S:
+    case GLFW_KEY_Q:
+    case GLFW_KEY_ESCAPE:
+      glfwSetWindowShouldClose(w, true);
+      break;
+    case GLFW_KEY_C:
+      v_mode = CENTER;
+      break;
+    case GLFW_KEY_T:
+      v_mode = TRAILING;
+      break;
+    case GLFW_KEY_S:
         v_mode = SIDE;
         break;
-      case GLFW_KEY_F:
-        v_mode = FIRST_PERSON;
-        break;
+    case GLFW_KEY_F:
+      v_mode = FIRST_PERSON;
+      break;
+    case GLFW_KEY_E:
+      v_mode = FREE;
+      break;
     case GLFW_KEY_COMMA:
       if(f.speed > 5) {
 	f.speed -= 1.0;
@@ -615,12 +643,12 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       break;
     }
   }
-
+  
   if (action == GLFW_PRESS || action == GLFW_REPEAT) {
     switch (key) {
-      case GLFW_KEY_I:
-        zoom_in();
-        break;
+    case GLFW_KEY_I:
+      zoom_in();
+      break;
       case GLFW_KEY_O:
         zoom_out();
         break;
@@ -665,10 +693,6 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   v_mode = SIDE;
-  eye = glm::vec3(0.0, 0.0, 10.0);
-  glm::vec3 center = glm::vec3(0.0, 0.0, 2000.0);
-  glm::vec3 up = glm::vec3(0, 0, 1);
-  view_mat = glm::lookAt(eye, center, up);
   project_mat = glm::perspective(DEFAULT_VIEW_ANGLE * DEGREE_TO_RADIAN, 1.0, 1.0, 100000.0);
 
   if(!glfwInit()) {
@@ -696,14 +720,22 @@ int main(int argc, char** argv) {
   glfwSetKeyCallback(window, keyboard);
   glfwSetWindowSizeCallback(window, reshape);
   glfwSetFramebufferSizeCallback(window, framebuffer_resize);
-
+  
   terrain_mesh.readFile("terrain.off");
   terrain_mesh.scale = 2.0;
   terrain_mesh.trans_vec = glm::vec3(-20000.0, 0.0, -15000.0);
 
+  terrain_mesh_s.readFile("s_terrain.off");
+  terrain_mesh_s.scale = 2.0;
+  terrain_mesh_s.trans_vec = glm::vec3(-20000.0, 0.0, -15000.0);
+
   terrain_mesh2.readFile("terrain3.off");
   terrain_mesh2.scale = 2.0;
   terrain_mesh2.trans_vec = glm::vec3(6500, 0.0, -6000.0);
+
+  terrain_mesh2_s.readFile("s_terrain3.off");
+  terrain_mesh2_s.scale = 2.0;
+  terrain_mesh2_s.trans_vec = glm::vec3(6500, 0.0, -6000.0);
 
   athena_mesh.readFile("meshes/athena.off");
   athena_mesh.scale = 2.0; //0.6
@@ -726,17 +758,11 @@ int main(int argc, char** argv) {
 
   init();
 
-  GLfloat angle = 0.0;
-  GLfloat radius = 40000.0;
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    //eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 7000.0);
-    //center = glm::vec3(0.0, 0.0, 7000.0);
-    //view_mat = glm::lookAt(eye, center, up);
-    //angle += 0.005;
     draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
     draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
     draw_statue(athena_mesh, athena_vao, athena_ebo);

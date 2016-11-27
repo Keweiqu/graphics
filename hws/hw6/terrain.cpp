@@ -1,7 +1,7 @@
 #include "terrain.hpp"
 
 GLfloat heights[SIDE_LEN][SIDE_LEN];
-GLfloat simplified_heights[SIDE_LEN / 2][SIDE_LEN / 2];
+GLfloat simplified_heights[SIDE_LEN / 2 + 1][SIDE_LEN / 2 + 1];
 int recurse = RECURSE;
 GLfloat rand_range = (GLfloat) RAND_RANGE;
 GLfloat terrain_vertices[SIDE_LEN * SIDE_LEN * 3];
@@ -20,8 +20,9 @@ int main() {
   genFaces();
   */
 
-  simplify("terrain.off");
-  genMeshOff("s_terrain.off", SIDE_LEN / 2 + 1, simplified_heights);
+  simplify("terrain3.off");
+  //printSquare(simplified_heights, SIDE_LEN / 2 + 1);
+  genMeshOff("s_terrain3.off", SIDE_LEN / 2 + 1, simplified_heights);
   return 0;
 }
 
@@ -121,31 +122,32 @@ void fillDiamondCenter(GLint center_x, GLint center_y, GLint side) {
   heights[center_x][center_y] = sum;
 }
 
-void printSquare() {
-  for(int i = 0; i < SIDE_LEN; i++) {
-    for(int j = 0; j < SIDE_LEN; j++) {
-      cout << heights[i][j] << "  ";
+void printSquare(GLfloat hgts[][SIDE_LEN / 2 + 1], int length) {
+  for(int i = 0; i < length; i++) {
+    for(int j = 0; j < length; j++) {
+      cout << hgts[i][j] << "  ";
     }
     cout << endl;
+    cout << "===========================================" << endl;
   }
 }
 
-void genMeshOff(string filename, int length, GLfloat hgts[][SIDE_LEN / 2]) {
+void genMeshOff(string filename, int length, GLfloat hgts[][SIDE_LEN / 2 + 1]) {
   ofstream mesh;
   mesh.open(filename);
   mesh << "OFF\n";
   mesh << length * length << " ";
   mesh << (length - 1) * (length - 1) * 2 << " ";
   mesh << length * (length - 1) * 2 + (length - 1) * (length - 1) << "\n";
-  genVertexOFF(mesh, hgts);
+  genVertexOFF(mesh, length, hgts);
   genFacesOFF(mesh, length);
 }
 
-void genVertexOFF(ofstream &mesh, GLfloat hgts[][SIDE_LEN / 2]) {
+void genVertexOFF(ofstream &mesh, int length, GLfloat hgts[][SIDE_LEN / 2 + 1]) {
   GLfloat width = 100;
   int row, col;
-  for(row = 0; row < SIDE_LEN; row++) {
-    for(col = 0; col < SIDE_LEN; col++) {
+  for(row = 0; row < length; row++) {
+    for(col = 0; col < length; col++) {
       mesh << row * width << " " << col * width << " " << hgts[row][col] << "\n";
     }
   }
@@ -158,7 +160,7 @@ void genFacesOFF(ofstream &mesh, int length) {
       mesh << "3 " << index + j << " " << index + j + length + 1 << " " << index + j + 1 << "\n";
       mesh << "3 " << index + j << " " << index + j + length << " " << index + j + length + 1 << "\n";
     }
-    index += SIDE_LEN;
+    index += SIDE_LEN / 2 + 1;
   }
 }
 
@@ -241,8 +243,9 @@ void simplify(string filename) {
   
   for(int i = 0; i < SIDE_LEN; i += 2) {
     for(int j = 0; j < SIDE_LEN; j += 2) {
+      cout << "i is " << i << " j is " << j << " " << heights[i][j] << endl;
+      cout << "i / 2 is " << i / 2 << " j / 2 is " << j / 2 << endl;
       simplified_heights[i / 2][j / 2] = heights[i][j];
     }
   }
-  
 }

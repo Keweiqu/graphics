@@ -1,8 +1,8 @@
 #include "util.hpp"
 
 GLfloat ocean_vertices[12];
+GLfloat free_view_angle = 0.0;
 View v;
-extern glm::vec3 eye;
 extern Flock f;
 extern meshManager terrain_mesh, ship_mesh, athena_mesh, sphere_mesh, nike_mesh, bear_mesh;
 extern enum VIEW_TYPE v_mode;
@@ -14,9 +14,10 @@ extern glm::mat4 project_mat, view_mat, model_mat;
 extern GLfloat view_angle;
 extern GLuint boid_model, boid_view, boid_project;
 extern GLuint terrain_vao, terrain_ebo, terrain_model, terrain_view, terrain_project;
-extern GLuint athena_vao, athena_ebo, athena_view_pos, athena_view, athena_project, athena_model;
-extern GLuint sphere_vao, sphere_ebo, sphere_view_pos, sphere_view, sphere_project, sphere_model;
-extern GLuint nike_vao, nike_ebo, nike_view_pos, nike_view, nike_project, nike_model;
+extern GLuint athena_model, athena_view, athena_project, athena_view_pos;
+extern GLuint athena_vao, athena_ebo;
+extern GLuint sphere_vao, sphere_ebo;
+extern GLuint nike_vao, nike_ebo;
 extern GLuint bear_vao, bear_ebo, bear_view, bear_project, bear_model;
 extern GLuint ocean_vbo_index;
 extern GLuint ocean_tex_sampler0, ocean_tex_sampler1;
@@ -150,7 +151,7 @@ void draw_statue(meshManager& mesh, GLuint vao, GLuint ebo) {
     glm::rotate(mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
     glm::rotate(mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
   glUniformMatrix4fv(athena_model, 1, GL_FALSE, glm::value_ptr(model_mat));
-  glUniform4fv(athena_view_pos, 1, glm::value_ptr(eye));
+  glUniform4fv(athena_view_pos, 1, glm::value_ptr(eye_pos));
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
   glDrawElements(GL_TRIANGLES, mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
 }
@@ -160,7 +161,7 @@ void draw_sphere() {
   glBindVertexArray(sphere_vao);
   glUniformMatrix4fv(athena_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glUniformMatrix4fv(athena_view, 1, GL_FALSE, glm::value_ptr(view_mat));
-  glUniform4fv(athena_view_pos, 1, glm::value_ptr(eye));
+  glUniform4fv(athena_view_pos, 1, glm::value_ptr(eye_pos));
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere_ebo);
 
   for (int i = 0; i < 3; i++) {
@@ -213,6 +214,9 @@ void update_view(glm::mat4 &view, Flock& f) {
     case SIDE:
       side_view(view, f);
       break;
+  case FREE:
+    free_view(view);
+    break;
     case FIRST_PERSON:
       first_person_view(view, f);
       break;
@@ -255,13 +259,19 @@ void trailing_view(glm::mat4& view, Flock &f) {
 
 void first_person_view(glm::mat4& view, Flock &f) {
   vec3 boid_pos = f.pos->at(0);
-  glm::vec3 pos = glm::vec3(boid_pos[0], boid_pos[1], boid_pos[2]) + eye_trans;
+  eye_pos = glm::vec3(boid_pos[0], boid_pos[1], boid_pos[2]) + eye_trans;
   vec3 my_look = get_first_person_center_pos(f);
-  glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
+  glm::vec3 look_pos = glm::vec3(my_look[0], my_look[1], my_look[2]);
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
-  view = glm::lookAt(pos, look, up);
-  eye_pos = pos;
-  look_pos = look;
+  view = glm::lookAt(eye_pos, look_pos, up);
+}
+
+void free_view(glm::mat4& view) {
+  eye_pos = glm::vec3(sin(free_view_angle) * FREE_VIEW_RADIUS, cos(free_view_angle) * FREE_VIEW_RADIUS, 7000);
+  look_pos = glm::vec3(0.0, 0.0, 7000);
+  glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
+  view = glm::lookAt(eye_pos, look_pos, up);
+  free_view_angle += 0.005;
 }
 
 vec3 ave_flock_center(Flock& f) {

@@ -25,8 +25,9 @@
 #define EYE_DIST_FAR 46
 #define SCALE_FACTOR_MAX 2.2
 #define SCALE_FACTOR_MIN 0.68
+#define FREE_VIEW_RADIUS 35000.0
 
-enum VIEW_TYPE {CENTER, SIDE, TRAILING, FIRST_PERSON};
+enum VIEW_TYPE {CENTER, SIDE, TRAILING, FREE, FIRST_PERSON};
 
 class View {
 public:
@@ -57,6 +58,7 @@ void side_view(glm::mat4 &v, Flock& f);
 void update_view(glm::mat4 &view, Flock& f);
 void trailing_view(glm::mat4 &view, Flock& f);
 void first_person_view(glm::mat4 &view, Flock& f);
+void free_view(glm::mat4 &view);
 vec3 ave_flock_center(Flock& f);
 vec3 calc_middleway(Flock& f);
 vec3 get_side_pos(Flock& f);
