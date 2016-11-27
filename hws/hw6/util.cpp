@@ -294,7 +294,7 @@ vec3 get_side_pos(Flock& f) {
   } else {
     d = center_goal_dist(f);
     r = max_boid_goal_dist(f);
-    m = calc_a_thirdway(f);
+    m = calc_middleway(f);
     vec3 c = ave_flock_center(f);
     u = f.goal - c;
   }
