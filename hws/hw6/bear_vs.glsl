@@ -4,17 +4,16 @@ in vec4 vPos;
 in vec3 vNormal;
 in vec2 vTex;
 
-out vec4 P;
 out vec3 fN;
 out vec3 fE;
 out vec3 fL;
 out vec3 pos_eye;
+out vec4 P;
 
 uniform mat4 Model;
 uniform mat4 View;
 uniform mat4 Project;
 
-uniform float time;
 uniform vec3 light_position;
 uniform vec3 spotlight_position;
 uniform int atNight;

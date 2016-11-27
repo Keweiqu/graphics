@@ -103,8 +103,7 @@ GLuint spotlight_pos, spotlight_dire;
 
 Image ocean0, ocean1, feather, rock, ice, cube[6], box[5];
 
-
-GLuint t, t2, day_time, light1, light2;
+GLuint t, t2, light1, light2;
 GLuint textures[5], cube_texture, box_texture[5];
 GLuint light_pos;
 
@@ -201,7 +200,6 @@ void init_ocean() {
   ocean_tex_sampler1 = glGetUniformLocation(ocean_shader, "ocean_tex1");
   light1 = glGetUniformLocation(ocean_shader, "light1");
   light2 = glGetUniformLocation(ocean_shader, "light2");
-  day_time = glGetUniformLocation(ocean_shader, "day_time");
   light_pos = glGetUniformLocation(ocean_shader, "light_position");
   spotlight_pos = glGetUniformLocation(ocean_shader, "spotlight_position");
   spotlight_dire = glGetUniformLocation(ocean_shader, "spotlight_direction");
@@ -611,6 +609,8 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       }
       break;
     case GLFW_KEY_N:
+      eye_pos = glm::vec3(0.0, 0.0, 10.0);
+      look_pos = glm::vec3(0.0, 0.0, 2000.0);
       view_mat = glm::lookAt(glm::vec3(0.0, 0.0, 10.0), glm::vec3(0.0, 0.0, 2000.0), glm::vec3(0.0, 0.0, 1.0));
       break;
     }
@@ -681,7 +681,7 @@ int main(int argc, char** argv) {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow *window = glfwCreateWindow(1000, 1000, "Triangle", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(1000, 1000, "Island World", NULL, NULL);
   if(!window) {
     cerr << "Error: Cannot open window with GLFW3" << endl;
     glfwTerminate();
@@ -733,17 +733,17 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    //eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 7000.0);
-    //center = glm::vec3(0.0, 0.0, 7000.0);
-    //view_mat = glm::lookAt(eye, center, up);
-    //angle += 0.005;
+    eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 7000.0);
+    center = glm::vec3(0.0, 0.0, 7000.0);
+    view_mat = glm::lookAt(eye, center, up);
+    angle += 0.005;
+    draw_ocean(vao2);
     draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
     draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
     draw_statue(athena_mesh, athena_vao, athena_ebo);
     draw_statue(nike_mesh, nike_vao, nike_ebo);
     draw_sphere();
     draw_bear();
-    draw_ocean(vao2);
     draw_flock(&f, model, boid_vao, boid_idx);
     draw_goal(&f, model, goal_vao, goal_idx);
     if(!pause) {

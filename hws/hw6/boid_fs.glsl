@@ -8,7 +8,6 @@ in vec3 pos_eye;
 in vec2 texCoord;
 in vec4 P;
 uniform sampler2D feather_tex;
-uniform float ocean_time;
 uniform float day_time;
 uniform mat3 light1;
 uniform mat3 light2;
@@ -66,4 +65,12 @@ void main() {
   shadeLight.a = 1.0;
   vec4 shadeTex = vec4(texture(feather_tex, texCoord).rgb, 1.0);
   fColor = shadeLight * shadeTex;
+
+  vec3 fogc = vec3(1.0, 1.0, 1.0);
+  float fogmin = 10000.0, fogmax = 100000.0;
+  float dist = length(-pos_eye);
+  float fogf = (dist - fogmin) / (fogmax - fogmin);
+  fogf = clamp(fogf, 0.0, 1.0);
+
+  fColor.rgb = mix(fColor.rgb, fogc, fogf);
 }

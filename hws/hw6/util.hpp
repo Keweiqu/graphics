@@ -65,6 +65,7 @@ vec3 get_first_person_center_pos(Flock &f);
 GLfloat center_goal_dist(Flock& f);
 GLfloat max_boid_goal_dist(Flock& f);
 void print_step_msg(Flock* f);
+void pass_light_variables_to_shader(GLuint shader);
 void init_time();
 void update_time(int index);
 void update_ocean_time();

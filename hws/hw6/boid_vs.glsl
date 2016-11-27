@@ -8,7 +8,7 @@ in vec2 vTex;
 out vec3 fN;
 out vec3 fE;
 out vec3 fL;
-out vec3 pos_eye, normal_eye;
+out vec3 pos_eye;
 out vec2 texCoord;
 out vec4 P;
 
@@ -28,7 +28,7 @@ void main() {
 	}
 	P = vPos0 + (vPos1 - vPos0) * time;
 	pos_eye = vec3(View * Model * P);
-  normal_eye = vec3(View * Model * vec4(vNormal, 0.0));
+  vec3 normal_eye = vec3(View * Model * vec4(vNormal, 0.0));
   texCoord = vTex;
 
   fN = normal_eye;

@@ -7,7 +7,7 @@ extern Flock f;
 extern meshManager terrain_mesh, ship_mesh, athena_mesh, sphere_mesh, nike_mesh, bear_mesh;
 extern enum VIEW_TYPE v_mode;
 extern int up_down, left_right;
-extern GLuint t, t2, day_time, ocean_shader, boid_shader, terrain_shader, athena_shader, bear_shader;
+extern GLuint t, t2, ocean_shader, boid_shader, terrain_shader, athena_shader, bear_shader;
 extern GLfloat glTime, glOceanTime;
 extern GLuint project, view, model;
 extern glm::mat4 project_mat, view_mat, model_mat;
@@ -61,12 +61,9 @@ void draw_ocean(GLuint vao) {
   spotlight_position = glm::vec3(boid_pos[0], boid_pos[1] + 10, boid_pos[2]);
   vec3 center_pos = get_first_person_center_pos(f);
   spotlight_direction = glm::vec3(center_pos[0] - boid_pos[0], center_pos[1] - (boid_pos[1] + 10), center_pos[2] - boid_pos[2]);
-  glUniform3fv(spotlight_pos, 1, glm::value_ptr(spotlight_position));
-  glUniform3fv(spotlight_dire, 1, glm::value_ptr(spotlight_direction));
-  glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
+  pass_light_variables_to_shader(ocean_shader);
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
-  glUniform1i(glGetUniformLocation(ocean_shader, "atNight"), 1);
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ocean_vbo_index);
   for (int i = 0; i < 6; i++) {
@@ -101,13 +98,17 @@ void bind_ocean_texture(int i) {
   }
 }
 
+void pass_light_variables_to_shader(GLuint shader) {
+  glUniform3fv(glGetUniformLocation(shader, "spotlight_position"), 1, glm::value_ptr(spotlight_position));
+  glUniform3fv(glGetUniformLocation(shader, "spotlight_direction"), 1, glm::value_ptr(spotlight_direction));
+  glUniform1i(glGetUniformLocation(shader, "atNight"), at_night);
+  glUniform3fv(glGetUniformLocation(shader, "light_position"), 1, glm::value_ptr(light_position));
+}
+
 void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
   glUseProgram(boid_shader);
   update_day_time(boid_shader);
-  glUniform3fv(glGetUniformLocation(boid_shader, "spotlight_position"), 1, glm::value_ptr(spotlight_position));
-  glUniform3fv(glGetUniformLocation(boid_shader, "spotlight_direction"), 1, glm::value_ptr(spotlight_direction));
-  glUniform1i(glGetUniformLocation(boid_shader, "atNight"), 1);
-  glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
+  pass_light_variables_to_shader(boid_shader);
   glUniformMatrix4fv(boid_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(boid_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glBindVertexArray(vao);
@@ -127,7 +128,9 @@ void draw_flock(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
 
 void draw_terrain(meshManager& mesh, GLuint vao, GLuint ebo) {
   glUseProgram(terrain_shader);
+  update_day_time(terrain_shader);
   glBindVertexArray(vao);
+  pass_light_variables_to_shader(terrain_shader);
   glUniformMatrix4fv(terrain_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glUniformMatrix4fv(terrain_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glm::mat4 model_mat =
@@ -140,7 +143,9 @@ void draw_terrain(meshManager& mesh, GLuint vao, GLuint ebo) {
 
 void draw_statue(meshManager& mesh, GLuint vao, GLuint ebo) {
   glUseProgram(athena_shader);
+  update_day_time(athena_shader);
   glBindVertexArray(vao);
+  pass_light_variables_to_shader(athena_shader);
   glUniformMatrix4fv(athena_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glUniformMatrix4fv(athena_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glm::mat4 model_mat =
@@ -177,7 +182,9 @@ void draw_sphere() {
 
 void draw_bear() {
   glUseProgram(bear_shader);
+  update_day_time(bear_shader);
   glBindVertexArray(bear_vao);
+  pass_light_variables_to_shader(bear_shader);
   glUniformMatrix4fv(bear_project, 1, GL_FALSE, glm::value_ptr(project_mat));
   glUniformMatrix4fv(bear_view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glm::mat4 model_mat =
@@ -373,7 +380,7 @@ void update_day_time(GLuint shader) {
   l2 = lighting_conditions + (i + 1) * 9 % 36;
   glUniformMatrix3fv(light1, 1, GL_FALSE, l1);
   glUniformMatrix3fv(light2, 1, GL_FALSE, l2);
-  glUniform1f(day_time, (frame_counter % 1800) / 1800.0);
+  glUniform1f(glGetUniformLocation(shader, "day_time"), (frame_counter % 1800) / 1800.0);
 }
 
 void update_frame_counter() {
@@ -394,12 +401,12 @@ void update_light_position() {
 
 void zoom_in() {
   glm::vec3 look_direction = look_pos - eye_pos;
-  if (glm::length(look_direction) > 500) {
+  if (glm::length(look_direction) > 1000) {
     eye_trans += 50.0f * glm::normalize(look_direction);
   }
-  cout << glm::length(look_direction) << endl;
-  cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
-  cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
+  // cout << glm::length(look_direction) << endl;
+  // cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
+  // cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
 }
 
 void zoom_out() {
@@ -407,10 +414,9 @@ void zoom_out() {
   if (glm::length(look_direction) < 20000) {
     eye_trans -= 50.0f * glm::normalize(look_direction);
   }
-  // view_mat = glm::lookAt(eye_pos, look_pos, glm::vec3(0.0, 0.0, 1.0));
-  cout << glm::length(look_direction) << endl;
-  cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
-  cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
+  // cout << glm::length(look_direction) << endl;
+  // cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
+  // cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
 }
 
 void print_step_msg(Flock* f) {
