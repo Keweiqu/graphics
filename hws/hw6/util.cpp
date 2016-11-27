@@ -338,7 +338,7 @@ vec3 get_first_person_center_pos(Flock& f) {
   vec3 to_right = vec3::normalize(vec3::cross(boid_v, up)) * left_right;
   vec3 look_v = vec3::normalize(boid_v + to_right * 0.1);
   vec3 center = boid_pos + look_v * 10000;
-  center[2] = up_down * 50;
+  center[2] = up_down * 150;
   return center;
 }
 

@@ -618,8 +618,8 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       v_mode = TRAILING;
       break;
     case GLFW_KEY_S:
-        v_mode = SIDE;
-        break;
+      v_mode = SIDE;
+      break;
     case GLFW_KEY_F:
       v_mode = FIRST_PERSON;
       break;
@@ -644,25 +644,15 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     }
   }
 
-  if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-    switch (key) {
-    case GLFW_KEY_I:
-      zoom_in();
-      break;
-      case GLFW_KEY_O:
-        zoom_out();
-        break;
-    }
-  }
   if(action == GLFW_PRESS || action == GLFW_REPEAT) {
     switch(key) {
     case GLFW_KEY_UP:
-      if(up_down < 50) {
+      if(up_down < 20) {
 	up_down += 1;
       }
       break;
     case GLFW_KEY_DOWN:
-      if(up_down > -50) {
+      if(up_down > 0) {
 	up_down -= 1;
       }
       break;
@@ -676,11 +666,16 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 	left_right -= 1;
       }
       break;
+    case GLFW_KEY_I:
+      zoom_in();
+      break;
+    case GLFW_KEY_O:
+      zoom_out();
+      break;
     default:
       break;
     }
   }
-
 }
 
 void reshape(GLFWwindow *w, int width, int height) {
