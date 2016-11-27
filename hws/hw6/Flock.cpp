@@ -11,9 +11,9 @@ Flock::Flock() {
   count = 0;
   radius = 300;
   speed = 15;
-  center[0] = 2375.0; center[1] = 125.0; center[2] = 2500.0;
+  center[0] = 2375.0; center[1] = 125.0; center[2] = 10000.0;
 
-  goal[0] = 2000.0; goal[1] = 1500.0; goal[2] = 2500.0;
+  goal[0] = 2000.0; goal[1] = 1500.0; goal[2] = 10000.0;
   goal_v[0] = 0.0; goal_v[1] = GOAL_SPEED; goal_v[2] = 0.0;
 
   for(int i = 0; i < INITIAL_NUM; i++) {
@@ -39,10 +39,10 @@ void Flock::remove_boid() {
 }
 
 void Flock::update_goal() {
-  if(goal[0] < WORLD_SIZE * -1.0 || goal[0] > WORLD_SIZE) {
+  if(goal[0] < WORLD_SIZE * -0.9 || goal[0] > WORLD_SIZE * 0.9) {
     goal_v[0] = goal_v[0] * -1.0;
   }
-  if(goal[1] < WORLD_SIZE * -1.0 || goal[1] > WORLD_SIZE) {
+  if(goal[1] < WORLD_SIZE * -0.9 || goal[1] > WORLD_SIZE * 0.9) {
     goal_v[1] = goal_v[1] * -1.0;
   }
 
