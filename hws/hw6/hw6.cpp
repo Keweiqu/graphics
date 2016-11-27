@@ -504,20 +504,20 @@ void init_bear() {
   glBindVertexArray(bear_vao);
 
   glBindBuffer(GL_ARRAY_BUFFER, bear_vbo_pos);
-  bear_pos = glGetAttribLocation(athena_shader, "vPos");
+  bear_pos = glGetAttribLocation(bear_shader, "vPos");
   glEnableVertexAttribArray(bear_pos);
   glVertexAttribPointer(bear_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, bear_vbo_normal);
-  bear_normal = glGetAttribLocation(athena_shader, "vNormal");
+  bear_normal = glGetAttribLocation(bear_shader, "vNormal");
   glEnableVertexAttribArray(bear_normal);
   glVertexAttribPointer(bear_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bear_ebo);
 
-  bear_view = glGetUniformLocation(athena_shader, "View");
-  bear_model = glGetUniformLocation(athena_shader, "Model");
-  bear_project = glGetUniformLocation(athena_shader, "Project");
+  bear_view = glGetUniformLocation(bear_shader, "View");
+  bear_model = glGetUniformLocation(bear_shader, "Model");
+  bear_project = glGetUniformLocation(bear_shader, "Project");
 }
 
 void init() {
@@ -639,7 +639,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case GLFW_KEY_N:
       eye_pos = glm::vec3(0.0, 0.0, 10.0);
       look_pos = glm::vec3(0.0, 0.0, 2000.0);
-      view_mat = glm::lookAt(glm::vec3(0.0, 0.0, 10.0), glm::vec3(0.0, 0.0, 2000.0), glm::vec3(0.0, 0.0, 1.0));
+      eye_trans = glm::vec3(0.0, 0.0, 0.0);
       break;
     }
   }

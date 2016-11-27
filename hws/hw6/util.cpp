@@ -400,7 +400,7 @@ void update_frame_counter() {
 }
 
 void update_light_position() {
-  if (frame_counter >= 0 && frame_counter < 5400) {
+  if (frame_counter < 5400) {
     light_position[0] += WORLD_SIZE / 5400.0;
   } else {
     light_position[0] -= WORLD_SIZE / 1800.0;
