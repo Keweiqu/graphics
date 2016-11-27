@@ -1,12 +1,14 @@
 #include "terrain.hpp"
 
 GLfloat heights[SIDE_LEN][SIDE_LEN];
+GLfloat simplified_heights[SIDE_LEN / 2][SIDE_LEN / 2];
 int recurse = RECURSE;
 GLfloat rand_range = (GLfloat) RAND_RANGE;
 GLfloat terrain_vertices[SIDE_LEN * SIDE_LEN * 3];
 GLuint terrain_indices[SIDE_LEN * SIDE_LEN * 2 * 3]; // s * s grids * 2 triangle each gird * 3 indices per triangle
 
 int main() {
+  /*
   srand(time(NULL));
   initCorner(0.5);
 
@@ -16,6 +18,10 @@ int main() {
   genMeshOff();
   genVertex();
   genFaces();
+  */
+
+  simplify("terrain.off");
+  genMeshOff("s_terrain.off", SIDE_LEN / 2 + 1, simplified_heights);
   return 0;
 }
 
@@ -124,24 +130,35 @@ void printSquare() {
   }
 }
 
-void genMeshOff() {
+void genMeshOff(string filename, int length, GLfloat hgts[][SIDE_LEN / 2]) {
   ofstream mesh;
-  mesh.open("terrain3.off");
+  mesh.open(filename);
   mesh << "OFF\n";
-  mesh << SIDE_LEN * SIDE_LEN << " ";
-  mesh << (SIDE_LEN - 1) * (SIDE_LEN - 1) * 2 << " ";
-  mesh << SIDE_LEN * (SIDE_LEN - 1) * 2 + (SIDE_LEN - 1) * (SIDE_LEN - 1) << "\n";
-  genVertexOFF(mesh);
-  genFacesOFF(mesh);
+  mesh << length * length << " ";
+  mesh << (length - 1) * (length - 1) * 2 << " ";
+  mesh << length * (length - 1) * 2 + (length - 1) * (length - 1) << "\n";
+  genVertexOFF(mesh, hgts);
+  genFacesOFF(mesh, length);
 }
 
-void genVertexOFF(ofstream &mesh) {
-  GLfloat width = 50;
+void genVertexOFF(ofstream &mesh, GLfloat hgts[][SIDE_LEN / 2]) {
+  GLfloat width = 100;
   int row, col;
   for(row = 0; row < SIDE_LEN; row++) {
     for(col = 0; col < SIDE_LEN; col++) {
-      mesh << row * width << " " << col * width << " " << heights[row][col] << "\n";
+      mesh << row * width << " " << col * width << " " << hgts[row][col] << "\n";
     }
+  }
+}
+
+void genFacesOFF(ofstream &mesh, int length) {
+  int index = 0;
+  for(int i = 0; i < length - 1; i++) {
+    for(int j = 0; j < length - 1; j++) {
+      mesh << "3 " << index + j << " " << index + j + length + 1 << " " << index + j + 1 << "\n";
+      mesh << "3 " << index + j << " " << index + j + length << " " << index + j + length + 1 << "\n";
+    }
+    index += SIDE_LEN;
   }
 }
 
@@ -173,16 +190,7 @@ void genFaces() {
   }
   
 }
-void genFacesOFF(ofstream &mesh) {
-  int index = 0;
-  for(int i = 0; i < SIDE_LEN - 1; i++) {
-    for(int j = 0; j < SIDE_LEN - 1; j++) {
-      mesh << "3 " << index + j << " " << index + j + SIDE_LEN + 1 << " " << index + j + 1 << "\n";
-      mesh << "3 " << index + j << " " << index + j + SIDE_LEN << " " << index + j + SIDE_LEN + 1 << "\n";
-    }
-    index += SIDE_LEN;
-  }
-}
+
 
 void clampContour() {
   GLfloat range = 350.0;
@@ -206,4 +214,35 @@ void clampContour() {
 GLfloat distToCenter(GLint x, GLint y) {
   GLfloat result = sqrt(sqrt(pow(x - MIDDLE, 2) +  pow(y - MIDDLE, 2)));
   return result;
+}
+
+void simplify(string filename) {
+  ifstream source;
+  source.open(filename);
+  if(source.fail()) {
+    cerr << "Cannot open file" << filename << endl;
+  }
+
+  string line;
+  getline(source, line);//OFF
+  getline(source, line);
+  int num_vertices;
+  stringstream stream(line);
+  stream >> num_vertices;
+  for(int i = 0; i < SIDE_LEN; i++) {
+    for(int j = 0; j < SIDE_LEN; j++) {
+      GLfloat x, y, height;
+      getline(source, line);
+      stringstream stream(line);
+      stream >> x >> y >> height;
+      heights[i][j] = height;
+    }
+  }
+  
+  for(int i = 0; i < SIDE_LEN; i += 2) {
+    for(int j = 0; j < SIDE_LEN; j += 2) {
+      simplified_heights[i / 2][j / 2] = heights[i][j];
+    }
+  }
+  
 }

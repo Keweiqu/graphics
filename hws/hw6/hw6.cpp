@@ -10,7 +10,6 @@ GLuint frame_counter = 0, at_night = 0;
 glm::vec3 light_position = glm::vec3(-10000, 0.0, 10000.0);
 glm::vec3 spotlight_position = glm::vec3(1.0, 1.0, 1.0);
 glm::vec3 spotlight_direction = glm::vec3(1.0, 1.0, 1.0);
-glm::vec3 cursor_position = glm::vec3(0.0, 0.0, 0.0);
 GLfloat spotlight_angle = 30.0;
 GLfloat view_angle = DEFAULT_VIEW_ANGLE;
 glm::vec3 eye = glm::vec3(1.0);
@@ -18,8 +17,7 @@ glm::vec3 eye_pos = eye;
 glm::vec3 look_pos = glm::vec3(0.0, 0.0, 2000.0);
 glm::vec3 eye_trans = glm::vec3(0.0, 0.0, 0.0);
 
-int clicked = FALSE;
-meshManager terrain_mesh, terrain_mesh2, ship_mesh, athena_mesh, sphere_mesh, nike_mesh, bear_mesh;
+meshManager terrain_mesh, terrain_mesh2, athena_mesh, sphere_mesh, nike_mesh, bear_mesh;
 
 extern GLfloat goal_vertices[24];
 extern GLfloat goal_colors[8][4];
@@ -91,9 +89,9 @@ GLuint terrain_pos, terrain_normal, terrain_tex_coord, terrain_sampler, terrain_
 
 GLuint athena_vao, athena_vbo_pos, athena_vbo_normal, athena_ebo, athena_pos, athena_normal, athena_sampler, athena_view_pos, athena_view, athena_project, athena_model;
 
-GLuint nike_vao, nike_vbo_pos, nike_vbo_normal, nike_ebo, nike_pos, nike_normal, nike_sampler, nike_view_pos, nike_view, nike_project, nike_model;
+GLuint nike_vao, nike_vbo_pos, nike_vbo_normal, nike_ebo;
 
-GLuint sphere_vao, sphere_vbo_pos, sphere_vbo_normal, sphere_ebo, sphere_pos, sphere_normal, sphere_sampler, sphere_view_pos, sphere_view, sphere_project, sphere_model;
+GLuint sphere_vao, sphere_vbo_pos, sphere_vbo_normal, sphere_ebo;
 
 GLuint bear_vao, bear_vbo_pos, bear_vbo_normal, bear_ebo, bear_pos, bear_normal, bear_view, bear_project, bear_model;
 
@@ -210,7 +208,7 @@ void init_ocean() {
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 3160, 2592, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean0.data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ocean0.sizeX, ocean0.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean0.data);
   glUniform1i(ocean_tex_sampler0, 0);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -220,7 +218,7 @@ void init_ocean() {
 
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2804, 2592, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean1.data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ocean1.sizeX, ocean1.sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, ocean1.data);
   glUniform1i(ocean_tex_sampler1, 1);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -398,7 +396,7 @@ void init_terrain(meshManager &mesh, GLuint* vao, GLuint* vbo_pos, GLuint* vbo_n
   glVertexAttribPointer(terrain_tex_coord, 2, GL_FLOAT, GL_FALSE, 0, (void*) 0);
 }
 
-void init_athena() {
+void init_athena_shader() {
   glUseProgram(athena_shader);
 
   athena_sampler = glGetUniformLocation(athena_shader, "athena_tex");
@@ -423,6 +421,15 @@ void init_athena() {
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+  athena_view = glGetUniformLocation(athena_shader, "View");
+  athena_model = glGetUniformLocation(athena_shader, "Model");
+  athena_project = glGetUniformLocation(athena_shader, "Project");
+
+}
+
+void init_athena() {
+  glUseProgram(athena_shader);
+
   athena_vbo_pos = make_bo(GL_ARRAY_BUFFER, &(athena_mesh.vertices->front()), athena_mesh.vertices->size() * sizeof(GLfloat));
   athena_vbo_normal = make_bo(GL_ARRAY_BUFFER, &(athena_mesh.normals->front()), athena_mesh.normals->size() * sizeof(GLfloat));
   athena_ebo = make_bo(GL_ELEMENT_ARRAY_BUFFER, &(athena_mesh.indices->front()), athena_mesh.indices->size() * sizeof(GLfloat));
@@ -441,36 +448,10 @@ void init_athena() {
   glVertexAttribPointer(athena_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, athena_ebo);
-
-  athena_view = glGetUniformLocation(athena_shader, "View");
-  athena_model = glGetUniformLocation(athena_shader, "Model");
-  athena_project = glGetUniformLocation(athena_shader, "Project");
 }
 
 void init_sphere() {
   glUseProgram(athena_shader);
-
-  sphere_sampler = glGetUniformLocation(athena_shader, "athena_tex");
-  sphere_view_pos = glGetUniformLocation(athena_shader, "viewPos");
-  glActiveTexture(GL_TEXTURE5);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, cube_texture);
-  for(int i = 0; i < 6; i++) {
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-		 0,
-		 GL_RGB,
-		 cube[i].sizeX,
-		 cube[i].sizeY,
-		 0,
-		 GL_RGB,
-		 GL_UNSIGNED_BYTE,
-		 cube[i].data);
-  }
-  glUniform1i(sphere_sampler, 5);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   sphere_vbo_pos = make_bo(GL_ARRAY_BUFFER, &(sphere_mesh.vertices->front()), sphere_mesh.vertices->size() * sizeof(GLfloat));
   sphere_vbo_normal = make_bo(GL_ARRAY_BUFFER, &(sphere_mesh.normals->front()), sphere_mesh.normals->size() * sizeof(GLfloat));
@@ -480,46 +461,18 @@ void init_sphere() {
   glBindVertexArray(sphere_vao);
 
   glBindBuffer(GL_ARRAY_BUFFER, sphere_vbo_pos);
-  sphere_pos = glGetAttribLocation(athena_shader, "vPos");
-  glEnableVertexAttribArray(sphere_pos);
-  glVertexAttribPointer(sphere_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  glEnableVertexAttribArray(athena_pos);
+  glVertexAttribPointer(athena_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, sphere_vbo_normal);
-  sphere_normal = glGetAttribLocation(athena_shader, "vNormal");
-  glEnableVertexAttribArray(sphere_normal);
-  glVertexAttribPointer(sphere_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  glEnableVertexAttribArray(athena_normal);
+  glVertexAttribPointer(athena_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere_ebo);
-
-  sphere_view = glGetUniformLocation(athena_shader, "View");
-  sphere_model = glGetUniformLocation(athena_shader, "Model");
-  sphere_project = glGetUniformLocation(athena_shader, "Project");
-}
+ }
 
 void init_nike() {
-  glUseProgram(bear_shader);
-
-  nike_sampler = glGetUniformLocation(athena_shader, "athena_tex");
-  nike_view_pos = glGetUniformLocation(athena_shader, "viewPos");
-  glActiveTexture(GL_TEXTURE5);
-  glBindTexture(GL_TEXTURE_CUBE_MAP, cube_texture);
-  for(int i = 0; i < 6; i++) {
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-		 0,
-		 GL_RGB,
-		 cube[i].sizeX,
-		 cube[i].sizeY,
-		 0,
-		 GL_RGB,
-		 GL_UNSIGNED_BYTE,
-		 cube[i].data);
-  }
-  glUniform1i(nike_sampler, 5);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glUseProgram(athena_shader);
 
   nike_vbo_pos = make_bo(GL_ARRAY_BUFFER, &(nike_mesh.vertices->front()), nike_mesh.vertices->size() * sizeof(GLfloat));
   nike_vbo_normal = make_bo(GL_ARRAY_BUFFER, &(nike_mesh.normals->front()), nike_mesh.normals->size() * sizeof(GLfloat));
@@ -529,20 +482,14 @@ void init_nike() {
   glBindVertexArray(nike_vao);
 
   glBindBuffer(GL_ARRAY_BUFFER, nike_vbo_pos);
-  nike_pos = glGetAttribLocation(athena_shader, "vPos");
-  glEnableVertexAttribArray(nike_pos);
-  glVertexAttribPointer(nike_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  glEnableVertexAttribArray(athena_pos);
+  glVertexAttribPointer(athena_pos, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
   glBindBuffer(GL_ARRAY_BUFFER, nike_vbo_normal);
-  nike_normal = glGetAttribLocation(athena_shader, "vNormal");
-  glEnableVertexAttribArray(nike_normal);
-  glVertexAttribPointer(nike_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  glEnableVertexAttribArray(athena_normal);
+  glVertexAttribPointer(athena_normal, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nike_ebo);
-
-  nike_view = glGetUniformLocation(athena_shader, "View");
-  nike_model = glGetUniformLocation(athena_shader, "Model");
-  nike_project = glGetUniformLocation(athena_shader, "Project");
 }
 
 void init_bear() {
@@ -592,6 +539,7 @@ void init() {
   init_terrain_shader();
   init_terrain(terrain_mesh, &terrain_vao, &terrain_vbo_pos, &terrain_vbo_normal, &terrain_vbo_tex, &terrain_ebo);
   init_terrain(terrain_mesh2, &terrain_vao2, &terrain_vbo_pos2, &terrain_vbo_normal2, &terrain_vbo_tex2, &terrain_ebo2);
+  init_athena_shader();
   init_athena();
   init_sphere();
   init_nike();
@@ -686,9 +634,10 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       }
       break;
     case GLFW_KEY_DOWN:
-    if(up_down > -50) {
-      up_down -= 1;
-    }
+      if(up_down > -50) {
+	up_down -= 1;
+      }
+      break;
     case GLFW_KEY_RIGHT:
       if(left_right < 15) {
 	left_right += 1;
@@ -784,10 +733,10 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 7000.0);
-    center = glm::vec3(0.0, 0.0, 7000.0);
-    view_mat = glm::lookAt(eye, center, up);
-    angle += 0.005;
+    //eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 7000.0);
+    //center = glm::vec3(0.0, 0.0, 7000.0);
+    //view_mat = glm::lookAt(eye, center, up);
+    //angle += 0.005;
     draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
     draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
     draw_statue(athena_mesh, athena_vao, athena_ebo);

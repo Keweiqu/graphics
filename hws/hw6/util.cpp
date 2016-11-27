@@ -63,12 +63,6 @@ void draw_ocean(GLuint vao) {
   spotlight_direction = glm::vec3(center_pos[0] - boid_pos[0], center_pos[1] - (boid_pos[1] + 10), center_pos[2] - boid_pos[2]);
   glUniform3fv(spotlight_pos, 1, glm::value_ptr(spotlight_position));
   glUniform3fv(spotlight_dire, 1, glm::value_ptr(spotlight_direction));
-  //glUniform3fv(glGetUniformLocation(ocean_shader, "cursor_position"), 1, glm::value_ptr(cursor_position));
-  //glm::vec3 translate_vec = glm::vec3(boid_pos[0], boid_pos[1], 0);
-  //GLfloat xy_angle = (atan2(boid_vel[1], boid_vel[0]) + 1.5708 * 3);
-  //glm::mat4 b_model = glm::translate(translate_vec) * glm::rotate(xy_angle, glm::vec3(0, 0, 1));
-  //glUniformMatrix4fv(glGetUniformLocation(ocean_shader, "spotlightModel"), 1, GL_FALSE, glm::value_ptr(b_model));
-
   glUniform3fv(glGetUniformLocation(ocean_shader, "light_position"), 1, glm::value_ptr(light_position));
   glUniformMatrix4fv(view, 1, GL_FALSE, glm::value_ptr(view_mat));
   glUniformMatrix4fv(project, 1, GL_FALSE, glm::value_ptr(project_mat));
@@ -164,9 +158,9 @@ void draw_statue(meshManager& mesh, GLuint vao, GLuint ebo) {
 void draw_sphere() {
   glUseProgram(athena_shader);
   glBindVertexArray(sphere_vao);
-  glUniformMatrix4fv(sphere_project, 1, GL_FALSE, glm::value_ptr(project_mat));
-  glUniformMatrix4fv(sphere_view, 1, GL_FALSE, glm::value_ptr(view_mat));
-  glUniform4fv(sphere_view_pos, 1, glm::value_ptr(eye));
+  glUniformMatrix4fv(athena_project, 1, GL_FALSE, glm::value_ptr(project_mat));
+  glUniformMatrix4fv(athena_view, 1, GL_FALSE, glm::value_ptr(view_mat));
+  glUniform4fv(athena_view_pos, 1, glm::value_ptr(eye));
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere_ebo);
 
   for (int i = 0; i < 3; i++) {
@@ -176,7 +170,7 @@ void draw_sphere() {
       glm::rotate(sphere_mesh.rotate_angles[0], glm::vec3(1.0, 0.0, 0.0)) *
       glm::rotate(sphere_mesh.rotate_angles[1], glm::vec3(0.0, 1.0, 0.0)) *
       glm::rotate(sphere_mesh.rotate_angles[2], glm::vec3(0.0, 0.0, 1.0));
-      glUniformMatrix4fv(sphere_model, 1, GL_FALSE, glm::value_ptr(model_mat));
+      glUniformMatrix4fv(athena_model, 1, GL_FALSE, glm::value_ptr(model_mat));
       glDrawElements(GL_TRIANGLES, sphere_mesh.num_of_indices, GL_UNSIGNED_INT, (void*)0);
   }
 }
@@ -377,8 +371,6 @@ void update_day_time(GLuint shader) {
   GLfloat *l1, *l2;
   l1 = lighting_conditions + i * 9;
   l2 = lighting_conditions + (i + 1) * 9 % 36;
-  // l1 = lighting_conditions + 3 * 9;
-  // l2 = lighting_conditions + 3 * 9;
   glUniformMatrix3fv(light1, 1, GL_FALSE, l1);
   glUniformMatrix3fv(light2, 1, GL_FALSE, l2);
   glUniform1f(day_time, (frame_counter % 1800) / 1800.0);
@@ -389,7 +381,7 @@ void update_frame_counter() {
   if (frame_counter >= 7200) {
     frame_counter -= 7200;
   }
-  at_night = frame_counter >= 5400 && frame_counter < 7200;
+  at_night = (frame_counter >= 5400 && frame_counter < 7200);
 }
 
 void update_light_position() {
@@ -405,7 +397,6 @@ void zoom_in() {
   if (glm::length(look_direction) > 500) {
     eye_trans += 50.0f * glm::normalize(look_direction);
   }
-  // view_mat = glm::lookAt(eye_pos, look_pos, glm::vec3(0.0, 0.0, 1.0));
   cout << glm::length(look_direction) << endl;
   cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
   cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
