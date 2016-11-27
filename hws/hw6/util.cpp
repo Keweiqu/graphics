@@ -235,21 +235,19 @@ void center_view(glm::mat4& view, Flock &f) {
 
 void side_view(glm::mat4& view, Flock &f) {
   vec3 my_pos = get_side_pos(f);
-  glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]) + eye_trans;
+  eye_pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]) + eye_trans;
 
-  vec3 my_look = calc_middleway(f);
-  glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
+  vec3 my_look = ave_flock_center(f);
+  look_pos = glm::vec3(my_look[0], my_look[1], my_look[2]);
 
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
-  view = glm::lookAt(pos, look, up);
-  eye_pos = pos;
-  look_pos = look;
+  view = glm::lookAt(eye_pos, look_pos, up);
 }
 
 void trailing_view(glm::mat4& view, Flock &f) {
   vec3 my_pos = get_trailing_pos(f);
   glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]) + eye_trans;
-  vec3 my_look = calc_middleway(f);
+  vec3 my_look = ave_flock_center(f);
   glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
   view = glm::lookAt(pos, look, up);
@@ -296,7 +294,7 @@ vec3 get_side_pos(Flock& f) {
   } else {
     d = center_goal_dist(f);
     r = max_boid_goal_dist(f);
-    m = calc_middleway(f);
+    m = calc_a_thirdway(f);
     vec3 c = ave_flock_center(f);
     u = f.goal - c;
   }

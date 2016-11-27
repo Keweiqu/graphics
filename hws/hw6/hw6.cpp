@@ -763,8 +763,23 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
-    draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
+    glm::vec3 eye = eye_pos;
+    eye[2] = 0.0;
+    glm::vec3 pos = terrain_mesh.trans_vec;
+    pos[2] = 0.0;
+    if(glm::distance(pos, eye) < DETAIL_GATE) {
+      draw_terrain(terrain_mesh, terrain_vao, terrain_ebo);
+    } else {
+      draw_terrain(terrain_mesh_s, terrain_s_vao, terrain_s_ebo);
+    }
+    
+    pos = terrain_mesh2.trans_vec;
+    pos[2] = 0.0;
+    if(glm::distance(pos, eye) < DETAIL_GATE) {
+      draw_terrain(terrain_mesh2, terrain_vao2, terrain_ebo2);
+    } else {
+      draw_terrain(terrain_mesh2_s, terrain_s_vao2, terrain_s_ebo2);
+    }
     draw_statue(athena_mesh, athena_vao, athena_ebo);
     draw_statue(nike_mesh, nike_vao, nike_ebo);
     draw_sphere();
