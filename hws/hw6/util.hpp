@@ -27,7 +27,7 @@
 #define SCALE_FACTOR_MIN 0.68
 #define FREE_VIEW_RADIUS 35000.0
 
-enum VIEW_TYPE {CENTER, SIDE, TRAILING, FREE, FIRST_PERSON};
+enum VIEW_TYPE {SIDE, TRAILING, FREE, FIRST_PERSON};
 
 class View {
 public:
@@ -53,7 +53,6 @@ void draw_sphere();
 void draw_nike();
 void draw_bear();
 void bind_ocean_texture(int i);
-void center_view(glm::mat4 &v, Flock& f);
 void side_view(glm::mat4 &v, Flock& f);
 void update_view(glm::mat4 &view, Flock& f);
 void trailing_view(glm::mat4 &view, Flock& f);

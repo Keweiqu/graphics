@@ -575,19 +575,13 @@ void init() {
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     switch(key) {
-    case GLFW_KEY_EQUAL:
-      f.add_boid();
-      break;
-    case GLFW_KEY_BACKSPACE:
-      f.remove_boid();
-      break;
     case 'P':
     case 'p':
       pause = !pause;
       print_step_msg(&f);
       break;
-    case 'd':
-    case 'D':
+    case 'w':
+    case 'W':
       print_step_msg(&f);
       if(!pause) {
 	pause = TRUE;
@@ -611,9 +605,6 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case GLFW_KEY_ESCAPE:
       glfwSetWindowShouldClose(w, true);
       break;
-    case GLFW_KEY_C:
-      v_mode = CENTER;
-      break;
     case GLFW_KEY_T:
       v_mode = TRAILING;
       break;
@@ -626,19 +617,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case GLFW_KEY_E:
       v_mode = FREE;
       break;
-    case GLFW_KEY_COMMA:
-      if(f.speed > 5) {
-	f.speed -= 1.0;
-      }
-      break;
-    case GLFW_KEY_PERIOD:
-      if(f.speed < 20) {
-	f.speed += 1.0;
-      }
-      break;
     case GLFW_KEY_N:
-      eye_pos = glm::vec3(0.0, 0.0, 10.0);
-      look_pos = glm::vec3(0.0, 0.0, 2000.0);
       eye_trans = glm::vec3(0.0, 0.0, 0.0);
       break;
     }
@@ -647,7 +626,7 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   if(action == GLFW_PRESS || action == GLFW_REPEAT) {
     switch(key) {
     case GLFW_KEY_UP:
-      if(up_down < 20) {
+      if(up_down < 40) {
 	up_down += 1;
       }
       break;
@@ -656,12 +635,12 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 	up_down -= 1;
       }
       break;
-    case GLFW_KEY_RIGHT:
+    case GLFW_KEY_D:
       if(left_right < 15) {
 	left_right += 1;
       }
       break;
-    case GLFW_KEY_LEFT:
+    case GLFW_KEY_A:
       if(left_right > -15) {
 	left_right -= 1;
       }
