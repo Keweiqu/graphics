@@ -626,20 +626,22 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       f.sequence = DEFAULT;
       break;
     case GLFW_KEY_1:
+      if(f.sequence != ATHENA) {
+	f.in_range = FALSE;
+      }
       f.sequence = ATHENA;
-      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[0] - flight_centers[0], f.goal[1] - flight_centers[1])),
-                glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
       break;
     case GLFW_KEY_2:
+      if(f.sequence != NIKE) {
+	f.in_range = FALSE;
+      }
       f.sequence = NIKE;
-      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[2] - flight_centers[0], f.goal[3] - flight_centers[1])),
-                glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
       break;
     case GLFW_KEY_3:
+      if(f.sequence != BEAR) {
+	f.in_range = FALSE;
+      }
       f.sequence = BEAR;
-      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[4] - flight_centers[0], f.goal[5] - flight_centers[1])),
-                glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
-      eye_trans = glm::vec3(0.0, 0.0, 0.0);
       break;
     }
   }
@@ -759,10 +761,9 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    // eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 7000.0);
-    // center = glm::vec3(0.0, 0.0, 7000.0);
-    // view_mat = glm::lookAt(eye, center, up);
-    // angle += 0.005;
+    eye_pos = glm::vec3(0.0, 0.0, 20000.0);
+    look_pos = glm::vec3(0.0, 0.0, 7000.0);
+    view_mat = glm::lookAt(eye_pos, look_pos, glm::vec3(0.0, 1.0, 0.0));
     draw_ocean(vao2);
     glm::vec3 eye = eye_pos;
     eye[2] = 0.0;

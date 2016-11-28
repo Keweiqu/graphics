@@ -13,8 +13,8 @@
 #define GOAL_SPEED 15
 #define KNN 5
 #define WORLD_SIZE 20000
-#define FLIGHT_RADIUS 10000.0
-enum FLIGHT_SEQUENCE {DEFAULT, ATHENA, NIKE, BEAR};
+#define FLIGHT_RADIUS 3000.0
+enum FLIGHT_SEQUENCE {BEAR = 0, ATHENA = 2, NIKE = 4, DEFAULT};
 using namespace std;
 
 class Flock {
@@ -32,6 +32,7 @@ public:
   GLfloat radius;
   GLfloat speed;
   int count;
+  int in_range;
   GLfloat angle;
   enum FLIGHT_SEQUENCE sequence;
   void update_goal();

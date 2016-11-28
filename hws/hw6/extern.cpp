@@ -92,7 +92,7 @@ GLfloat ocean_rotate_angles[18] = {
 };
 
 GLfloat flight_centers[6] = {
-  0.0, 0.0,
+  0.0, -1500.0,
   6500.0, 6000.0,
   -2500.0, 5500.0
 };
