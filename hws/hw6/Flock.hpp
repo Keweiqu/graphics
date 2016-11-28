@@ -13,7 +13,7 @@
 #define GOAL_SPEED 15
 #define KNN 5
 #define WORLD_SIZE 20000
-#define FLIGHT_RADIUS 3000.0
+#define FLIGHT_RADIUS 2000.0
 enum FLIGHT_SEQUENCE {BEAR = 0, ATHENA = 2, NIKE = 4, DEFAULT};
 using namespace std;
 
