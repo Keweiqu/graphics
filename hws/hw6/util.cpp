@@ -34,7 +34,7 @@ extern GLfloat ocean_rotate_angles[18];
 extern GLuint light_pos, spotlight_pos, spotlight_dire;
 extern glm::vec3 light_position, spotlight_position, spotlight_direction, cursor_position;
 extern glm::vec3 eye_pos, look_pos, eye_trans;
-extern GLfloat zoom_factor;
+extern GLfloat st_zoom_factor, fp_zoom_factor;
 
 void calc_ocean_vertices(GLfloat len) {
   ocean_vertices[0] = -len / 2;
@@ -230,31 +230,27 @@ void update_view(glm::mat4 &view, Flock& f) {
 
 void side_view(glm::mat4& view, Flock &f) {
   vec3 my_pos = get_side_pos(f);
-  eye_pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]);
-
   vec3 my_look = ave_flock_center(f);
   look_pos = glm::vec3(my_look[0], my_look[1], my_look[2]);
-
+  eye_pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]) + glm::normalize(look_pos - eye_pos) * 500.0f * st_zoom_factor;
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
   view = glm::lookAt(eye_pos, look_pos, up);
 }
 
 void trailing_view(glm::mat4& view, Flock &f) {
   vec3 my_pos = get_trailing_pos(f);
-  glm::vec3 pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]);
   vec3 my_look = ave_flock_center(f);
-  glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
+  look_pos = glm::vec3(my_look[0], my_look[1], my_look[2]);
+  eye_pos = glm::vec3(my_pos[0], my_pos[1], my_pos[2]) + glm::normalize(look_pos - eye_pos) * 700.0f * st_zoom_factor;
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
-  view = glm::lookAt(pos, look, up);
-  eye_pos = pos;
-  look_pos = look;
+  view = glm::lookAt(eye_pos, look_pos, up);
 }
 
 void first_person_view(glm::mat4& view, Flock &f) {
   vec3 boid_pos = f.pos->at(0);
-  eye_pos = glm::vec3(boid_pos[0], boid_pos[1], boid_pos[2]);
   vec3 my_look = get_first_person_center_pos(f);
   glm::vec3 look_pos = glm::vec3(my_look[0], my_look[1], my_look[2]);
+  eye_pos = glm::vec3(boid_pos[0], boid_pos[1], boid_pos[2]) + glm::normalize(look_pos - eye_pos) * 3000.0f * fp_zoom_factor;
   glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
   view = glm::lookAt(eye_pos, look_pos, up);
 }
@@ -396,23 +392,27 @@ void update_light_position() {
 }
 
 void zoom_in() {
-  glm::vec3 look_direction = look_pos - eye_pos;
-  if (glm::length(look_direction) > 1000) {
-    zoom_factor -= 0.02;
+  if (v_mode == FIRST_PERSON) {
+    if (fp_zoom_factor < 1.0) {
+      fp_zoom_factor += 0.1;
+    }
+  } else {
+    if (st_zoom_factor < 1.0) {
+      st_zoom_factor += 0.1;
+    }
   }
-  // cout << glm::length(look_direction) << endl;
-  // cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
-  // cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
 }
 
 void zoom_out() {
-  glm::vec3 look_direction = look_pos - eye_pos;
-  if (glm::length(look_direction) < 20000) {
-    zoom_factor += 0.02;
+  if (v_mode == FIRST_PERSON) {
+    if (fp_zoom_factor > -3.0) {
+      fp_zoom_factor -= 0.1;
+    }
+  } else {
+    if (st_zoom_factor > -3.0) {
+      st_zoom_factor -= 0.1;
+    }
   }
-  // cout << glm::length(look_direction) << endl;
-  // cout << "eye pos: " << eye_pos[0] << " " << eye_pos[1] << " " << eye_pos[2] << endl;
-  // cout << "eye trans: " << eye_trans[0] << " " << eye_trans[1] << " " << eye_trans[2] << endl;
 }
 
 void print_step_msg(Flock* f) {

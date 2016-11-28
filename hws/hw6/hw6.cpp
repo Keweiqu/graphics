@@ -5,7 +5,7 @@ int pause = FALSE, to_left = FALSE, to_right = FALSE;
 int up_down = 0, left_right = 0;
 GLfloat glTime, glOceanTime;
 enum VIEW_TYPE v_mode;
-GLfloat zoom_factor;
+GLfloat st_zoom_factor, fp_zoom_factor;
 glm::mat4 model_mat, view_mat, project_mat;
 GLuint frame_counter = 0, at_night = 0;
 glm::vec3 light_position = glm::vec3(-10000, 0.0, 10000.0);
@@ -595,11 +595,11 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       }
       break;
 
-    case GLFW_KEY_L:
+    case GLFW_KEY_A:
       to_left = TRUE;
       to_right = FALSE;
       break;
-    case GLFW_KEY_R:
+    case GLFW_KEY_D:
       to_right = TRUE;
       to_left= FALSE;
       break;
@@ -620,7 +620,8 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       v_mode = FREE;
       break;
     case GLFW_KEY_N:
-      zoom_factor = 1;
+      st_zoom_factor = 0;
+      fp_zoom_factor = 0;
       break;
     case GLFW_KEY_0:
       f.sequence = DEFAULT;
@@ -632,12 +633,12 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       break;
     case GLFW_KEY_2:
       f.sequence = NIKE;
-      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[2] - flight_centers[0], f.goal[3] - flight_centers[1])),
+      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[0] - flight_centers[2], f.goal[3] - flight_centers[3])),
                 glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
       break;
     case GLFW_KEY_3:
       f.sequence = BEAR;
-      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[4] - flight_centers[0], f.goal[5] - flight_centers[1])),
+      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[0] - flight_centers[4], f.goal[1] - flight_centers[5])),
                 glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
       eye_trans = glm::vec3(0.0, 0.0, 0.0);
       break;
@@ -656,12 +657,12 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
 	up_down -= 1;
       }
       break;
-    case GLFW_KEY_D:
+    case GLFW_KEY_RIGHT:
       if(left_right < 15) {
 	left_right += 1;
       }
       break;
-    case GLFW_KEY_A:
+    case GLFW_KEY_LEFT:
       if(left_right > -15) {
 	left_right -= 1;
       }
@@ -688,7 +689,8 @@ void framebuffer_resize(GLFWwindow *w, int width, int height) {
 
 int main(int argc, char** argv) {
   v_mode = SIDE;
-  zoom_factor = 1;
+  st_zoom_factor = 0.0;
+  fp_zoom_factor = 0.0;
   project_mat = glm::perspective(DEFAULT_VIEW_ANGLE * DEGREE_TO_RADIAN, 1.0, 10.0, 100000.0);
 
   if(!glfwInit()) {

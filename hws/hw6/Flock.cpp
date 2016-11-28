@@ -45,10 +45,10 @@ void Flock::update_goal() {
   GLfloat dist;
   switch (sequence) {
     case DEFAULT:
-      if(goal[0] < WORLD_SIZE * -0.9 || goal[0] > WORLD_SIZE * 0.9) {
+      if(goal[0] < WORLD_SIZE * -0.8 || goal[0] > WORLD_SIZE * 0.8) {
         goal_v[0] = goal_v[0] * -1.0;
       }
-      if(goal[1] < WORLD_SIZE * -0.9 || goal[1] > WORLD_SIZE * 0.9) {
+      if(goal[1] < WORLD_SIZE * -0.8 || goal[1] > WORLD_SIZE * 0.8) {
         goal_v[1] = goal_v[1] * -1.0;
       }
       if(to_left) {
