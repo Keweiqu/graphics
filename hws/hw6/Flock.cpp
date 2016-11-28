@@ -42,55 +42,54 @@ void Flock::remove_boid() {
 }
 
 void Flock::update_goal() {
-  if (sequence == DEFAULT) {
-    if(goal[0] < WORLD_SIZE * -0.9 || goal[0] > WORLD_SIZE * 0.9) {
-      goal_v[0] = goal_v[0] * -1.0;
-    }
-    if(goal[1] < WORLD_SIZE * -0.9 || goal[1] > WORLD_SIZE * 0.9) {
-      goal_v[1] = goal_v[1] * -1.0;
-    }
+  GLfloat dist;
+  switch (sequence) {
+    case DEFAULT:
+      if(goal[0] < WORLD_SIZE * -0.9 || goal[0] > WORLD_SIZE * 0.9) {
+        goal_v[0] = goal_v[0] * -1.0;
+      }
+      if(goal[1] < WORLD_SIZE * -0.9 || goal[1] > WORLD_SIZE * 0.9) {
+        goal_v[1] = goal_v[1] * -1.0;
+      }
+      if(to_left) {
+        vec3 z = vec3(0.0, 0.0, 1.0);
+        vec3 left = vec3::cross(z, goal_v);
+        left = vec3::normalize(left) * 0.5;
+        goal_v = vec3::normalize(vec3::normalize(goal_v) + left) * speed;
+        to_left = FALSE;
+      }
+
+      if(to_right) {
+        vec3 z = vec3(0.0, 0.0, 1.0);
+        vec3 right = vec3::cross(goal_v, z);
+        right = vec3::normalize(right) * 0.5;
+        goal_v = vec3::normalize(vec3::normalize(goal_v) + right) * speed;
+        to_right = FALSE;
+      }
+      goal = goal + goal_v;
+      return;
+    case ATHENA:
+      dist = sqrt(pow(flight_centers[0] - goal[0], 2) + pow(flight_centers[1] - goal[1], 2));
+      break;
+    case NIKE:
+      dist = sqrt(pow(flight_centers[2] - goal[0], 2) + pow(flight_centers[3] - goal[1], 2));
+      break;
+    case BEAR:
+      dist = sqrt(pow(flight_centers[4] - goal[0], 2) + pow(flight_centers[5] - goal[1], 2));
+      break;
+  }
+  if (abs(dist - FLIGHT_RADIUS) < 0.1) {
+    goal_v[0] = flight_centers[0] + cos(this->angle) * FLIGHT_RADIUS - goal[0];
+    goal_v[1] = flight_centers[1] + sin(this->angle) * FLIGHT_RADIUS - goal[1];
   } else {
-    GLfloat dist;
-    switch (sequence) {
-      case ATHENA:
-        dist = sqrt(pow(flight_centers[0] - goal[0], 2) + pow(flight_centers[1] - goal[1], 2));
-        break;
-      case NIKE:
-        dist = sqrt(pow(flight_centers[2] - goal[0], 2) + pow(flight_centers[3] - goal[1], 2));
-        break;
-      case BEAR:
-        dist = sqrt(pow(flight_centers[4] - goal[0], 2) + pow(flight_centers[5] - goal[1], 2));
-        break;
-    }
-      if (abs(dist - FLIGHT_RADIUS) < 0.1) {
-        goal_v[0] = flight_centers[0] + cos(this->angle) * FLIGHT_RADIUS - goal[0];
-        goal_v[1] = flight_centers[1] + sin(this->angle) * FLIGHT_RADIUS - goal[1];
-      } else {
-        goal_v[0] = 0.001 * (flight_centers[0] - goal[0]);
-        goal_v[1] = 0.001 * (flight_centers[1] - goal[1]);
-      }
-      this->angle += 0.001;
-      if (this->angle >= 2) {
-        this->angle -= 2;
-      }
-      cout << "goal x: " << goal[0] << " " << "goal y: " << goal[1] << endl;
+    goal_v[0] = 0.001 * (flight_centers[0] - goal[0]);
+    goal_v[1] = 0.001 * (flight_centers[1] - goal[1]);
   }
-
-  if(to_left) {
-    vec3 z = vec3(0.0, 0.0, 1.0);
-    vec3 left = vec3::cross(z, goal_v);
-    left = vec3::normalize(left) * 0.5;
-    goal_v = vec3::normalize(vec3::normalize(goal_v) + left) * speed;
-    to_left = FALSE;
+  this->angle += 0.001;
+  if (this->angle >= 2) {
+    this->angle -= 2;
   }
-
-  if(to_right) {
-    vec3 z = vec3(0.0, 0.0, 1.0);
-    vec3 right = vec3::cross(goal_v, z);
-    right = vec3::normalize(right) * 0.5;
-    goal_v = vec3::normalize(vec3::normalize(goal_v) + right) * speed;
-    to_right = FALSE;
-  }
+  cout << "goal x: " << goal[0] << " " << "goal y: " << goal[1] << endl;
 
   goal = goal + goal_v;
 }
