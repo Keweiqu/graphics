@@ -627,20 +627,22 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       f.sequence = DEFAULT;
       break;
     case GLFW_KEY_1:
+      if(f.sequence != ATHENA) {
+	f.in_range = FALSE;
+      }
       f.sequence = ATHENA;
-      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[0] - flight_centers[0], f.goal[1] - flight_centers[1])),
-                glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
       break;
     case GLFW_KEY_2:
+      if(f.sequence != NIKE) {
+	f.in_range = FALSE;
+      }
       f.sequence = NIKE;
-      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[0] - flight_centers[2], f.goal[3] - flight_centers[3])),
-                glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
       break;
     case GLFW_KEY_3:
+      if(f.sequence != BEAR) {
+	f.in_range = FALSE;
+      }
       f.sequence = BEAR;
-      f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[0] - flight_centers[4], f.goal[1] - flight_centers[5])),
-                glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
-      eye_trans = glm::vec3(0.0, 0.0, 0.0);
       break;
     }
   }
@@ -737,7 +739,7 @@ int main(int argc, char** argv) {
 
   athena_mesh.readFile("meshes/athena.off");
   athena_mesh.scale = 2.0; //0.6
-  athena_mesh.trans_vec = glm::vec3(-12500.0, 6500.0, 4500.0);
+  athena_mesh.trans_vec = glm::vec3(-12500.0, 6500.0, 5500.0);
   athena_mesh.rotate_angles = glm::vec3(90 * DEGREE_TO_RADIAN, 0.0, 0.0);
 
   sphere_mesh.readFile("meshes/sphere2.off");
@@ -751,7 +753,7 @@ int main(int argc, char** argv) {
 
   bear_mesh.readFile("meshes/bear.off");
   bear_mesh.scale = 100.0;
-  bear_mesh.trans_vec = glm::vec3(0.0, -2500.0, 5500.0);
+  bear_mesh.trans_vec = glm::vec3(0.0, -2500.0, 7000.0);
   bear_mesh.rotate_angles = glm::vec3(0.0, 0.0, 90 * DEGREE_TO_RADIAN);
 
   init();
@@ -761,10 +763,13 @@ int main(int argc, char** argv) {
     update_frame_counter();
     update_light_position();
     update_view(view_mat, f);
-    // eye = glm::vec3(sin(angle) * radius, cos(angle) * radius, 7000.0);
-    // center = glm::vec3(0.0, 0.0, 7000.0);
-    // view_mat = glm::lookAt(eye, center, up);
-    // angle += 0.005;
+
+    // GLfloat eye_x = 0.0;
+    // GLfloat eye_y = -1500;
+    // eye_pos = glm::vec3(eye_x, eye_y, 40000.0);
+    // look_pos = glm::vec3(eye_x, eye_y, 7000.0);
+    // view_mat = glm::lookAt(eye_pos, look_pos, glm::vec3(0.0, 1.0, 0.0));
+
     draw_ocean(vao2);
     glm::vec3 eye = eye_pos;
     eye[2] = 0.0;
@@ -788,7 +793,7 @@ int main(int argc, char** argv) {
     draw_sphere();
     draw_bear();
     draw_flock(&f, model, boid_vao, boid_idx);
-    draw_goal(&f, model, goal_vao, goal_idx);
+    //draw_goal(&f, model, goal_vao, goal_idx);
     if(!pause) {
       f.update_centers();
       f.update_ave_v();

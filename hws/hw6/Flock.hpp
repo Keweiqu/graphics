@@ -8,13 +8,20 @@
 #include "vec3.hpp"
 #include "common.hpp"
 #include <cmath>
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/vector_angle.hpp>
+#include <glm/mat4x4.hpp>
 #define NUM_GROUP 2
 #define SPEED_LIMIT 16
 #define GOAL_SPEED 15
 #define KNN 5
 #define WORLD_SIZE 20000
-#define FLIGHT_RADIUS 10000.0
-enum FLIGHT_SEQUENCE {DEFAULT, ATHENA, NIKE, BEAR};
+#define FLIGHT_RADIUS 2500.0
+enum FLIGHT_SEQUENCE {BEAR = 0, ATHENA = 2, NIKE = 4, DEFAULT};
 using namespace std;
 
 class Flock {
@@ -32,6 +39,7 @@ public:
   GLfloat radius;
   GLfloat speed;
   int count;
+  int in_range;
   GLfloat angle;
   enum FLIGHT_SEQUENCE sequence;
   void update_goal();

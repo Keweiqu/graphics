@@ -15,7 +15,7 @@ Flock::Flock() {
   angle = 0;
   sequence = DEFAULT;
   center[0] = 2375.0; center[1] = 125.0; center[2] = 10000.0;
-
+  in_range = 0;
   goal[0] = 2000.0; goal[1] = 1500.0; goal[2] = 10000.0;
   goal_v[0] = 0.0; goal_v[1] = GOAL_SPEED; goal_v[2] = 0.0;
 
@@ -69,28 +69,34 @@ void Flock::update_goal() {
       goal = goal + goal_v;
       return;
     case ATHENA:
-      dist = sqrt(pow(flight_centers[0] - goal[0], 2) + pow(flight_centers[1] - goal[1], 2));
-      break;
     case NIKE:
-      dist = sqrt(pow(flight_centers[2] - goal[0], 2) + pow(flight_centers[3] - goal[1], 2));
-      break;
     case BEAR:
-      dist = sqrt(pow(flight_centers[4] - goal[0], 2) + pow(flight_centers[5] - goal[1], 2));
-      break;
+        dist = sqrt(pow(flight_centers[sequence] - goal[0], 2) + pow(flight_centers[sequence + 1] - goal[1], 2));
+        break;
   }
-  if (abs(dist - FLIGHT_RADIUS) < 0.1) {
-    goal_v[0] = flight_centers[0] + cos(this->angle) * FLIGHT_RADIUS - goal[0];
-    goal_v[1] = flight_centers[1] + sin(this->angle) * FLIGHT_RADIUS - goal[1];
+  if (in_range || abs(dist - FLIGHT_RADIUS) < speed * 2) {
+    if(!in_range) {
+      in_range = 1.0;
+      glm::vec2 to_center = glm::vec2(flight_centers[sequence] - goal[0], flight_centers[sequence + 1] - goal[1]);
+      to_center = glm::normalize(to_center);
+      this->angle = atan2(to_center[1], to_center[0]) + M_PI;
+    }
+    goal[0] = flight_centers[sequence] + cos(this->angle) * FLIGHT_RADIUS;
+    goal[1] = flight_centers[sequence + 1] + sin(this->angle) * FLIGHT_RADIUS;
+  } else if (dist > FLIGHT_RADIUS) {
+    goal_v[0] = flight_centers[sequence] - goal[0];
+    goal_v[1] = flight_centers[sequence + 1] - goal[1];
+    goal_v = vec3::normalize(goal_v) * speed;
   } else {
-    goal_v[0] = 0.001 * (flight_centers[0] - goal[0]);
-    goal_v[1] = 0.001 * (flight_centers[1] - goal[1]);
+    goal_v[0] = goal[0] - flight_centers[sequence];
+    goal_v[1] = goal[1] - flight_centers[sequence + 1];
+    goal_v = vec3::normalize(goal_v) * speed;
   }
-  this->angle += 0.001;
-  if (this->angle >= 2) {
-    this->angle -= 2;
-  }
-  cout << "goal x: " << goal[0] << " " << "goal y: " << goal[1] << endl;
 
+  this->angle += 0.008;
+  if (this->angle >= 2 * M_PI) {
+    this->angle -= 2 * M_PI;
+  }
   goal = goal + goal_v;
 }
 
@@ -131,7 +137,6 @@ void Flock::update_boids() {
     v = v + v4;
     v = v * 4.0;
 
-    //(*vel)[i] = (*vel)[i] * 0.99;
     (*vel)[i] = (*vel)[i] + v;
     (*vel)[i] = limit_speed((*vel)[i]);
     (*pos)[i] = (*pos)[i] + (*vel)[i];
