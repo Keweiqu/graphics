@@ -762,8 +762,8 @@ int main(int argc, char** argv) {
     update_light_position();
     update_view(view_mat, f);
 
-    GLfloat eye_x = -12000;
-    GLfloat eye_y = 9000;
+    GLfloat eye_x = 0.0;
+    GLfloat eye_y = -1500;
     eye_pos = glm::vec3(eye_x, eye_y, 40000.0);
     look_pos = glm::vec3(eye_x, eye_y, 7000.0);
     view_mat = glm::lookAt(eye_pos, look_pos, glm::vec3(0.0, 1.0, 0.0));

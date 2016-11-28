@@ -75,7 +75,12 @@ void Flock::update_goal() {
       break;
   }
   if (in_range || abs(dist - FLIGHT_RADIUS) < speed * 2) {
-    in_range = 1.0;
+    if(!in_range) {
+      in_range = 1.0;
+      glm::vec2 to_center = glm::vec2(flight_centers[sequence] - goal[0], flight_centers[sequence + 1] - goal[1]);
+      to_center = glm::normalize(to_center);
+      this->angle = atan2(to_center[1], to_center[0]) + 1.5708 * 2;
+    }
     goal[0] = flight_centers[sequence] + cos(this->angle) * FLIGHT_RADIUS;
     goal[1] = flight_centers[sequence + 1] + sin(this->angle) * FLIGHT_RADIUS;
   } else if (dist > FLIGHT_RADIUS) {
