@@ -577,19 +577,13 @@ void init() {
 void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
   if (action == GLFW_PRESS) {
     switch(key) {
-    case GLFW_KEY_EQUAL:
-      f.add_boid();
-      break;
-    case GLFW_KEY_BACKSPACE:
-      f.remove_boid();
-      break;
     case 'P':
     case 'p':
       pause = !pause;
       print_step_msg(&f);
       break;
-    case 'd':
-    case 'D':
+    case 'w':
+    case 'W':
       print_step_msg(&f);
       if(!pause) {
 	pause = TRUE;
@@ -613,30 +607,17 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
     case GLFW_KEY_ESCAPE:
       glfwSetWindowShouldClose(w, true);
       break;
-    case GLFW_KEY_C:
-      v_mode = CENTER;
-      break;
     case GLFW_KEY_T:
       v_mode = TRAILING;
       break;
     case GLFW_KEY_S:
-        v_mode = SIDE;
-        break;
+      v_mode = SIDE;
+      break;
     case GLFW_KEY_F:
       v_mode = FIRST_PERSON;
       break;
     case GLFW_KEY_E:
       v_mode = FREE;
-      break;
-    case GLFW_KEY_COMMA:
-      if(f.speed > 5) {
-	f.speed -= 1.0;
-      }
-      break;
-    case GLFW_KEY_PERIOD:
-      if(f.speed < 20) {
-	f.speed += 1.0;
-      }
       break;
     case GLFW_KEY_N:
       zoom_factor = 1;
@@ -658,47 +639,43 @@ void keyboard(GLFWwindow *w, int key, int scancode, int action, int mods) {
       f.sequence = BEAR;
       f.angle = glm::orientedAngle(glm::normalize(glm::vec2(f.goal[4] - flight_centers[0], f.goal[5] - flight_centers[1])),
                 glm::normalize(glm::vec2(FLIGHT_RADIUS, 0.0)));
+      eye_trans = glm::vec3(0.0, 0.0, 0.0);
       break;
     }
   }
 
-  if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-    switch (key) {
-    case GLFW_KEY_I:
-      zoom_in();
-      break;
-      case GLFW_KEY_O:
-        zoom_out();
-        break;
-    }
-  }
   if(action == GLFW_PRESS || action == GLFW_REPEAT) {
     switch(key) {
     case GLFW_KEY_UP:
-      if(up_down < 50) {
+      if(up_down < 40) {
 	up_down += 1;
       }
       break;
     case GLFW_KEY_DOWN:
-      if(up_down > -50) {
+      if(up_down > 0) {
 	up_down -= 1;
       }
       break;
-    case GLFW_KEY_RIGHT:
+    case GLFW_KEY_D:
       if(left_right < 15) {
 	left_right += 1;
       }
       break;
-    case GLFW_KEY_LEFT:
+    case GLFW_KEY_A:
       if(left_right > -15) {
 	left_right -= 1;
       }
+      break;
+    case GLFW_KEY_I:
+      zoom_in();
+      break;
+    case GLFW_KEY_O:
+      zoom_out();
       break;
     default:
       break;
     }
   }
-
 }
 
 void reshape(GLFWwindow *w, int width, int height) {

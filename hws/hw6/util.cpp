@@ -213,9 +213,6 @@ void draw_goal(Flock* f, GLuint matrix, GLuint vao, GLuint index) {
 
 void update_view(glm::mat4 &view, Flock& f) {
   switch(v_mode) {
-    case CENTER:
-      center_view(view, f);
-      break;
     case TRAILING:
       trailing_view(view, f);
       break;
@@ -229,16 +226,6 @@ void update_view(glm::mat4 &view, Flock& f) {
       first_person_view(view, f);
       break;
   }
-}
-
-void center_view(glm::mat4& view, Flock &f) {
-  glm::vec3 pos = glm::vec3(0.0, 0.0, 1800);
-  glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
-  vec3 my_look = calc_middleway(f);
-  glm::vec3 look = glm::vec3(my_look[0], my_look[1], my_look[2]);
-  view = glm::lookAt(pos, look, up);
-  eye_pos = pos;
-  look_pos = look;
 }
 
 void side_view(glm::mat4& view, Flock &f) {
@@ -339,7 +326,7 @@ vec3 get_first_person_center_pos(Flock& f) {
   vec3 to_right = vec3::normalize(vec3::cross(boid_v, up)) * left_right;
   vec3 look_v = vec3::normalize(boid_v + to_right * 0.1);
   vec3 center = boid_pos + look_v * 10000;
-  center[2] = up_down * 50;
+  center[2] = up_down * 150;
   return center;
 }
 
