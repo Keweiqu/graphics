@@ -24,6 +24,7 @@
 #define RADIAN_TO_DEGREE 180 / M_PI
 #define DEFAULT_VIEW_ANGLE 30.0
 #define DETAIL_GATE 20000
+
 using namespace std;
 
 #endif
