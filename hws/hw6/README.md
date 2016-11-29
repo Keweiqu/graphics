@@ -41,15 +41,15 @@ Default view is side view
 - 'I'/'i' for zooming in
 - 'O'/'o' for zooming out
 - 'N'/'n' to reset zoom level to default
+- 1 to circle around Nike
+- 2 to circle around Athena
+- 3 to circle around Bear
+- 0 for Brownian motion
 - 'Q'/'q' to quit the program
 
 In first person mode:
 - up /down for move the look up and down
 - left / right to move the look left and right
-- 1 to circle around Nike
-- 2 to circle around Athena
-- 3 to circle around Bear
-- 0 for Brownian motion
 
 We know that turning the flock left and right is no longer required for this homework, however we tried to tune it and would like to get feedback on it. The following key only works for brownian motion. 
 - 'A'/'a' to turn flock left
