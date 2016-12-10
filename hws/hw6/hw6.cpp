@@ -803,5 +803,16 @@ int main(int argc, char** argv) {
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+  free(ocean0.data);
+  free(ocean1.data);
+  free(feather.data);
+  free(rock.data);
+  free(ice.data);
+  for (int i = 0; i < 6; i++) {
+    free(cube[i].data);
+  }
+  for (int i = 0; i < 5; i++) {
+    free(box[i].data);
+  }
   glfwTerminate();
 }
