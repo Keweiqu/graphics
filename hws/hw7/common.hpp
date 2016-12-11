@@ -11,5 +11,6 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/mat4x4.hpp>
 #include <vector>
-#include "extern.hpp"
+#include <string>
+
 #endif

@@ -3,5 +3,6 @@
 #include <iostream>
 #include <string>
 #include "readin_util.hpp"
+#include "extern.hpp"
 using namespace std;
 #endif

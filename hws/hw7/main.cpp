@@ -4,6 +4,12 @@ string out_name;
 int width, height;
 glm::vec3 eye, look, up;
 float fovy_deg;
+vector<Light> lights;
+vector<Pigment> pigments;
+vector<SurfaceFinish> surface_finishes;
+vector<Trans> trans_vecs;
+vector<Object*> objects;
+
 int main(int argc, char* argv[]) {
   if(argc < 2) {
     cout << "Please include input file!" << endl;
@@ -14,6 +20,26 @@ int main(int argc, char* argv[]) {
   cout << "out file name is " << out_name << endl;
   cout << "width " << width << " height " << height << endl;
   cout << "look is " << look[0] << " " << look[1] << " " << look[2] << endl;
-  cout << "fovy is " << fovy_deg << endl;;
+  cout << "fovy is " << fovy_deg << endl;
+
+  for (unsigned int i = 0; i < pigments.size(); i++) {
+    Pigment p = pigments[i];
+    cout << p.toString() << endl;
+  }
+
+  for (unsigned int i = 0; i < surface_finishes.size(); i++) {
+    SurfaceFinish sf = surface_finishes[i];
+    cout << sf.toString() << endl;
+  }
+
+  for (unsigned int i = 0; i < trans_vecs.size(); i++) {
+    cout << trans_vecs[i].toString() << endl;
+  }
+
+  for (unsigned int i = 0; i < objects.size(); i++) {
+    Object* obj = objects[i];
+    cout << "object: " << obj->toString() << "\n" << endl;
+  }
+
   return 0;
 }

@@ -2,6 +2,8 @@
 #define COLOR_H
 #include "common.hpp"
 
+using namespace std;
+
 class Color {
 public:
   glm::vec3 rgb;
@@ -10,5 +12,11 @@ public:
     this->rgb = color;
   }
   Color(glm::vec3 color): rgb(color) {}
+  Color(){
+    rgb = glm::vec3(0.0);
+  }
+  string toString() {
+    return to_string(rgb[0]) + " " + to_string(rgb[1]) + " " + to_string(rgb[2]);
+  }
 };
 #endif
