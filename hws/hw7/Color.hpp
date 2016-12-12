@@ -18,5 +18,8 @@ public:
   string toString() {
     return to_string(rgb[0]) + " " + to_string(rgb[1]) + " " + to_string(rgb[2]);
   }
+  Color operator+=(Color c) {
+    return Color(rgb + c.rgb);
+  }
 };
 #endif

@@ -18,5 +18,6 @@ public:
   Ray();
   Ray(vec3 origin, vec3 direction);
   Ray(vec3 origin, vec3 direction, float scalar);
+  Ray(Point source, Point dest);
 };
 #endif

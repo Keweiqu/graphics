@@ -21,8 +21,7 @@ Color trace(Ray r, int depth) {
   }
 
   
-  //for each light source, compute!
-  return background_color();
+  return lit(r.intersect_point);
 }
 
 Status intersect(Ray& r) {
@@ -50,6 +49,25 @@ Status intersect(Ray& r) {
   return intersect;
 }
 
+Color lit(Point p) {
+  Color local = Color(0.0, 0.0, 0.0);
+  for(unsigned int i = 0; i < lights.size(); i++) {
+    Light light = lights[i];
+    if(visible(p, light)) {
+	local += Color(1.0, 1.0, 1.0);
+    }
+  }
+  return local;  
+}
+
+int visible(Point p, Light light) {
+  Ray shadow_ray = Ray(p, light.coord);
+  if(intersect(shadow_ray) == INTERSECT) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
 void print_ray(Ray r) {
   cout << "===============Print Ray==============" << endl;
   cout << "origin is " << r.o.x  << " " << r.o.y << " " << r.o.z << endl;
@@ -72,7 +90,7 @@ float sphere_intersect(Ray& r, Sphere sphere) {
   float t1 = (-B + sqrt(delta)) / (2 * A);
   float t2 = (-B - sqrt(delta)) / (2 * A);
   
-  if(abs(delta - 0) < 0.00001) {
+  if(abs(delta - 0) < 0.0001) {
     if(t1 < 0 && t2 < 0 && B > 0) {
       return -1;
     } else {

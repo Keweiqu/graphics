@@ -48,7 +48,7 @@ void readin(char* file) {
     float x, y, z, i_r, i_g, i_b, a, b, c;
     get_next_line(source, line, stream);
     stream >> x >> y >> z >> i_r >> i_g >> i_b >> a >> b >> c;
-    vec3 coord = vec3(x, y, z);
+    Point coord = Point(x, y, z);
     Color intensity(i_r, i_g, i_b);
     vec3 attenuation = vec3(a, b, c);
     Light light(coord, intensity, attenuation);

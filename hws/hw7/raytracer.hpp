@@ -4,6 +4,7 @@
 #include "common.hpp"
 #include "extern.hpp"
 #include "Ray.hpp"
+#include "Light.hpp"
 #include "Point.hpp"
 #include "util.hpp"
 using namespace std;
@@ -13,4 +14,6 @@ void print_ray(Ray r);
 float sphere_intersect(Ray& r, Sphere sphere);
 Status intersect(Ray& r);
 vec3 sphere_normal(Sphere sphere, Point p);
+int visible(Point p, Light light);
+Color lit(Point p);
 #endif
