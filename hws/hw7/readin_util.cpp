@@ -21,24 +21,17 @@ void readin(char* file) {
   stream >> width >> height;
 
   /*camera*/
-  for(int i = 0; i < 3; i++) {
-    float x, y, z;
-    get_next_line(source, line, stream);
-    stream >> x >> y >> z;
-    switch(i) {
-    case 0:
-      eye = glm::vec3(x, y, z);
-      break;
-    case 1:
-      look = glm::vec3(x, y, z);
-      break;
-    case 2:
-      up = glm::vec3(x, y, z);
-      break;
-    default:
-      break;
-    }
-  }
+  float x, y, z;
+  get_next_line(source, line, stream);
+  stream >> x >> y >> z;
+  glm::vec3 eye = glm::vec3(x, y, z);
+  get_next_line(source, line, stream);
+  stream >> x >> y >> z;
+  glm::vec3 look = glm::vec3(x, y, z);
+  get_next_line(source, line, stream);
+  stream >> x >> y >> z;
+  glm::vec3 up = glm::vec3(x, y, z);
+  camera = Camera(eye, look, up);
 
   /*fovy*/
   get_next_line(source, line, stream);

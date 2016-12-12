@@ -4,5 +4,6 @@
 #include <string>
 #include "readin_util.hpp"
 #include "extern.hpp"
+#include "Camera.hpp"
 using namespace std;
 #endif

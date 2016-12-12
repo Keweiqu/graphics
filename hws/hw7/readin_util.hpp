@@ -6,7 +6,7 @@
 #include <string>
 #include "common.hpp"
 #include "extern.hpp"
-
+#include "Camera.hpp"
 using namespace std;
 
 void readin(char* file);

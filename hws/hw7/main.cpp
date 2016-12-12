@@ -2,7 +2,7 @@
 int antialias;
 string out_name;
 int width, height;
-glm::vec3 eye, look, up;
+Camera camera;
 float fovy_deg;
 vector<Light> lights;
 vector<Pigment> pigments;
@@ -19,7 +19,10 @@ int main(int argc, char* argv[]) {
   cout << "antialias? " << antialias << endl;
   cout << "out file name is " << out_name << endl;
   cout << "width " << width << " height " << height << endl;
-  cout << "look is " << look[0] << " " << look[1] << " " << look[2] << endl;
+  cout << "Camera center is " << camera.o[0] << " " << camera.o[1] << " " << camera.o[2] << endl;
+  cout << "Camera x is " << camera.x[0] << " " << camera.x[1] << " " << camera.x[2] << endl;
+  cout << "Camera y is " << camera.y[0] << " " << camera.y[1] << " " << camera.y[2] << endl;
+  cout << "Camera z is " << camera.z[0] << " " << camera.z[1] << " " << camera.z[2] << endl;
   cout << "fovy is " << fovy_deg << endl;
 
   for (unsigned int i = 0; i < pigments.size(); i++) {
