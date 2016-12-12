@@ -11,5 +11,5 @@ using namespace std;
 unsigned char convert_rgb(float c);
 float clamp(float f, float lower, float upper);
 void dump_image();
-
+void init_image();
 #endif

@@ -6,6 +6,8 @@
 #include "extern.hpp"
 #include "util.hpp"
 #include "Camera.hpp"
+#include "Ray.hpp"
+#include "raytracer.hpp"
 using namespace std;
 
 void readin_debugg_output();

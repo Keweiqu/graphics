@@ -9,6 +9,15 @@ float clamp(float f, float lower, float upper) {
   return max(lower, min(f, upper));
 }
 
+
+
+void init_image() {
+  for (int i = 0; i < width * height; i++) {
+    Color* c = new Color(0.5, 0.5, 0.5);
+    pixels.push_back(c);
+  }
+}
+
 void dump_image() {
   ofstream output;
   output.open("output.ppm", ios::binary);

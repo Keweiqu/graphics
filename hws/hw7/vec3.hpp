@@ -2,6 +2,7 @@
 #define VEC_3
 #include <cstddef>
 #include <iostream>
+#include <string>
 #include <cmath>
 #include "common.hpp"
 
@@ -54,6 +55,10 @@ public:
     float d2 = u[0] * v[1] - u[1] * v[0];
     vec3 result = vec3(d0, d1, d2);
     return result;
+  }
+
+  static string to_string(const vec3 &u) {
+    return to_string(u[0]) + " " + to_string(u[1]) + " " + to_string(u[2]);
   }
 
   friend ostream& operator<<(ostream &strm, const vec3 &v) {

@@ -11,4 +11,5 @@ using namespace std;
 
 void readin(char* file);
 void get_next_line(ifstream& source, string line, stringstream& stream);
+void readin_debug_output();
 #endif
