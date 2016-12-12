@@ -6,6 +6,7 @@
 #include "common.hpp"
 #include "extern.hpp"
 #include "Color.hpp"
+#include "Ray.hpp"
 
 using namespace std;
 
@@ -15,4 +16,5 @@ void dump_image();
 void write_pixel(int i, int j, Color c);
 void init_image();
 Color background_color();
+Color trace(Ray r, int depth);
 #endif

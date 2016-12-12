@@ -1,4 +1,5 @@
 #include "main.hpp"
+
 int antialias;
 string out_name;
 float width, height;

@@ -6,6 +6,7 @@
 #include "SurfaceFinish.hpp"
 #include "Pigment.hpp"
 #include "Trans.hpp"
+#include "Point.hpp"
 
 using namespace std;
 
@@ -14,17 +15,17 @@ enum ObjectType {SPHERE, PLANE, POLYHEDRON, MESH};
 class Sphere {
 public:
   float radius;
-  vec3 center_pos;
+  Point center;
   Sphere(float cx, float cy, float cz, float r) {
-    center_pos = vec3(cx, cy, cz);
+    center = Point(cx, cy, cz);
     radius = r;
   }
   Sphere(){
     this->radius = 0;
-    this->center_pos = vec3(0.0);
+    this->center = Point();
   }
   string toString() {
-    return "sphere: " + to_string(center_pos[0]) + " " + to_string(center_pos[1]) + " " + to_string(center_pos[2]) + " " + to_string(radius);
+    return "sphere: " + to_string(center.x) + " " + to_string(center.y) + " " + to_string(center.z) + " " + to_string(radius);
   }
 };
 

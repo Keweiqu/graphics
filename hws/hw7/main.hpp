@@ -8,9 +8,7 @@
 #include "Camera.hpp"
 #include "Ray.hpp"
 #include "raytracer.hpp"
-using namespace std;
 
-void readin_debugg_output();
-void init_image();
+using namespace std;
 
 #endif
