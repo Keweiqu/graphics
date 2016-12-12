@@ -15,36 +15,39 @@ Color trace(Ray r, int depth) {
   if(depth > MAX_DEPTH) {
     return background_color();
   }
-  Status status;
-  vec3 normal;
-  int obj_index;
-  Point p = intersect(r, status, normal, obj_index);
-  if(status == INTERSECT) {
-
+  
+  if((intersect(r) == NO_INTERSECT)) {
+    return background_color();
   }
+
+  
   //for each light source, compute!
   return background_color();
 }
 
-Point intersect(Ray& r, Status& status, vec3& normal, int& obj_index) {
-  float t = FLT_MAX;
+Status intersect(Ray& r) {
+  Status intersect = NO_INTERSECT;
   for(unsigned int i = 0; i < objects.size(); i++) {
     Object* obj = objects[i];
     switch(obj->ot) {
-    case SPHERE:{
-      Sphere sphere = obj->sphere;
-      float t_s = sphere_intersect(r, sphere);
-      if (t_s > 0 && t < t_s) {
-	t = t_s;
-	obj_index = i;
+    case SPHERE:
+      {
+	Sphere sphere = obj->sphere;
+	float t_s = sphere_intersect(r, sphere);
+	if (t_s > 0 && r.t < t_s) {
+	  r.t = t_s;
+	  r.intersect_obj_index = i;
+	  r.intersect_point = r.o + r.d * r.t;
+	  r.intersect_normal = sphere_normal(sphere, r.intersect_point);
+	  intersect = INTERSECT;
+	}
+	break;
       }
-      return r.o + r.d * t;
-      break;}
     default:
       break;
     }
   }
-  return Point();
+  return intersect;
 }
 
 void print_ray(Ray r) {
@@ -55,7 +58,7 @@ void print_ray(Ray r) {
 }
 
 
-float sphere_intersect(Ray r, Sphere sphere) {
+float sphere_intersect(Ray& r, Sphere sphere) {
   Point ro = r.o;
   vec3 co = sphere.center - ro;
   float A = r.d * r.d;
@@ -93,5 +96,5 @@ float sphere_intersect(Ray r, Sphere sphere) {
 
 
 vec3 sphere_normal(Sphere sphere, Point p) {
-  return vec3(0.0);
+  return vec3::normalize(p - sphere.center);
 }

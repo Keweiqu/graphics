@@ -10,6 +10,7 @@ using namespace std;
 
 Ray compute_ray(int i, int j);
 void print_ray(Ray r);
-float sphere_intersect(Ray r, Sphere sphere);
-Point intersect(Ray& r, Status& status, vec3& normal, int& obj_index);
+float sphere_intersect(Ray& r, Sphere sphere);
+Status intersect(Ray& r);
+vec3 sphere_normal(Sphere sphere, Point p);
 #endif
