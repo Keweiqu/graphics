@@ -9,13 +9,9 @@ vector<Pigment> pigments;
 vector<SurfaceFinish> surface_finishes;
 vector<Trans> trans_vecs;
 vector<Object*> objects;
+vector<Color*> pixels;
 
-int main(int argc, char* argv[]) {
-  if(argc < 2) {
-    cout << "Please include input file!" << endl;
-    return 0;
-  }
-  readin(argv[1]);
+void readin_debugg_output() {
   cout << "antialias? " << antialias << endl;
   cout << "out file name is " << out_name << endl;
   cout << "width " << width << " height " << height << endl;
@@ -40,6 +36,23 @@ int main(int argc, char* argv[]) {
     Object* obj = objects[i];
     cout << "object: " << obj->toString() << "\n" << endl;
   }
+}
 
+void init_image() {
+  for (int i = 0; i < width * height; i++) {
+    Color* c = new Color(0.5, 0.5, 0.5);
+    pixels.push_back(c);
+  }
+}
+
+int main(int argc, char* argv[]) {
+  if(argc < 2) {
+    cout << "Please include input file!" << endl;
+    return 0;
+  }
+  readin(argv[1]);
+  readin_debugg_output();
+  init_image();
+  dump_image();
   return 0;
 }
