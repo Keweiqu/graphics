@@ -6,12 +6,12 @@ using namespace std;
 
 class Camera {
 public:
-  glm::vec3 o;
-  glm::vec3 x;
-  glm::vec3 y;
-  glm::vec3 z;
+  vec3 o;
+  vec3 x;
+  vec3 y;
+  vec3 z;
   Camera();
-  Camera(glm::vec3 eye, glm::vec3 look, glm::vec3 up);
+  Camera(vec3 eye, vec3 look, vec3 up);
   
   
 };

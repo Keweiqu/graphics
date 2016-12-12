@@ -9,33 +9,33 @@ using namespace std;
 
 class vec3 {
 public:
-  GLfloat data[3];
+  float data[3];
   vec3() {
     for(int i = 0; i < 3; i++) {
       data[i] = 0.0;
     }
   }
 
-  vec3(GLfloat val){
+  vec3(float val){
     for(int i = 0; i < 3; i++) {
       data[i] = val;
     }
   }
 
-  vec3(GLfloat array[]) {
+  vec3(float array[]) {
     for(int i = 0; i < 3; i++) {
       data[i] = array[i];
     }
   }
 
-  vec3(GLfloat val1, GLfloat val2, GLfloat val3) {
+  vec3(float val1, float val2, float val3) {
     data[0] = val1;
     data[1] = val2;
     data[2] = val3;
   }
 
-  GLfloat len() const {
-    GLfloat result = 0;
+  float len() const {
+    float result = 0;
     for(int i = 0; i< 3; i++) {
       result += pow(this->data[i], 2);
     }
@@ -43,15 +43,15 @@ public:
   }
 
   static vec3 normalize(const vec3 &v) {
-    GLfloat len = v.len();
+    float len = v.len();
     vec3 result = v;
     return result / len;
   }
 
   static vec3 cross(const vec3 &u, const vec3 &v) {
-    GLfloat d0 = u[1] * v[2] - u[2] * v[1];
-    GLfloat d1 = u[2] * v[0] - u[0] * v[2];
-    GLfloat d2 = u[0] * v[1] - u[1] * v[0];
+    float d0 = u[1] * v[2] - u[2] * v[1];
+    float d1 = u[2] * v[0] - u[0] * v[2];
+    float d2 = u[0] * v[1] - u[1] * v[0];
     vec3 result = vec3(d0, d1, d2);
     return result;
   }
@@ -92,22 +92,22 @@ public:
      return result;
   }
 
-  GLfloat operator*(const vec3 &v) {
-    GLfloat result = 0;
+  float operator*(const vec3 &v) {
+    float result = 0;
     for(int i = 0; i < 3; i++) {
       result += this->data[i] * v.data[i];
     }
     return result;
   }
 
-  GLfloat& operator[](int i) {
+  float& operator[](int i) {
     if( i > 3) {
       throw runtime_error("vec3 index out of bound");
     }
     return data[i];
   }
 
-  GLfloat operator[](int i) const {
+  float operator[](int i) const {
     if( i > 3) {
       throw runtime_error("vec3 index out of bound");
     }

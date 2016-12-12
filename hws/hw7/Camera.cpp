@@ -2,9 +2,9 @@
 
 Camera::Camera(){}
 
-Camera::Camera(glm::vec3 eye, glm::vec3 look, glm::vec3 up) {
+Camera::Camera(vec3 eye, vec3 look, vec3 up) {
   o = eye;
-  z = -glm::normalize(look - eye);
-  x = glm::normalize(glm::cross(up, z));
-  y = glm::normalize(glm::cross(z, x));
+  z = vec3::normalize(look - eye) * -1;
+  x = vec3::normalize(vec3::cross(up, z));
+  y = vec3::normalize(vec3::cross(z, x));
 }

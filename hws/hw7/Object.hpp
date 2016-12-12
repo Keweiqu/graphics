@@ -14,14 +14,14 @@ enum ObjectType {SPHERE, PLANE, POLYHEDRON, MESH};
 class Sphere {
 public:
   float radius;
-  glm::vec3 center_pos;
+  vec3 center_pos;
   Sphere(float cx, float cy, float cz, float r) {
-    center_pos = glm::vec3(cx, cy, cz);
+    center_pos = vec3(cx, cy, cz);
     radius = r;
   }
   Sphere(){
     this->radius = 0;
-    this->center_pos = glm::vec3(0.0);
+    this->center_pos = vec3(0.0);
   }
   string toString() {
     return "sphere: " + to_string(center_pos[0]) + " " + to_string(center_pos[1]) + " " + to_string(center_pos[2]) + " " + to_string(radius);
@@ -30,15 +30,14 @@ public:
 
 class Plane {
 public:
-  glm::vec4 cof;
-  Plane(float a, float b, float c, float d) {
-    cof = glm::vec4(a, b, c, d);
-  }
-  Plane(){
-    this->cof = glm::vec4(0.0);
-  }
+  float a;
+  float b;
+  float c;
+  float d;
+  Plane(float aa, float bb, float cc, float dd):a(aa), b(bb), c(cc), d(dd) {}
+  Plane(){}
   string toString() {
-    return "plane: " + to_string(cof[0]) + " " + to_string(cof[1]) + " " + to_string(cof[2]) + " " + to_string(cof[3]);
+    return "plane: " + to_string(a) + " " + to_string(b) + " " + to_string(c) + " " + to_string(d);
   }
 };
 
