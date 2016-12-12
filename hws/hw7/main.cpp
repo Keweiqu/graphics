@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     for(int j = 0; j < nCols; j++) {
       Ray r = compute_ray(i, j);
       Color c = trace(r, 0);
-      
+      write_pixel(i, j, c);
     }
   }
   dump_image();

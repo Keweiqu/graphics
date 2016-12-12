@@ -22,7 +22,7 @@ void init_image() {
 
 void dump_image() {
   ofstream output;
-  output.open("output.ppm", ios::binary);
+  output.open(out_name, ios::binary);
   if (output.is_open()) {
     output << "P6\n" << nCols << " " << nRows << "\n" << 255 << "\n";
     for (int i = 0; i < nRows; i++) {

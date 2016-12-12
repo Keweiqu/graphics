@@ -4,9 +4,11 @@ Ray compute_ray(int i, int j) {
   float px = width * (j / (float) nCols) - width / 2.0;
   float py = -height * (i / (float) nRows) + height / 2.0;
   float pz = -1.0;
-  vec3 dest = vec3(px, py, pz);
+  //vec3 dest = vec3(px, py, pz);
+  vec3 dest = camera.o + camera.x * px + camera.y * py + camera.z * pz;
   vec3 source = camera.o;
   vec3 direction = vec3::normalize(dest - source);
+  //cout << "ray dir is " << direction[0] << " " << direction[1] << " " << direction[2] << endl;
   Ray r = Ray(source, direction);
   return r;
 }
@@ -18,9 +20,12 @@ Color trace(Ray r, int depth) {
   
   if((intersect(r) == NO_INTERSECT)) {
     return background_color();
+  } else {
+    
+    return Color(1.0, 0.0, 0.0);
   }
 
-  
+  cout << "Tracer has intersection" << endl;
   return lit(r.intersect_point);
 }
 
@@ -33,7 +38,7 @@ Status intersect(Ray& r) {
       {
 	Sphere sphere = obj->sphere;
 	float t_s = sphere_intersect(r, sphere);
-	if (t_s > 0 && r.t < t_s) {
+	if (t_s > 0 && r.t > t_s) {
 	  r.t = t_s;
 	  r.intersect_obj_index = i;
 	  r.intersect_point = r.o + r.d * r.t;
@@ -57,6 +62,7 @@ Color lit(Point p) {
 	local += Color(1.0, 1.0, 1.0);
     }
   }
+  cout << "Lit color is " << local.rgb[0] << local.rgb[1] << local.rgb[2] << endl;
   return local;  
 }
 
@@ -77,11 +83,10 @@ void print_ray(Ray r) {
 
 
 float sphere_intersect(Ray& r, Sphere sphere) {
-  Point ro = r.o;
-  vec3 co = sphere.center - ro;
+  vec3 co = r.o - sphere.center;
   float A = r.d * r.d;
   float B = 2 * (co * r.d);
-  float C = co * co;
+  float C = (co * co) - pow(sphere.radius, 2);
   float delta = pow(B, 2) - 4 * A * C;
   if(delta < 0) {
     return -1;
@@ -100,6 +105,7 @@ float sphere_intersect(Ray& r, Sphere sphere) {
   
  
   if(t1 < 0 && t2 < 0) {
+    cout << "returned -1" << endl;
     return -1;
   }
 
