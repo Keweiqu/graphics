@@ -14,11 +14,11 @@ void readin(char* file) {
     out_name = line;
   }
 
-  /*width and height*/
-
+  /*nCols and nRows*/
+  
   getline(source, line);
   stringstream stream(line);
-  stream >> width >> height;
+  stream >> nCols >> nRows;
 
   /*camera*/
   float x, y, z;
@@ -33,9 +33,12 @@ void readin(char* file) {
   vec3 up = vec3(x, y, z);
   camera = Camera(eye, look, up);
 
-  /*fovy*/
+  /*fovy + width and height*/
   get_next_line(source, line, stream);
   stream >> fovy_deg;
+  float aspectRadio = (float) nCols / (float) nRows;
+  height = 2 * tan(fovy_deg * TO_RAD / 2);
+  width = height * aspectRadio;
 
   /*Lights*/
   get_next_line(source, line, stream);

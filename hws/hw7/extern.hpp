@@ -12,8 +12,8 @@ using namespace std;
 
 extern int antialias;
 extern string out_name;
-extern int width;
-extern int height;
+extern float width, height;
+extern int nCols, nRows;
 extern Camera camera;
 extern float fovy_deg;
 extern vector<Light> lights;
