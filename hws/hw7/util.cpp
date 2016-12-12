@@ -41,3 +41,25 @@ void write_pixel(int i, int j, Color c) {
   int index = i * nCols + j;
   *(pixels[index]) = c;
 }
+
+vec3 phong(Light light, Point point, Object obj, vec3 normal) {
+  vec3 l = light.coord - vec3(point.x, point.y, point.z);
+  vec3 v = camera.o - vec3(point.x, point.y, point.z);
+  vec3 n = normal;
+  vec3 r = n * 2 * (l * n) - l;
+
+  float ka = obj.sf.cof[AMBIENT];
+  vec3 La = light.intensity.rgb;
+  vec3 Ia = La * ka;
+
+  float kd = obj.sf.cof[DIFFUSE];
+  vec3 Ld = light.intensity.rgb;
+  vec3 Id = Ld * kd * (l * n);
+
+  float ks = obj.sf.cof[SPECULAR];
+  vec3 Ls = light.intensity.rgb;
+  float alpha = obj.sf.cof[SHININESS];
+  vec3 Is = Ls * ks * pow((v * r), alpha);
+
+  return Ia + Id + Is;
+}
