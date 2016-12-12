@@ -21,24 +21,17 @@ void readin(char* file) {
   stream >> width >> height;
 
   /*camera*/
-  for(int i = 0; i < 3; i++) {
-    float x, y, z;
-    get_next_line(source, line, stream);
-    stream >> x >> y >> z;
-    switch(i) {
-    case 0:
-      eye = glm::vec3(x, y, z);
-      break;
-    case 1:
-      look = glm::vec3(x, y, z);
-      break;
-    case 2:
-      up = glm::vec3(x, y, z);
-      break;
-    default:
-      break;
-    }
-  }
+  float x, y, z;
+  get_next_line(source, line, stream);
+  stream >> x >> y >> z;
+  vec3 eye = vec3(x, y, z);
+  get_next_line(source, line, stream);
+  stream >> x >> y >> z;
+  vec3 look = vec3(x, y, z);
+  get_next_line(source, line, stream);
+  stream >> x >> y >> z;
+  vec3 up = vec3(x, y, z);
+  camera = Camera(eye, look, up);
 
   /*fovy*/
   get_next_line(source, line, stream);
@@ -52,9 +45,9 @@ void readin(char* file) {
     float x, y, z, i_r, i_g, i_b, a, b, c;
     get_next_line(source, line, stream);
     stream >> x >> y >> z >> i_r >> i_g >> i_b >> a >> b >> c;
-    glm::vec3 coord = glm::vec3(x, y, z);
+    vec3 coord = vec3(x, y, z);
     Color intensity(i_r, i_g, i_b);
-    glm::vec3 attenuation = glm::vec3(a, b, c);
+    vec3 attenuation = vec3(a, b, c);
     Light light(coord, intensity, attenuation);
     lights.push_back(light);
   }

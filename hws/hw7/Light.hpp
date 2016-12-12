@@ -5,9 +5,9 @@
 
 class Light {
 public:
-  glm::vec3 coord;
+  vec3 coord;
   Color intensity;
-  glm::vec3 attenu;
-  Light(glm::vec3 c, Color rgb, glm::vec3 a): coord(c), intensity(rgb), attenu(a) {} 
+  vec3 attenu;
+  Light(vec3 c, Color rgb, vec3 a): coord(c), intensity(rgb), attenu(a) {} 
 };
 #endif

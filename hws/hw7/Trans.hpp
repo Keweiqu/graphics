@@ -10,10 +10,10 @@ enum TransType {SCALE, TRANSLATE};
 class Trans {
 public:
   TransType type;
-  glm::vec3 vec;
+  vec3 vec;
   Trans(TransType t, float x, float y, float z) {
     this->type = t;
-    vec = glm::vec3(x, y, z);
+    vec = vec3(x, y, z);
   }
   Trans(){}
   string toString() {

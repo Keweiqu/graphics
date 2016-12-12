@@ -5,6 +5,7 @@
 #include "readin_util.hpp"
 #include "extern.hpp"
 #include "util.hpp"
+#include "Camera.hpp"
 using namespace std;
 
 void readin_debugg_output();
