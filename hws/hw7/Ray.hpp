@@ -3,10 +3,13 @@
 
 #include <cfloat>
 #include "common.hpp"
+#include "Point.hpp"
+
+enum Status {INTERSECT, NO_INTERSECT};
 
 class Ray {
 public:
-  vec3 o;
+  Point o;
   vec3 d;
   float t;
   Ray();

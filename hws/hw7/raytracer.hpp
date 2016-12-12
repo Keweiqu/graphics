@@ -11,4 +11,6 @@ using namespace std;
 Ray compute_ray(int i, int j);
 void print_ray(Ray r);
 Color trace(Ray r, int depth);
+float sphere_intersect(Ray r, Sphere sphere);
+Point intersect(Ray& r, Status& status, vec3& normal, int& obj_index);
 #endif

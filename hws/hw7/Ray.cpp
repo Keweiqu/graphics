@@ -2,8 +2,11 @@
 
 Ray::Ray(){}
 
-Ray::Ray(vec3 origin, vec3 direction): o(origin), d(direction) {
+Ray::Ray(vec3 origin, vec3 direction): d(direction) {
+  o = Point(origin);
   t = FLT_MAX;
 }
 
-Ray::Ray(vec3 origin, vec3 direction, float scalar): o(origin), d(direction), t(scalar){}
+Ray::Ray(vec3 origin, vec3 direction, float scalar): d(direction), t(scalar){
+  o = Point(origin);
+}
