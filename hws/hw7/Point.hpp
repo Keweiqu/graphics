@@ -1,6 +1,6 @@
 #ifndef POINT_H
 #define POINT_H
-Class Point {
+class Point {
  public:
   float x;
   float y;
