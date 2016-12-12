@@ -11,6 +11,12 @@ Ray compute_ray(int i, int j) {
   return r;
 }
 
+Color trace(Ray r, int depth) {
+  if(depth > MAX_DEPTH) {
+    return background_color();
+  }
+  //for each light source, compute!
+}
 
 void print_ray(Ray r) {
   cout << "===============Print Ray==============" << endl;

@@ -14,4 +14,5 @@ float clamp(float f, float lower, float upper);
 void dump_image();
 void write_pixel(int i, int j, Color c);
 void init_image();
+Color background_color();
 #endif

@@ -23,7 +23,8 @@ int main(int argc, char* argv[]) {
   for(int i = 0; i < nRows; i++) {
     for(int j = 0; j < nCols; j++) {
       Ray r = compute_ray(i, j);
-      print_ray(r);
+      Color c = trace(r, 0);
+      //print_ray(r);
     }
   }
   dump_image();

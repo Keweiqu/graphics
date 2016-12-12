@@ -5,6 +5,10 @@ unsigned char convert_rgb(float c) {
   return (unsigned char)(clamped * 255);
 }
 
+Color background_color() {
+  return Color(0.5, 0.5, 0.5);
+}
+
 float clamp(float f, float lower, float upper) {
   return max(lower, min(f, upper));
 }
