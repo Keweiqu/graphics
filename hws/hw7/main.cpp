@@ -43,7 +43,7 @@ void readin_debugg_output() {
 }
 
 void init_image() {
-  for (int i = 0; i < width * height; i++) {
+  for (int i = 0; i < nCols * nRows; i++) {
     Color* c = new Color(0.5, 0.5, 0.5);
     pixels.push_back(c);
   }
