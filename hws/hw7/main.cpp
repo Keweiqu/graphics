@@ -1,7 +1,8 @@
 #include "main.hpp"
 int antialias;
 string out_name;
-int width, height;
+float width, height;
+int nCols, nRows;
 Camera camera;
 float fovy_deg;
 vector<Light> lights;
