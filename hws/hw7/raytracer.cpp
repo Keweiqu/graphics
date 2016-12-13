@@ -80,6 +80,9 @@ Color lit(Ray r) {
 int visible(Point p, Light light) {
   Ray shadow_ray = Ray(p, light.coord);
   if(intersect(shadow_ray) == INTERSECT) {
+    if(shadow_ray.t < 0.001) {
+      return TRUE;
+    }
     return FALSE;
   }
   return TRUE;
