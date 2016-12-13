@@ -43,7 +43,7 @@ void write_pixel(int i, int j, Color c) {
 }
 
 Color phong(Light light, Point point, Object* obj, vec3 normal) {
-  vec3 l = vec3::normalize(light.coord - vec3(point.x, point.y, point.z));
+  vec3 l = vec3::normalize(light.coord - point);
   vec3 v = vec3::normalize(camera.o - vec3(point.x, point.y, point.z));
   vec3 n = vec3::normalize(normal);
   vec3 r = vec3::normalize(n * 2 * (l * n) - l);
@@ -59,7 +59,19 @@ Color phong(Light light, Point point, Object* obj, vec3 normal) {
   float ks = obj->sf.cof[SPECULAR];
   vec3 Ls = light.intensity.rgb;
   float alpha = obj->sf.cof[SHININESS];
-  vec3 Is = Ls * ks * pow(v * r, alpha);
+  vec3 h = vec3::normalize(l + v);
+  vec3 Is = Ls * (ks * pow(fmax(n * h, 0.0), alpha));
+  // cout << "v*r: " << v * r << endl;
+  // cout << "alpha: " << alpha << endl;
+  // cout << "ks: " << ks << endl;
+  // cout << "Ls: " << Ls[0] << " " << Ls[1] << " " << Ls[2] << endl;
+  // cout << "intersection point: " << point.x << " " << point.y << " " << point.z << endl;
+  // cout << "normal: " << normal[0] << " " << normal[1] << " " << normal[2] << " " << endl;
+  // cout << "h: " << h[0] << " " << h[1] << " " << h[2] << endl;
+  // cout << "ray dir: " << -v[0] << " " << -v[1] << " " << -v[2] << endl;
+  // if(Is[0] > 0) {
+    // cout << "Is: " << Is[0] << " " << Is[1] << " " << Is[2] << endl;
+  // }
 
   vec3 I = Ia + Id + Is;
   return Color(I) * (obj->p.solid.color);
