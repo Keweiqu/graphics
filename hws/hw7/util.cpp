@@ -54,7 +54,8 @@ Color phong(Light light, Point point, Object* obj, vec3 normal) {
 
   float kd = obj->sf.cof[DIFFUSE];
   vec3 Ld = light.intensity.rgb;
-  vec3 Id = Ld * kd * (l * n);
+  float attenu = attenuation(light, point);
+  vec3 Id = Ld * kd * (l * n) * attenu;
 
   float ks = obj->sf.cof[SPECULAR];
   vec3 Ls = light.intensity.rgb;
@@ -75,6 +76,16 @@ Color phong(Light light, Point point, Object* obj, vec3 normal) {
 
   vec3 I = Ia + Id + Is;
   return Color(I) * (obj->p.solid.color);
+}
+
+float attenuation(Light light, Point point) {
+  float a = light.attenu[0], b = light.attenu[1], c = light.attenu[2];
+  float d = (light.coord - point).len();
+  float denom = 1 / (a + b * d + c * pow(d, 2));
+  if (abs(denom - 0.0001) < 0) {
+    return abs(denom - 0.0001);
+  }
+  return 1 / denom;
 }
 
 void free_pixels() {
