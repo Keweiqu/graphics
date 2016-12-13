@@ -12,6 +12,6 @@
 #define FALSE 0
 #define TO_RAD M_PI / 180.0
 #define MAX_DEPTH 1000
-#define EPSILON 0.0000
+#define EPSILON 0.0001
 
 #endif

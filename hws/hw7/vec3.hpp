@@ -43,6 +43,9 @@ public:
     return pow(result, 0.5);
   }
 
+  static vec3 dot(const vec3& v, const vec3& u) {
+    return vec3(v[0] * u[0], v[1] * u[1], v[2] * u[2]);
+  }
   static vec3 normalize(const vec3 &v) {
     float len = v.len();
     vec3 result = v;
