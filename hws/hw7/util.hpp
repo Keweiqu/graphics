@@ -17,6 +17,6 @@ void dump_image();
 void write_pixel(int i, int j, Color c);
 void init_image();
 Color background_color();
-vec3 phong(Light light, Point point, Object &obj, vec3 normal);
+Color phong(Light light, Point point, Object* obj, vec3 normal);
 Color trace(Ray r, int depth);
 #endif

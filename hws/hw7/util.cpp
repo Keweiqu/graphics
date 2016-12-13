@@ -42,24 +42,25 @@ void write_pixel(int i, int j, Color c) {
   *(pixels[index]) = c;
 }
 
-vec3 phong(Light light, Point point, Object obj, vec3 normal) {
-  vec3 l = light.coord - vec3(point.x, point.y, point.z);
-  vec3 v = camera.o - vec3(point.x, point.y, point.z);
-  vec3 n = normal;
-  vec3 r = n * 2 * (l * n) - l;
+Color phong(Light light, Point point, Object* obj, vec3 normal) {
+  vec3 l = vec3::normalize(light.coord - vec3(point.x, point.y, point.z));
+  vec3 v = vec3::normalize(camera.o - vec3(point.x, point.y, point.z));
+  vec3 n = vec3::normalize(normal);
+  vec3 r = vec3::normalize(n * 2 * (l * n) - l);
 
-  float ka = obj.sf.cof[AMBIENT];
-  vec3 La = light.intensity.rgb;
+  float ka = obj->sf.cof[AMBIENT];
+  vec3 La = lights[0].intensity.rgb;
   vec3 Ia = La * ka;
 
-  float kd = obj.sf.cof[DIFFUSE];
+  float kd = obj->sf.cof[DIFFUSE];
   vec3 Ld = light.intensity.rgb;
   vec3 Id = Ld * kd * (l * n);
 
-  float ks = obj.sf.cof[SPECULAR];
+  float ks = obj->sf.cof[SPECULAR];
   vec3 Ls = light.intensity.rgb;
-  float alpha = obj.sf.cof[SHININESS];
-  vec3 Is = Ls * ks * pow((v * r), alpha);
+  float alpha = obj->sf.cof[SHININESS];
+  vec3 Is = Ls * ks * pow(v * r, alpha);
 
-  return Ia + Id + Is;
+  vec3 I = Ia + Id + Is;
+  return Color(I) * (obj->p.solid.color);
 }
