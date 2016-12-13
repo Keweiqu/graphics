@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   readin(argv[1]);
-  readin_debugg_output();
+  //readin_debugg_output();
   init_image();
   for(int i = 0; i < nRows; i++) {
     for(int j = 0; j < nCols; j++) {
@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
     }
   }
   dump_image();
-
+  free_pixels();
+  free_objects();
   return 0;
 }
