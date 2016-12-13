@@ -76,3 +76,15 @@ Color phong(Light light, Point point, Object* obj, vec3 normal) {
   vec3 I = Ia + Id + Is;
   return Color(I) * (obj->p.solid.color);
 }
+
+void free_pixels() {
+  for (unsigned int i = 0; i < pixels.size(); i++) {
+    delete pixels[i];
+  }
+}
+
+void free_objects() {
+  for (unsigned int i = 0; i < objects.size(); i++) {
+    delete objects[i];
+  }
+}

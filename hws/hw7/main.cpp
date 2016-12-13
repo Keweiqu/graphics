@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
     }
   }
   dump_image();
-
+  free_pixels();
+  free_objects();
   return 0;
 }

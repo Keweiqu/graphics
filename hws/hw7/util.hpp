@@ -19,4 +19,6 @@ void init_image();
 Color background_color();
 Color phong(Light light, Point point, Object* obj, vec3 normal);
 Color trace(Ray r, int depth);
+void free_pixels();
+void free_objects();
 #endif
