@@ -60,6 +60,13 @@ public:
     return result;
   }
 
+  static vec3 reflect(const vec3 &v, const vec3 & normal) {
+    vec3 v_n = vec3::normalize(v);
+    vec3 n_n = vec3::normalize(normal);
+    float cos = v_n * n_n;
+    return vec3::normalize(n_n * (2 * cos) - v_n);
+  }
+  
   static string to_string(const vec3 &u) {
     return to_string(u[0]) + " " + to_string(u[1]) + " " + to_string(u[2]);
   }

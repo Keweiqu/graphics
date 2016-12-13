@@ -19,7 +19,7 @@ Color trace(Ray r, int depth) {
   if((intersect(r) == NO_INTERSECT)) {
     return background_color();
   } else {
-    return lit(r);
+    return lit(r, depth);
   }
 
 }
@@ -33,7 +33,7 @@ Status intersect(Ray& r) {
       {
 	Sphere sphere = obj->sphere;
 	float t_s = sphere_intersect(r, sphere);
-	if (t_s > 0 && r.t > t_s) {
+	if (t_s > EPSILON && r.t > t_s) {
 	  r.t = t_s;
 	  r.intersect_obj_index = i;
 	  r.intersect_point = r.o + r.d * r.t;
@@ -46,7 +46,7 @@ Status intersect(Ray& r) {
       {
         Plane plane = obj->plane;
         float t_p = plane_intersect(r, plane);
-        if (t_p > 0 && r.t > t_p) {
+        if (t_p > EPSILON && r.t > t_p) {
           r.t = t_p;
           r.intersect_obj_index = i;
           r.intersect_point = r.o + r.d * r.t;
@@ -62,16 +62,31 @@ Status intersect(Ray& r) {
   return intersect;
 }
 
-Color lit(Ray r) {
+Color lit(Ray r, int depth) {
   Color local = Color(0.0, 0.0, 0.0);
-  local = (local + lights[0].intensity) * 0.2;
+  Color reflect = Color(0.0, 0.0, 0.0);
+  Object* obj = objects[r.intersect_obj_index];
+  if(depth == 0) {
+    //local = local + (lights[0].intensity * 0.2 * obj->sf.cof[AMBIENT]);
+  }
   for(unsigned int i = 1; i < lights.size(); i++) {
     Light light = lights[i];
     if(visible(r.intersect_point, light)) {
-    	local = local + phong(light, r.intersect_point, objects[r.intersect_obj_index], r.intersect_normal);
+      local = local + phong(light, r.intersect_point, obj, r.intersect_normal);
+     
     }
   }
-  return local;
+  if(obj->sf.cof[REFLECT] > 0) {
+    cout << "r.d " << r.d[0] << " " << r.d[1] << " " << r.d[2] << endl;
+    vec3 reflect_dir = vec3::reflect(r.d, r.intersect_normal);
+    //vec3 reflect_dir = vec3(0.0, 0.0, 0.0);
+    //cout << "reflect_dir " << reflect_dir[0] << " " << reflect_dir[1] << " " << reflect_dir[2] << endl;
+    Ray reflectRay = Ray(r.intersect_point, reflect_dir);
+    reflect = trace(reflectRay, depth + 1) * obj->sf.cof[REFLECT];
+    //reflect = Color(vec3(1.0, 0.0, 0.0));
+    //cout << "reflect color is " << reflect.rgb[0] << " " << reflect.rgb[1] << " " << reflect.rgb[2] << endl;
+  }
+  return local + reflect;
 }
 
 int visible(Point p, Light light) {

@@ -18,7 +18,7 @@ Status intersect(Ray& r);
 vec3 sphere_normal(Sphere sphere, Point p);
 vec3 plane_normal(Plane plane);
 int visible(Point p, Light light);
-Color lit(Ray r);
+Color lit(Ray r, int depth);
 Color trace(Ray r, int depth);
 
 #endif

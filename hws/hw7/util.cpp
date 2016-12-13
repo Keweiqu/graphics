@@ -42,6 +42,7 @@ void write_pixel(int i, int j, Color c) {
   *(pixels[index]) = c;
 }
 
+
 Color phong(Light light, Point point, Object* obj, vec3 normal) {
   vec3 l = vec3::normalize(light.coord - point);
   vec3 v = vec3::normalize(camera.o - vec3(point.x, point.y, point.z));
