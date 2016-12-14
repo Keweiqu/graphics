@@ -9,7 +9,7 @@
 #include "util.hpp"
 using namespace std;
 
-Ray compute_ray(int i, int j);
+Ray compute_ray(float i, float j);
 void print_ray(Ray r);
 
 float sphere_intersect(Ray& r, Sphere sphere);

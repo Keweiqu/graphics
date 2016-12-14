@@ -1,6 +1,6 @@
 #include "raytracer.hpp"
 
-Ray compute_ray(int i, int j) {
+Ray compute_ray(float i, float j) {
   float px = width * (j / (float) nCols) - width / 2.0;
   float py = -height * (i / (float) nRows) + height / 2.0;
   float pz = -1.0;
@@ -75,6 +75,7 @@ Status intersect(Ray& r) {
 Color lit(Ray r, int depth) {
   Color local = Color(0.0, 0.0, 0.0);
   Color reflect = Color(0.0, 0.0, 0.0);
+  Color refract = Color(0.0, 0.0, 0.0);
   Object* obj = objects[r.intersect_obj_index];
   if(depth == 0) {
     local = local + (lights[0].intensity * 0.2 * obj->sf.cof[AMBIENT]);
@@ -94,7 +95,25 @@ Color lit(Ray r, int depth) {
     Ray reflectRay = Ray(p, reflect_dir);
     reflect = trace(reflectRay, depth + 1) * obj->sf.cof[REFLECT];
   }
-  return local + reflect;
+
+  if(obj->sf.cof[TRANSMIT] > 0) {
+    int inside = FALSE;
+    vec3 normal = r.intersect_normal;
+    if((r.d *r.intersect_normal) > 0) {
+      inside = TRUE;
+      normal = normal * -1;
+    }
+    float n1 = 1; //air
+    float n2 = obj->sf.cof[REFRACT]; //obj material
+    float n = inside ? n2 / n1 : n1 / n2;
+    float c1 = (r.d * -1) * normal;
+    float c2 = 1 - (n * n * (1 - c1 * c1));
+    vec3 refra_dir = (r.d * n) + (normal * (n * c1 - sqrt(c2)));
+    vec3 p = vec3(r.intersect_point.x, r.intersect_point.y, r.intersect_point.z);
+    Ray refractRay = Ray(p, refra_dir);
+    refract = trace(refractRay, depth + 1) * obj->sf.cof[TRANSMIT];
+  }
+  return local + reflect + refract;
 }
 
 int visible(Point p, Light light) {
