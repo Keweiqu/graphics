@@ -124,6 +124,9 @@ int visible(Point p, Light light) {
   Ray shadow_ray = Ray(p, light.coord);
   for(unsigned int i = 0; i < objects.size(); i++) {
     if(intersect(shadow_ray) == INTERSECT) {
+      if((light.coord - p).len() < shadow_ray.t) {
+	return TRUE;
+      }
       return FALSE;
     }
   }
@@ -180,9 +183,23 @@ float polyhedron_intersect(Ray& r, Polyhedron poly, int& plane_index) {
   for (unsigned int i = 0; i < planes.size(); i++) {
     float cur = plane_intersect(r, planes[i]);
     if (cur > EPSILON && cur < t) {
-      t = cur;
-      plane_index = i;
+      Point p = r.o + r.d * cur;
+      if(inside_poly(p, poly)) {
+	t = cur;
+	plane_index = i;
+      }
     }
   }
   return t;
+}
+
+int inside_poly(Point point, Polyhedron poly) {
+  vector<Plane> planes = poly.planes;
+  for(unsigned int i = 0; i < planes.size(); i++) {
+    Plane plane = planes[i];
+    if(point.x * plane.a + point.y * plane.b + point.z * plane.c + plane.d > EPSILON) {
+      return FALSE;
+    }
+  }
+  return TRUE;
 }

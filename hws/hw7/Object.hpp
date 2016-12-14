@@ -45,7 +45,8 @@ public:
 class Polyhedron {
 public:
   vector<Plane> planes;
-  Polyhedron() {}
+  Polyhedron() {
+  }
   void addPlane(Plane p) {
     planes.push_back(p);
   }

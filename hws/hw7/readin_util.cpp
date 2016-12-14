@@ -137,7 +137,7 @@ void readin(char* file) {
       obj->ot = PLANE;
       obj->plane = plane;
     } else if (obj_name == "polyhedron") {
-      Polyhedron polyhedron;
+      Polyhedron poly;
       int num_faces;
       stream >> num_faces;
       float a, b, c, d;
@@ -145,10 +145,10 @@ void readin(char* file) {
         get_next_line(source, line, stream);
         stream >> a >> b >> c >> d;
         Plane plane(a, b, c, d);
-        polyhedron.addPlane(plane);
+        poly.addPlane(plane);
       }
       obj->ot = POLYHEDRON;
-      obj->polyhedron = polyhedron;
+      obj->polyhedron = poly;
     }
 
     objects.push_back(obj);

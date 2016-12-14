@@ -128,7 +128,7 @@ public:
     }
     return data[i];
   }
-  
+
   void operator=(const vec3 &v) {
     for(int i = 0; i < 3; i++) {
       this->data[i] = v.data[i];

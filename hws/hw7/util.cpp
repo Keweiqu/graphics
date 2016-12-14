@@ -85,8 +85,8 @@ float attenuation(Light light, Point point) {
   float a = light.attenu[0], b = light.attenu[1], c = light.attenu[2];
   float d = (light.coord - point).len();
   float denom = a + b * d + c * pow(d, 2);
-  if (abs(denom - 0) < 0.0001) {
-    denom = 0.0001;
+  if (abs(denom - 0) < EPSILON) {
+    denom = EPSILON;
   }
   return 1 / denom;
 }
