@@ -77,14 +77,13 @@ Color lit(Ray r, int depth) {
     }
   }
   if(obj->sf.cof[REFLECT] > 0) {
-    cout << "r.d " << r.d[0] << " " << r.d[1] << " " << r.d[2] << endl;
-    vec3 reflect_dir = vec3::reflect(r.d, r.intersect_normal);
-    //vec3 reflect_dir = vec3(0.0, 0.0, 0.0);
-    //cout << "reflect_dir " << reflect_dir[0] << " " << reflect_dir[1] << " " << reflect_dir[2] << endl;
-    Ray reflectRay = Ray(r.intersect_point, reflect_dir);
+    glm::vec3 ray_dir = glm::normalize(glm::vec3(r.d[0], r.d[1], r.d[2]));
+    glm::vec3 normal = glm::normalize(glm::vec3(r.intersect_normal[0], r.intersect_normal[1], r.intersect_normal[2]));
+    glm::vec3 refl = glm::reflect(ray_dir, normal);
+    vec3 reflect_dir = vec3::normalize(vec3(refl[0], refl[1], refl[2]));
+    vec3 p = vec3(r.intersect_point.x, r.intersect_point.y, r.intersect_point.z);
+    Ray reflectRay = Ray(p, reflect_dir);
     reflect = trace(reflectRay, depth + 1) * obj->sf.cof[REFLECT];
-    //reflect = Color(vec3(1.0, 0.0, 0.0));
-    //cout << "reflect color is " << reflect.rgb[0] << " " << reflect.rgb[1] << " " << reflect.rgb[2] << endl;
   }
   return local + reflect;
 }
