@@ -18,8 +18,10 @@ void write_pixel(int i, int j, Color c);
 void init_image();
 Color background_color();
 Color phong(Light light, Point point, Object* obj, vec3 normal);
+Color phong_diffuse(vec3 toLight, vec3 normal, Light light, Point p, Object* obj);
 Color trace(Ray r, int depth);
 float attenuation(Light light, Point point);
 void free_pixels();
 void free_objects();
+Color map_color(Object* obj, Point point);
 #endif

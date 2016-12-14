@@ -42,40 +42,42 @@ void write_pixel(int i, int j, Color c) {
   *(pixels[index]) = c;
 }
 
+
 Color phong(Light light, Point point, Object* obj, vec3 normal) {
   vec3 l = vec3::normalize(light.coord - point);
   vec3 v = vec3::normalize(camera.o - vec3(point.x, point.y, point.z));
   vec3 n = vec3::normalize(normal);
-  vec3 r = vec3::normalize(n * 2 * (l * n) - l);
-
-  float ka = obj->sf.cof[AMBIENT];
-  vec3 La = lights[0].intensity.rgb;
-  vec3 Ia = La * ka;
+  vec3 r = vec3::normalize(n * (2 * (l * n)) - l);
 
   float kd = obj->sf.cof[DIFFUSE];
   vec3 Ld = light.intensity.rgb;
   float attenu = attenuation(light, point);
-  vec3 Id = Ld * kd * (l * n) * attenu;
+  float diffuse = fmax((l*n), 0.0);
+  vec3 Id = Ld * kd * diffuse * attenu;
+  vec3 diffuseProduct = vec3::dot(Id,obj->p.solid.color.rgb);
+  vec3 c = obj->p.solid.color.rgb;
+  cout << "color: " << c[0] << " " << c[1] << " " << c[2] << endl;
 
   float ks = obj->sf.cof[SPECULAR];
   vec3 Ls = light.intensity.rgb;
   float alpha = obj->sf.cof[SHININESS];
-  vec3 h = vec3::normalize(l + v);
-  vec3 Is = Ls * (ks * pow(fmax(n * h, 0.0), alpha));
-  // cout << "v*r: " << v * r << endl;
-  // cout << "alpha: " << alpha << endl;
-  // cout << "ks: " << ks << endl;
-  // cout << "Ls: " << Ls[0] << " " << Ls[1] << " " << Ls[2] << endl;
-  // cout << "intersection point: " << point.x << " " << point.y << " " << point.z << endl;
-  // cout << "normal: " << normal[0] << " " << normal[1] << " " << normal[2] << " " << endl;
-  // cout << "h: " << h[0] << " " << h[1] << " " << h[2] << endl;
-  // cout << "ray dir: " << -v[0] << " " << -v[1] << " " << -v[2] << endl;
-  // if(Is[0] > 0) {
-    // cout << "Is: " << Is[0] << " " << Is[1] << " " << Is[2] << endl;
-  // }
+  vec3 Is = Ls * (ks * pow(fmax(v * r, 0.0), alpha));
 
-  vec3 I = Ia + Id + Is;
-  return Color(I) * (obj->p.solid.color);
+  vec3 color = vec3(0, 0, 0);
+  return Color(color);
+}
+
+Color map_color(Object* obj, Point point) {
+  Pigment pigment = obj->p;
+  Color c(0.0, 0.0, 0.0);
+  if (pigment.type == SOLID) {
+    c = pigment.solid.color;
+  } else if (pigment.type == CHECKER) {
+    float size = pigment.checker.size;
+    int sum = floor(point.x / size) + floor(point.y / size) + floor(point.z / size);
+    c = sum % 2 == 0 ? pigment.checker.c0 : pigment.checker.c1;
+  }
+  return c;
 }
 
 float attenuation(Light light, Point point) {
@@ -85,6 +87,10 @@ float attenuation(Light light, Point point) {
   if (abs(denom - 0.0001) < 0) {
     return abs(denom - 0.0001);
   }
+  // cout << "a: " << a << " b: " << b << " c: " << c << endl;
+  // cout << "d: " << d << endl;
+  // cout << "denom: " << denom << endl;
+  // cout << "attenuation: " << 1 / denom << endl;
   return 1 / denom;
 }
 

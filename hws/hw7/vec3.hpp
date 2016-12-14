@@ -43,6 +43,9 @@ public:
     return pow(result, 0.5);
   }
 
+  static vec3 dot(const vec3& v, const vec3& u) {
+    return vec3(v[0] * u[0], v[1] * u[1], v[2] * u[2]);
+  }
   static vec3 normalize(const vec3 &v) {
     float len = v.len();
     vec3 result = v;
@@ -57,6 +60,13 @@ public:
     return result;
   }
 
+  static vec3 reflect(const vec3 &v, const vec3 & normal) {
+    vec3 v_n = vec3::normalize(v);
+    vec3 n_n = vec3::normalize(normal);
+    float cos = v_n * n_n;
+    return vec3::normalize(n_n * (2 * cos) - v_n);
+  }
+  
   static string to_string(const vec3 &u) {
     return to_string(u[0]) + " " + to_string(u[1]) + " " + to_string(u[2]);
   }

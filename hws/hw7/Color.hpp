@@ -25,5 +25,8 @@ public:
   Color operator*(Color c) {
     return Color(this->rgb[0] * c.rgb[0], this->rgb[1] * c.rgb[1], this->rgb[2] * c.rgb[2]);
   }
+  Color operator*(float f) {
+    return Color(this->rgb * f);
+  }
 };
 #endif

@@ -12,6 +12,7 @@ vector<SurfaceFinish> surface_finishes;
 vector<Trans> trans_vecs;
 vector<Object*> objects;
 vector<Color*> pixels;
+int print = FALSE;
 
 int main(int argc, char* argv[]) {
   if(argc < 2) {
