@@ -58,9 +58,14 @@ Status intersect(Ray& r) {
       case POLYHEDRON:
       {
         Polyhedron poly = obj->polyhedron;
-        int idx = polyhedron_intersect(r, poly, i);
-        if (idx != -1) {
-          intersect = INTERSECT;
+	int plane_index = -1;
+        float t_p = polyhedron_intersect(r, poly, plane_index);
+        if (plane_index != -1 && t_p > EPSILON && r.t > t_p) {
+	  r.t = t_p;
+	  r.intersect_obj_index = i;
+	  r.intersect_point = r.o + r.d * r.t;
+	  r.intersect_normal = plane_normal(poly.planes[plane_index]);
+	  intersect = INTERSECT;
         }
         break;
       }
@@ -68,7 +73,6 @@ Status intersect(Ray& r) {
       break;
     }
   }
-  // cout << "intersect normal: " << r.intersect_normal[0] << " " << r.intersect_normal[1] << " " << r.intersect_normal[2] << endl;
   return intersect;
 }
 
@@ -170,22 +174,15 @@ vec3 plane_normal(Plane plane) {
   return vec3::normalize(vec3(plane.a, plane.b, plane.c));
 }
 
-int polyhedron_intersect(Ray& r, Polyhedron poly, int obj_index) {
+float polyhedron_intersect(Ray& r, Polyhedron poly, int& plane_index) {
   vector<Plane> planes = poly.planes;
-  int plane_idx = -1;
   float t = FLT_MAX;
   for (unsigned int i = 0; i < planes.size(); i++) {
     float cur = plane_intersect(r, planes[i]);
     if (cur > EPSILON && cur < t) {
       t = cur;
-      plane_idx = i;
+      plane_index = i;
     }
   }
-  if (plane_idx != -1) {
-    r.t = t;
-    r.intersect_obj_index = obj_index;
-    r.intersect_point = r.o + r.d * r.t;
-    r.intersect_normal = plane_normal(planes[plane_idx]);
-  }
-  return plane_idx;
+  return t;
 }

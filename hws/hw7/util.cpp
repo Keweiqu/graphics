@@ -88,13 +88,6 @@ float attenuation(Light light, Point point) {
   if (abs(denom - 0) < 0.0001) {
     denom = 0.0001;
   }
-  // cout << "a: " << a << " b: " << b << " c: " << c << " d: " << d << endl;
-  // cout << "light coord: " << light.coord.x << " " << light.coord.y << " " << light.coord.z << endl;
-  // cout << "point: " << point.x << " " << point.y << " " << point.z << endl;
-  // cout << "a: " << a << " b: " << b << " c: " << c << endl;
-  // cout << "d: " << d << endl;
-  // cout << "denom: " << denom << endl;
-  // cout << "attenuation: " << 1 / denom << endl;
   return 1 / denom;
 }
 
