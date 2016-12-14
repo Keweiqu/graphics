@@ -55,10 +55,20 @@ Status intersect(Ray& r) {
         }
         break;
       }
+      case POLYHEDRON:
+      {
+        Polyhedron poly = obj->polyhedron;
+        int idx = polyhedron_intersect(r, poly, i);
+        if (idx != -1) {
+          intersect = INTERSECT;
+        }
+        break;
+      }
     default:
       break;
     }
   }
+  // cout << "intersect normal: " << r.intersect_normal[0] << " " << r.intersect_normal[1] << " " << r.intersect_normal[2] << endl;
   return intersect;
 }
 
@@ -73,18 +83,16 @@ Color lit(Ray r, int depth) {
     Light light = lights[i];
     if(visible(r.intersect_point, light)) {
       local = local + phong(light, r.intersect_point, obj, r.intersect_normal);
-
     }
   }
   if(obj->sf.cof[REFLECT] > 0) {
-    // cout << "r.d " << r.d[0] << " " << r.d[1] << " " << r.d[2] << endl;
-    vec3 reflect_dir = vec3::reflect(r.d, r.intersect_normal);
-    //vec3 reflect_dir = vec3(0.0, 0.0, 0.0);
-    //cout << "reflect_dir " << reflect_dir[0] << " " << reflect_dir[1] << " " << reflect_dir[2] << endl;
-    Ray reflectRay = Ray(r.intersect_point, reflect_dir);
+    glm::vec3 ray_dir = glm::normalize(glm::vec3(r.d[0], r.d[1], r.d[2]));
+    glm::vec3 normal = glm::normalize(glm::vec3(r.intersect_normal[0], r.intersect_normal[1], r.intersect_normal[2]));
+    glm::vec3 refl = glm::reflect(ray_dir, normal);
+    vec3 reflect_dir = vec3::normalize(vec3(refl[0], refl[1], refl[2]));
+    vec3 p = vec3(r.intersect_point.x, r.intersect_point.y, r.intersect_point.z);
+    Ray reflectRay = Ray(p, reflect_dir);
     reflect = trace(reflectRay, depth + 1) * obj->sf.cof[REFLECT];
-    //reflect = Color(vec3(1.0, 0.0, 0.0));
-    //cout << "reflect color is " << reflect.rgb[0] << " " << reflect.rgb[1] << " " << reflect.rgb[2] << endl;
   }
   return local + reflect;
 }
@@ -136,9 +144,29 @@ vec3 sphere_normal(Sphere sphere, Point p) {
 
 float plane_intersect(Ray& r, Plane plane) {
   vec3 n = plane_normal(plane);
-  return -(vec3(r.o.x, r.o.y, r.o.z)* n + plane.d) / (r.d * n);
+  return (vec3(r.o.x, r.o.y, r.o.z) * n + plane.d) / (r.d * n) * -1;
 }
 
 vec3 plane_normal(Plane plane) {
   return vec3::normalize(vec3(plane.a, plane.b, plane.c));
+}
+
+int polyhedron_intersect(Ray& r, Polyhedron poly, int obj_index) {
+  vector<Plane> planes = poly.planes;
+  int plane_idx = -1;
+  float t = FLT_MAX;
+  for (unsigned int i = 0; i < planes.size(); i++) {
+    float cur = plane_intersect(r, planes[i]);
+    if (cur > EPSILON && cur < t) {
+      t = cur;
+      plane_idx = i;
+    }
+  }
+  if (plane_idx != -1) {
+    r.t = t;
+    r.intersect_obj_index = obj_index;
+    r.intersect_point = r.o + r.d * r.t;
+    r.intersect_normal = plane_normal(planes[plane_idx]);
+  }
+  return plane_idx;
 }

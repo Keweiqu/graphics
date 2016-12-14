@@ -54,16 +54,17 @@ Color phong(Light light, Point point, Object* obj, vec3 normal) {
   float attenu = attenuation(light, point);
   float diffuse = fmax((l*n), 0.0);
   vec3 Id = Ld * kd * diffuse * attenu;
-  vec3 diffuseProduct = vec3::dot(Id,obj->p.solid.color.rgb);
-  vec3 c = obj->p.solid.color.rgb;
-  cout << "color: " << c[0] << " " << c[1] << " " << c[2] << endl;
+  vec3 diffuseProduct = vec3::dot(Id, map_color(obj, point).rgb);
+  // cout << "diffuseProduct: " << diffuseProduct[0] << " " << diffuseProduct[1] << " " << diffuseProduct[2] << endl;
+  // vec3 c = obj->p.solid.color.rgb;
+  // cout << "color: " << c[0] << " " << c[1] << " " << c[2] << endl;
 
   float ks = obj->sf.cof[SPECULAR];
-  vec3 Ls = light.intensity.rgb;
+  vec3 Ls = vec3(1.0, 1.0, 1.0);
   float alpha = obj->sf.cof[SHININESS];
   vec3 Is = Ls * (ks * pow(fmax(v * r, 0.0), alpha));
 
-  vec3 color = vec3(0, 0, 0);
+  vec3 color = diffuseProduct + Is;
   return Color(color);
 }
 
@@ -83,10 +84,13 @@ Color map_color(Object* obj, Point point) {
 float attenuation(Light light, Point point) {
   float a = light.attenu[0], b = light.attenu[1], c = light.attenu[2];
   float d = (light.coord - point).len();
-  float denom = 1 / (a + b * d + c * pow(d, 2));
-  if (abs(denom - 0.0001) < 0) {
-    return abs(denom - 0.0001);
+  float denom = a + b * d + c * pow(d, 2);
+  if (abs(denom - 0) < 0.0001) {
+    denom = 0.0001;
   }
+  // cout << "a: " << a << " b: " << b << " c: " << c << " d: " << d << endl;
+  // cout << "light coord: " << light.coord.x << " " << light.coord.y << " " << light.coord.z << endl;
+  // cout << "point: " << point.x << " " << point.y << " " << point.z << endl;
   // cout << "a: " << a << " b: " << b << " c: " << c << endl;
   // cout << "d: " << d << endl;
   // cout << "denom: " << denom << endl;
