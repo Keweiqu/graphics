@@ -22,5 +22,6 @@ extern vector<SurfaceFinish> surface_finishes;
 extern vector<Trans> trans_vecs;
 extern vector<Object*> objects;
 extern vector<Color*> pixels;
+extern vector<Plane*> planes;
 extern int print;
 #endif

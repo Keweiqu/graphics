@@ -12,6 +12,7 @@ vector<SurfaceFinish> surface_finishes;
 vector<Trans> trans_vecs;
 vector<Object*> objects;
 vector<Color*> pixels;
+vector<Plane*> planes;
 int print = FALSE;
 
 int main(int argc, char* argv[]) {
@@ -53,5 +54,6 @@ int main(int argc, char* argv[]) {
   dump_image();
   free_pixels();
   free_objects();
+  free_planes();
   return 0;
 }

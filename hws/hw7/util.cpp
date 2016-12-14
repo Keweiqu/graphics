@@ -102,3 +102,9 @@ void free_objects() {
     delete objects[i];
   }
 }
+
+void free_planes() {
+  for (unsigned int i = 0; i < planes.size(); i++) {
+    delete planes[i];
+  }
+}

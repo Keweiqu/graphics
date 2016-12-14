@@ -42,18 +42,16 @@ public:
   }
 };
 
+extern vector<Plane*> planes;
+
 class Polyhedron {
 public:
-  vector<Plane> planes;
   Polyhedron() {
-  }
-  void addPlane(Plane p) {
-    planes.push_back(p);
   }
   string toString() {
     string s = "polyhedron: \n";
     for (unsigned int i = 0; i < planes.size(); i++) {
-      s = s + planes[0].toString() + "\n";
+      s = s + planes[0]->toString() + "\n";
     }
     return s;
   }

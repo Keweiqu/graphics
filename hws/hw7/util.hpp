@@ -23,5 +23,6 @@ Color trace(Ray r, int depth);
 float attenuation(Light light, Point point);
 void free_pixels();
 void free_objects();
+void free_planes();
 Color map_color(Object* obj, Point point);
 #endif

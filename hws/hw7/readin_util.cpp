@@ -15,7 +15,7 @@ void readin(char* file) {
   }
 
   /*nCols and nRows*/
-  
+
   getline(source, line);
   stringstream stream(line);
   stream >> nCols >> nRows;
@@ -144,8 +144,8 @@ void readin(char* file) {
       for (int j = 0; j < num_faces; j++) {
         get_next_line(source, line, stream);
         stream >> a >> b >> c >> d;
-        Plane plane(a, b, c, d);
-        poly.addPlane(plane);
+        Plane* plane = new Plane(a, b, c, d);
+        planes.push_back(plane);
       }
       obj->ot = POLYHEDRON;
       obj->polyhedron = poly;
