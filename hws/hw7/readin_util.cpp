@@ -6,7 +6,7 @@ void readin(char* file) {
 
   /*Output file name and antialias*/
   getline(source, line);
-  if(line == "antialias") {
+  if(line == "antialiasing") {
     antialias = TRUE;
     getline(source, line);
     out_name = line;
