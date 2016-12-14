@@ -55,10 +55,20 @@ Status intersect(Ray& r) {
         }
         break;
       }
+      case POLYHEDRON:
+      {
+        Polyhedron poly = obj->polyhedron;
+        int idx = polyhedron_intersect(r, poly, i);
+        if (idx != -1) {
+          intersect = INTERSECT;
+        }
+        break;
+      }
     default:
       break;
     }
   }
+  // cout << "intersect normal: " << r.intersect_normal[0] << " " << r.intersect_normal[1] << " " << r.intersect_normal[2] << endl;
   return intersect;
 }
 
@@ -68,13 +78,12 @@ Color lit(Ray r, int depth) {
   Color refract = Color(0.0, 0.0, 0.0);
   Object* obj = objects[r.intersect_obj_index];
   if(depth == 0) {
-    //local = local + (lights[0].intensity * 0.2 * obj->sf.cof[AMBIENT]);
+    local = local + (lights[0].intensity * 0.2 * obj->sf.cof[AMBIENT]);
   }
   for(unsigned int i = 1; i < lights.size(); i++) {
     Light light = lights[i];
     if(visible(r.intersect_point, light)) {
       local = local + phong(light, r.intersect_point, obj, r.intersect_normal);
-     
     }
   }
   if(obj->sf.cof[REFLECT] > 0) {
@@ -134,14 +143,14 @@ float sphere_intersect(Ray& r, Sphere sphere) {
    if(delta < 0) {
      return -1;
    }
-  
+
    float t1 = (-B + sqrt(delta)) / (2 * A);
    float t2 = (-B - sqrt(delta)) / (2 * A);
-  
+
    if(t1 < EPSILON && t2 < EPSILON) {
        return -1;
    }
-  
+
    if(t1 < EPSILON) return t2;
    if(t2 < EPSILON) return t1;
    return fmin(t1, t2);
@@ -154,9 +163,29 @@ vec3 sphere_normal(Sphere sphere, Point p) {
 
 float plane_intersect(Ray& r, Plane plane) {
   vec3 n = plane_normal(plane);
-  return -(vec3(r.o.x, r.o.y, r.o.z)* n + plane.d) / (r.d * n);
+  return (vec3(r.o.x, r.o.y, r.o.z) * n + plane.d) / (r.d * n) * -1;
 }
 
 vec3 plane_normal(Plane plane) {
   return vec3::normalize(vec3(plane.a, plane.b, plane.c));
+}
+
+int polyhedron_intersect(Ray& r, Polyhedron poly, int obj_index) {
+  vector<Plane> planes = poly.planes;
+  int plane_idx = -1;
+  float t = FLT_MAX;
+  for (unsigned int i = 0; i < planes.size(); i++) {
+    float cur = plane_intersect(r, planes[i]);
+    if (cur > EPSILON && cur < t) {
+      t = cur;
+      plane_idx = i;
+    }
+  }
+  if (plane_idx != -1) {
+    r.t = t;
+    r.intersect_obj_index = obj_index;
+    r.intersect_point = r.o + r.d * r.t;
+    r.intersect_normal = plane_normal(planes[plane_idx]);
+  }
+  return plane_idx;
 }
