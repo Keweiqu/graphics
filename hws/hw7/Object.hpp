@@ -79,6 +79,23 @@ public:
   void addTrans(Trans t) {
     trans.push_back(t);
   }
+  void apply_trans() {
+    if (ot == SPHERE) {
+      for (unsigned int i = 0; i < trans.size(); i++) {
+        if (trans[i].type == SCALE) {
+          sphere.radius *= trans[i].vec[0];
+        } else {
+          sphere.center = sphere.center + trans[i].vec;
+        }
+      }
+    } else if (ot == PLANE) {
+      for (unsigned int i = 0; i < trans.size(); i++) {
+        if (trans[i].type == TRANSLATE) {
+          plane.d = plane.d - plane.a * (trans[i].vec[0]) - plane.b * trans[i].vec[1] - plane.c * trans[i].vec[2];
+        }
+      }
+    }
+  }
   string toString() {
     string s = p.toString() + "\n" + sf.toString();
     for (unsigned int i = 0; i < trans.size(); i++) {
