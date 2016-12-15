@@ -77,6 +77,21 @@ Color map_color(Object* obj, Point point) {
     float size = pigment.checker.size;
     int sum = floor(point.x / size) + floor(point.y / size) + floor(point.z / size);
     c = sum % 2 == 0 ? pigment.checker.c0 : pigment.checker.c1;
+  } else if(pigment.type == IMAGE) {
+    switch(obj->ot) {
+    case SPHERE:{
+      Image img = obj->p.image;
+      vec3 n = vec3::normalize(point - obj->sphere.center);
+      float u = 0.5 + atan2(n[2], n[0]) / (2 * M_PI);
+      float v = 0.5 - asin(n[1]) / M_PI;
+      int row = floor(u * img.sizeY);
+      int col = floor(v * img.sizeX);
+      int index = row * img.sizeX * 3 + col * 3;
+      c = Color((float)img.data[index] / 255.0, (float)img.data[index + 1] / 255.0, (float)img.data[index + 2] / 255.0);
+      break;}
+    default:
+      break;
+    }
   }
   return c;
 }
