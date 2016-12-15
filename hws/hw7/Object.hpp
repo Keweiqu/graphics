@@ -45,18 +45,9 @@ public:
 class Polyhedron {
 public:
   vector<Plane> planes;
-  Polyhedron() {
-  }
-  void addPlane(Plane p) {
-    planes.push_back(p);
-  }
-  string toString() {
-    string s = "polyhedron: \n";
-    for (unsigned int i = 0; i < planes.size(); i++) {
-      s = s + planes[0].toString() + "\n";
-    }
-    return s;
-  }
+  Polyhedron();
+  void addPlane(Plane p);
+  string toString();
 };
 
 class Object {
@@ -70,34 +61,11 @@ public:
     Plane plane;
     Polyhedron polyhedron;
   };
-  Object(){}
-  ~Object(){}
-  Object(Pigment pigment, SurfaceFinish surface): p(pigment), sf(surface) {
-  }
-  void addTrans(Trans t) {
-    trans.push_back(t);
-  }
-  string toString() {
-    string s = p.toString() + "\n" + sf.toString();
-    for (unsigned int i = 0; i < trans.size(); i++) {
-      s += trans[i].toString() + " ";
-    }
-    s += "\n";
-    switch (ot) {
-      case SPHERE:
-        return s + sphere.toString();
-        break;
-      case PLANE:
-        return s + plane.toString();
-        break;
-      case POLYHEDRON:
-        return s + polyhedron.toString();
-        break;
-      default:
-        return s;
-        break;
-    }
-  }
+  Object();
+  ~Object();
+  Object(Pigment pigment, SurfaceFinish surface);
+  void addTrans(Trans t);
+  string toString();
 };
 
 #endif
