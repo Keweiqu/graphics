@@ -79,6 +79,17 @@ public:
   void addTrans(Trans t) {
     trans.push_back(t);
   }
+  void apply_trans() {
+    if (ot == SPHERE) {
+      for (unsigned int i = 0; i < trans.size(); i++) {
+        if (trans[i].type == SCALE) {
+          sphere.radius *= trans[i].vec[0];
+        } else {
+          sphere.center = sphere.center + trans[i].vec;
+        }
+      }
+    }
+  }
   string toString() {
     string s = p.toString() + "\n" + sf.toString();
     for (unsigned int i = 0; i < trans.size(); i++) {

@@ -150,7 +150,7 @@ void readin(char* file) {
       obj->ot = POLYHEDRON;
       obj->polyhedron = poly;
     }
-
+    obj->apply_trans();
     objects.push_back(obj);
   }
 }
