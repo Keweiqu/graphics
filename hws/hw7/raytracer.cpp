@@ -179,7 +179,7 @@ vec3 plane_normal(Plane plane) {
 
 float polyhedron_intersect(Ray& r, Polyhedron poly, int& plane_index) {
   float t = FLT_MAX;
-  for (unsigned int i = 0; i < planes.size(); i++) {
+  for (unsigned int i = poly.start_index; i < poly.start_index + poly.num_faces; i++) {
     float cur = plane_intersect(r, *(planes[i]));
     if (cur > EPSILON && cur < t) {
       Point p = r.o + r.d * cur;
@@ -193,7 +193,7 @@ float polyhedron_intersect(Ray& r, Polyhedron poly, int& plane_index) {
 }
 
 int inside_poly(Point point, Polyhedron poly) {
-  for(unsigned int i = 0; i < planes.size(); i++) {
+  for(unsigned int i = poly.start_index; i < poly.start_index + poly.num_faces; i++) {
     Plane plane = *(planes[i]);
     if(point.x * plane.a + point.y * plane.b + point.z * plane.c + plane.d > EPSILON) {
       return FALSE;

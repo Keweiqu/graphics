@@ -46,7 +46,11 @@ extern vector<Plane*> planes;
 
 class Polyhedron {
 public:
-  Polyhedron() {
+  int num_faces;
+  unsigned int start_index;
+  Polyhedron(int num_faces, unsigned int start_index) {
+    this->num_faces = num_faces;
+    this->start_index = start_index;
   }
   string toString() {
     string s = "polyhedron: \n";

@@ -137,9 +137,9 @@ void readin(char* file) {
       obj->ot = PLANE;
       obj->plane = plane;
     } else if (obj_name == "polyhedron") {
-      Polyhedron poly;
       int num_faces;
       stream >> num_faces;
+      Polyhedron poly(num_faces, planes.size());
       float a, b, c, d;
       for (int j = 0; j < num_faces; j++) {
         get_next_line(source, line, stream);
