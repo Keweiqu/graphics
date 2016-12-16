@@ -61,6 +61,48 @@ public:
   }
 };
 
+class Triangle {
+public:
+  vec3 a1, a2, a3;
+  float a, b, c, d;
+  Triangle(vec3 a1, vec3 a2, vec3 a3, float a, float b, float c, float d) {
+    this->a1 = a1;
+    this->a2 = a2;
+    this->a3 = a3;
+    this->a = a;
+    this->b = b;
+    this->c = c;
+    this->d = d;
+  }
+  string toString() {
+    string s = "triangle: \n";
+    s = s + to_string(a1[0]) + " " + to_string(a1[1]) + " " + to_string(a1[2]) + " " + to_string(a2[0])
+     + " " + to_string(a2[1]) + " " + to_string(a2[2]) + " " +  to_string(a3[0]) + " " + to_string(a3[1])
+      + " " + to_string(a3[2]) + "\n";
+    s = s + " a = " + to_string(a) + " b = " + to_string(b) + " c = " + to_string(c) + " d = " + to_string(d);
+    return s;
+  }
+};
+
+extern vector<Triangle*> triangles;
+
+class TriangleMesh {
+public:
+  int start_index, end_index, num_faces;
+  TriangleMesh() {
+    this->start_index = 0;
+    this->end_index = 0;
+    this->num_faces = 0;
+  }
+  string toString() {
+    string s = "Triangle Mesh: \n";
+    for (int i = start_index; i <= end_index; i++) {
+      s += triangles[i]->toString() + "\n";
+    }
+    return s;
+  }
+};
+
 class Object {
 public:
   ObjectType ot;
@@ -71,6 +113,7 @@ public:
     Sphere sphere;
     Plane plane;
     Polyhedron polyhedron;
+    TriangleMesh mesh;
   };
   Object(){}
   ~Object(){}
@@ -111,6 +154,9 @@ public:
         break;
       case POLYHEDRON:
         return s + polyhedron.toString();
+        break;
+      case MESH:
+        return s + mesh.toString();
         break;
       default:
         return s;

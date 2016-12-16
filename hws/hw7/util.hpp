@@ -24,6 +24,8 @@ float attenuation(Light light, Point point);
 void free_pixels();
 void free_objects();
 void free_planes();
+void free_triangles();
 void free_images();
 Color map_color(Object* obj, Point point);
+Triangle* calc_cof(vec3 a1, vec3 a2, vec3 a3);
 #endif
