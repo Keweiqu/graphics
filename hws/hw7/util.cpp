@@ -91,6 +91,13 @@ float attenuation(Light light, Point point) {
   return 1 / denom;
 }
 
+Triangle* calc_cof(vec3 a1, vec3 a2, vec3 a3) {
+  vec3 normal = vec3::cross(a2 - a1, a3 - a1);
+  float d = -(normal[0] * a1[0]) - (normal[1] * a1[1]) - (normal[2] * a1[2]);
+  Triangle* triangle = new Triangle(a1, a2, a3, normal[0], normal[1], normal[2], d);
+  return triangle;
+}
+
 void free_pixels() {
   for (unsigned int i = 0; i < pixels.size(); i++) {
     delete pixels[i];
@@ -106,5 +113,11 @@ void free_objects() {
 void free_planes() {
   for (unsigned int i = 0; i < planes.size(); i++) {
     delete planes[i];
+  }
+}
+
+void free_triangles() {
+  for (unsigned int i = 0; i < triangles.size(); i++) {
+    delete triangles[i];
   }
 }

@@ -13,6 +13,7 @@ vector<Trans> trans_vecs;
 vector<Object*> objects;
 vector<Color*> pixels;
 vector<Plane*> planes;
+vector<Triangle*> triangles;
 int print = FALSE;
 
 int main(int argc, char* argv[]) {
@@ -21,7 +22,7 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   readin(argv[1]);
-  //readin_debugg_output();
+  readin_debugg_output();
   init_image();
   for(int row = 0; row < nRows; row++) {
     for(int col = 0; col < nCols; col++) {
@@ -55,5 +56,6 @@ int main(int argc, char* argv[]) {
   free_pixels();
   free_objects();
   free_planes();
+  free_triangles();
   return 0;
 }

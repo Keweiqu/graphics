@@ -149,9 +149,54 @@ void readin(char* file) {
       }
       obj->ot = POLYHEDRON;
       obj->polyhedron = poly;
+    } else if (obj_name == "trianglemesh") {
+      string filename;
+      stream >> filename;
+      TriangleMesh mesh;
+      readoff(mesh, filename);
+      obj->ot = MESH;
+      obj->mesh = mesh;
     }
     obj->apply_trans();
     objects.push_back(obj);
+  }
+}
+
+void readoff(TriangleMesh& mesh, string filename) {
+  ifstream source;
+  source.open(filename);
+  string line;
+
+  getline(source, line);
+  if (line != "OFF") {
+    cout << "wrong file format" << endl;
+    return;
+  }
+
+  stringstream stream(line);
+  get_next_line(source, line, stream);
+  int num_vertices, num_faces, num_edges;
+  stream >> num_vertices >> num_faces >> num_edges;
+
+  vector<vec3> vertices;
+  for (int i = 0; i < num_vertices; i++) {
+    get_next_line(source, line, stream);
+    float x, y, z;
+    stream >> x >> y >> z;
+    vec3 vertex = vec3(x, y, z);
+    vertices.push_back(vertex);
+  }
+
+  mesh.start_index = triangles.size();
+  mesh.end_index = mesh.start_index + num_faces - 1;
+  mesh.num_faces = num_faces;
+
+  for (int i = 0; i < num_faces; i++) {
+    get_next_line(source, line, stream);
+    int num_indices, index1, index2, index3;
+    stream >> num_indices >> index1 >> index2 >> index3;
+    Triangle* triangle = calc_cof(vertices[index1], vertices[index2], vertices[index3]);
+    triangles.push_back(triangle);
   }
 }
 
@@ -171,6 +216,7 @@ void readin_debugg_output() {
   cout << "Camera y is " << camera.y[0] << " " << camera.y[1] << " " << camera.y[2] << endl;
   cout << "Camera z is " << camera.z[0] << " " << camera.z[1] << " " << camera.z[2] << endl;
   cout << "fovy is " << fovy_deg << endl;
+  cout << "There are " << objects.size() << " objects" << endl;
 
   for (unsigned int i = 0; i < pigments.size(); i++) {
     Pigment p = pigments[i];
