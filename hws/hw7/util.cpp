@@ -55,9 +55,6 @@ Color phong(Light light, Point point, Object* obj, vec3 normal) {
   float diffuse = fmax((l*n), 0.0);
   vec3 Id = Ld * kd * diffuse * attenu;
   vec3 diffuseProduct = vec3::dot(Id, map_color(obj, point).rgb);
-  // cout << "diffuseProduct: " << diffuseProduct[0] << " " << diffuseProduct[1] << " " << diffuseProduct[2] << endl;
-  // vec3 c = obj->p.solid.color.rgb;
-  // cout << "color: " << c[0] << " " << c[1] << " " << c[2] << endl;
 
   float ks = obj->sf.cof[SPECULAR];
   vec3 Ls = vec3(1.0, 1.0, 1.0);
@@ -121,5 +118,14 @@ void free_objects() {
 void free_planes() {
   for (unsigned int i = 0; i < planes.size(); i++) {
     delete planes[i];
+  }
+}
+
+void free_images() {
+  for(unsigned int i = 0; i < pigments.size(); i++) {
+    Pigment pig = pigments[i];
+    if(pig.type == IMAGE) {
+      free(pig.image.data);
+    }
   }
 }

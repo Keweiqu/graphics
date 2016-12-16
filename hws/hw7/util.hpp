@@ -24,5 +24,6 @@ float attenuation(Light light, Point point);
 void free_pixels();
 void free_objects();
 void free_planes();
+void free_images();
 Color map_color(Object* obj, Point point);
 #endif
