@@ -2,6 +2,7 @@
 #define PIGMENT_H
 #include "common.hpp"
 #include "Color.hpp"
+#include "read_ppm.hpp"
 
 using namespace std;
 
@@ -38,6 +39,7 @@ public:
   union {
     Solid solid;
     Checker checker;
+    Image image;
   };
   Pigment() {}
   string toString() {

@@ -55,9 +55,6 @@ Color phong(Light light, Point point, Object* obj, vec3 normal) {
   float diffuse = fmax((l*n), 0.0);
   vec3 Id = Ld * kd * diffuse * attenu;
   vec3 diffuseProduct = vec3::dot(Id, map_color(obj, point).rgb);
-  // cout << "diffuseProduct: " << diffuseProduct[0] << " " << diffuseProduct[1] << " " << diffuseProduct[2] << endl;
-  // vec3 c = obj->p.solid.color.rgb;
-  // cout << "color: " << c[0] << " " << c[1] << " " << c[2] << endl;
 
   float ks = obj->sf.cof[SPECULAR];
   vec3 Ls = vec3(1.0, 1.0, 1.0);
@@ -77,6 +74,21 @@ Color map_color(Object* obj, Point point) {
     float size = pigment.checker.size;
     int sum = floor(point.x / size) + floor(point.y / size) + floor(point.z / size);
     c = sum % 2 == 0 ? pigment.checker.c0 : pigment.checker.c1;
+  } else if(pigment.type == IMAGE) {
+    switch(obj->ot) {
+    case SPHERE:{
+      Image img = obj->p.image;
+      vec3 n = vec3::normalize(point - obj->sphere.center);
+      float u = 0.5 + atan2(n[2], n[0]) / (2 * M_PI);
+      float v = 0.5 - asin(n[1]) / M_PI;
+      int row = floor(u * img.sizeY);
+      int col = floor(v * img.sizeX);
+      int index = row * img.sizeX * 3 + col * 3;
+      c = Color((float)img.data[index] / 255.0, (float)img.data[index + 1] / 255.0, (float)img.data[index + 2] / 255.0);
+      break;}
+    default:
+      break;
+    }
   }
   return c;
 }
@@ -119,5 +131,14 @@ void free_planes() {
 void free_triangles() {
   for (unsigned int i = 0; i < triangles.size(); i++) {
     delete triangles[i];
+  }
+}
+
+void free_images() {
+  for(unsigned int i = 0; i < pigments.size(); i++) {
+    Pigment pig = pigments[i];
+    if(pig.type == IMAGE) {
+      free(pig.image.data);
+    }
   }
 }

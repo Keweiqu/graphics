@@ -57,5 +57,6 @@ int main(int argc, char* argv[]) {
   free_objects();
   free_planes();
   free_triangles();
+  free_images();
   return 0;
 }

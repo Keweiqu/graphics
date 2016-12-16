@@ -78,6 +78,18 @@ void readin(char* file) {
       pigment.type = CHECKER;
       pigment.checker = checker;
       pigments.push_back(pigment);
+    } else if(type == "image") {
+      string image_file;
+      stream >> image_file;
+      const char* file = image_file.c_str();
+      Image img;
+      if(read_ppm(file, &img) == FALSE) {
+	cout << "Bad image input!" << endl;
+	exit(EXIT_FAILURE);
+      }
+      pigment.type = IMAGE;
+      pigment.image = img;
+      pigments.push_back(pigment);
     }
   }
 

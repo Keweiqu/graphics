@@ -37,7 +37,7 @@ Status intersect(Ray& r) {
 	  r.t = t_s;
 	  r.intersect_obj_index = i;
 	  r.intersect_point = r.o + r.d * r.t;
-	  r.intersect_normal = sphere_normal(sphere, r.intersect_point);
+	  r.intersect_normal = sphere_normal(sphere, r.intersect_point, r);
 	  intersect = INTERSECT;
 	}
 	break;
@@ -87,7 +87,11 @@ Color lit(Ray r, int depth) {
   for(unsigned int i = 1; i < lights.size(); i++) {
     Light light = lights[i];
     if(visible(r.intersect_point, light)) {
-      local = local + phong(light, r.intersect_point, obj, r.intersect_normal);
+      vec3 normal = r.intersect_normal;
+      if(inside_obj(r.o, obj) && inside_obj(light.coord, obj)) {
+	normal = normal * -1;
+      }
+      local = local + phong(light, r.intersect_point, obj, normal);
     }
   }
   if(obj->sf.cof[REFLECT] > 0) {
@@ -164,7 +168,7 @@ float sphere_intersect(Ray& r, Sphere sphere) {
 }
 
 
-vec3 sphere_normal(Sphere sphere, Point p) {
+vec3 sphere_normal(Sphere sphere, Point p, Ray& r) {
   return vec3::normalize(p - sphere.center);
 }
 
@@ -192,6 +196,17 @@ float polyhedron_intersect(Ray& r, Polyhedron poly, int& plane_index) {
   return t;
 }
 
+/*
+float trianglemesn_intersect(Ray& r, TriangleMesh mesh, int& triangle_index) {
+  float t = FLT_MAX;
+  for(unsigned int i = mesh.start_index; i < mesh.start_index + mesh.num_faces; i++) {
+    Triangle triangle = *(triangles[i]);
+    Plane plane = Plane(triangle.a, triangle.b, triangle.c, triangle.d);
+    float cur = plane_intersect(r, )
+  }
+  
+}
+*/
 int inside_poly(Point point, Polyhedron poly) {
   for(unsigned int i = poly.start_index; i < poly.start_index + poly.num_faces; i++) {
     Plane plane = *(planes[i]);
@@ -200,4 +215,31 @@ int inside_poly(Point point, Polyhedron poly) {
     }
   }
   return TRUE;
+}
+
+int inside_sphere(Point point, Sphere sphere) {
+  if((point - sphere.center).len() < sphere.radius) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+int inside_plane(Point point, Plane plane) {
+  if(point.x * plane.a + point.y * plane.b + point.z * plane.c + plane.d > EPSILON) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+int inside_obj(Point point, Object* obj) {
+  switch(obj->ot) {
+  case SPHERE:
+    return inside_sphere(point, obj->sphere);
+  case PLANE:
+    return inside_plane(point, obj->plane);
+  case POLYHEDRON:
+    return inside_poly(point, obj->polyhedron);
+  default:
+    return FALSE;
+  }
 }
