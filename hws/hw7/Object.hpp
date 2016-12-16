@@ -88,7 +88,7 @@ extern vector<Triangle*> triangles;
 
 class TriangleMesh {
 public:
-  int start_index, end_index, num_faces;
+  unsigned int start_index, end_index, num_faces;
   TriangleMesh() {
     this->start_index = 0;
     this->end_index = 0;
@@ -96,7 +96,7 @@ public:
   }
   string toString() {
     string s = "Triangle Mesh: \n";
-    for (int i = start_index; i <= end_index; i++) {
+    for (unsigned int i = start_index; i <= end_index; i++) {
       s += triangles[i]->toString() + "\n";
     }
     return s;

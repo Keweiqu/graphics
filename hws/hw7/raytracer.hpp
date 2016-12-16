@@ -15,7 +15,7 @@ void print_ray(Ray r);
 float sphere_intersect(Ray& r, Sphere sphere);
 float plane_intersect(Ray& r, Plane plane);
 float polyhedron_intersect(Ray& r, Polyhedron poly, int& plane_index);
-float trianglemesh_intersect(Ray& r, TriangleMesh mesh, &int triangle_index);
+float trianglemesh_intersect(Ray& r, TriangleMesh mesh, int& triangle_index);
 Status intersect(Ray& r);
 vec3 sphere_normal(Sphere sphere, Point p, Ray& r);
 vec3 plane_normal(Plane plane);

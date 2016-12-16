@@ -78,8 +78,8 @@ Status intersect(Ray& r) {
 	  r.t = t_t;
 	  r.intersect_obj_index = i;
 	  r.intersect_point = r.o + r.d * r.t;
-	  Triangle tri = triangles[triangle_index];
-	  r.intersect_normal = vec3::normalize(vec3(tri.a, tri.b, tri.c));
+	  Triangle *tri = triangles[triangle_index];
+	  r.intersect_normal = vec3::normalize(vec3(tri->a, tri->b, tri->c));
 	  intersect = INTERSECT;
 	}
       }
@@ -125,6 +125,7 @@ Color lit(Ray r, int depth) {
       inside = TRUE;
       normal = normal * -1;
     }
+   
     float n1 = 1; //air
     float n2 = obj->sf.cof[REFRACT]; //obj material
     float n = inside ? n2 / n1 : n1 / n2;
@@ -270,7 +271,7 @@ int inside_triangle(Point point, Triangle triangle) {
   Point b = triangle.a2;
   Point c = triangle.a3;
 
-  if(same_side(point, a, b, c) && same_side(point, b, a, c) && same_side(p, c, a, b)) {
+  if(same_side(point, a, b, c) && same_side(point, b, a, c) && same_side(point, c, a, b)) {
     return TRUE;
   }
 
@@ -279,9 +280,9 @@ int inside_triangle(Point point, Triangle triangle) {
 }
 
 int same_side(Point point, Point a1, Point a2, Point a3) {
-  vec3 cp1 = vec3::cross(a2 - a1, p -a3);
+  vec3 cp1 = vec3::cross(a2 - a1, point -a3);
   vec3 cp2 = vec3::cross(a2 - a1, a3 - a1);
-  if((cp1 * cp2) >= 0) {
+  if((cp1 * cp2) >= EPSILON) {
     return TRUE;
   }
   return FALSE;
