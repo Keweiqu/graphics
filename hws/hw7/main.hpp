@@ -2,6 +2,7 @@
 #define MAIN_H
 #include <iostream>
 #include <string>
+#include <cstdlib>
 #include "readin_util.hpp"
 #include "extern.hpp"
 #include "util.hpp"

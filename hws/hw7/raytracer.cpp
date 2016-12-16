@@ -8,6 +8,9 @@ Ray compute_ray(float i, float j) {
   vec3 source = camera.o;
   vec3 direction = vec3::normalize(dest - source);
   Ray r = Ray(source, direction);
+  #if DEBUG == 1
+  print_ray(r);
+  #endif
   return r;
 }
 
@@ -39,6 +42,14 @@ Status intersect(Ray& r) {
 	  r.intersect_point = r.o + r.d * r.t;
 	  r.intersect_normal = sphere_normal(sphere, r.intersect_point, r);
 	  intersect = INTERSECT;
+    #if DEBUG == 1
+    cout << "================================Intersection=================================" << endl;
+    cout << "Intersects with a sphere at object index " << i <<
+    " at point (" << r.intersect_point.x << ", " << r.intersect_point.y << ", " << r.intersect_point.z << ")" << endl;
+    cout << "Normal at intersection point is <" << r.intersect_normal[0] << ", " << r.intersect_normal[1] << ", " << r.intersect_normal[2] << ">" << endl;
+    cout << "t = " << r.t << endl;
+    cout << "=============================================================================" << endl;
+    #endif
 	}
 	break;
       }
@@ -53,6 +64,14 @@ Status intersect(Ray& r) {
           r.intersect_normal = plane_normal(plane);
           intersect = INTERSECT;
         }
+        #if DEBUG == 1
+        cout << "=================================Intersection================================" << endl;
+        cout << "Intersects with a plane at object index " << i <<
+        " at point (" << r.intersect_point.x << ", " << r.intersect_point.y << ", " << r.intersect_point.z << ")" << endl;
+        cout << "Normal at intersection point is <" << r.intersect_normal[0] << ", " << r.intersect_normal[1] << ", " << r.intersect_normal[2] << ">" << endl;
+        cout << "t = " << r.t << endl;
+        cout << "=============================================================================" << endl;
+        #endif
         break;
       }
       case POLYHEDRON:
@@ -66,6 +85,14 @@ Status intersect(Ray& r) {
 	  r.intersect_point = r.o + r.d * r.t;
 	  r.intersect_normal = plane_normal(*(planes[plane_index]));
 	  intersect = INTERSECT;
+    #if DEBUG == 1
+    cout << "===============================Intersection==================================" << endl;
+    cout << "Intersects with a polyhedron at object index " << i <<
+    " at point (" << r.intersect_point.x << ", " << r.intersect_point.y << ", " << r.intersect_point.z << ")" << endl;
+    cout << "Normal at intersection point is <" << r.intersect_normal[0] << ", " << r.intersect_normal[1] << ", " << r.intersect_normal[2] << ">" << endl;
+    cout << "t = " << r.t << endl;
+    cout << "=============================================================================" << endl;
+    #endif
         }
         break;
       }
@@ -81,6 +108,14 @@ Status intersect(Ray& r) {
 	  Triangle *tri = triangles[triangle_index];
 	  r.intersect_normal = vec3::normalize(vec3(tri->a, tri->b, tri->c));
 	  intersect = INTERSECT;
+    #if DEBUG == 1
+    cout << "===============================Intersection==================================" << endl;
+    cout << "Intersects with a triangle mesh at object index " << i <<
+    " at point (" << r.intersect_point.x << ", " << r.intersect_point.y << ", " << r.intersect_point.z << ")" << endl;
+    cout << "Normal at intersection point is <" << r.intersect_normal[0] << ", " << r.intersect_normal[1] << ", " << r.intersect_normal[2] << ">" << endl;
+    cout << "t = " << r.t << endl;
+    cout << "=============================================================================" << endl;
+    #endif
 	}
       }
     default:
@@ -116,6 +151,13 @@ Color lit(Ray r, int depth) {
     vec3 p = vec3(r.intersect_point.x, r.intersect_point.y, r.intersect_point.z);
     Ray reflectRay = Ray(p, reflect_dir);
     reflect = trace(reflectRay, depth + 1) * obj->sf.cof[REFLECT];
+    #if DEBUG == 1
+    cout << "===============================Reflection==================================" << endl;
+    cout << "Reflected at point (" << p[0] << ", " << p[1] << ", " << p[2] << ") on object at index " << r.intersect_obj_index << endl;
+    cout << "Direction of reflected ray: <" << reflect_dir[0] << ", " << reflect_dir[1] << ", " << reflect_dir[2] << ">" << endl;
+    cout << "Normal of reflection: <" << normal[0] << ", " << normal[1] << ", " << normal[2] << ">" << endl;
+    cout << "===========================================================================" << endl;
+    #endif
   }
 
   if(obj->sf.cof[TRANSMIT] > 0) {
@@ -125,7 +167,7 @@ Color lit(Ray r, int depth) {
       inside = TRUE;
       normal = normal * -1;
     }
-   
+
     float n1 = 1; //air
     float n2 = obj->sf.cof[REFRACT]; //obj material
     float n = inside ? n2 / n1 : n1 / n2;
@@ -135,7 +177,19 @@ Color lit(Ray r, int depth) {
     vec3 p = vec3(r.intersect_point.x, r.intersect_point.y, r.intersect_point.z);
     Ray refractRay = Ray(p, refra_dir);
     refract = trace(refractRay, depth + 1) * obj->sf.cof[TRANSMIT];
+    #if DEBUG == 1
+    cout << "===============================Refraction==================================" << endl;
+    cout << "Refracted at point (" << p[0] << ", " << p[1] << ", " << p[2] << ") on object at index " << r.intersect_obj_index << endl;
+    cout << "Direction of refracted ray: <" << refra_dir[0] << ", " << refra_dir[1] << ", " << refra_dir[2] << ">" << endl;
+    cout << "Normal of refraction: <" << normal[0] << ", " << normal[1] << ", " << normal[2] << ">" << endl;
+    cout << "===========================================================================" << endl;
+    #endif
   }
+  cout << "==================================Color====================================" << endl;
+  cout << "Local " << local.toString() << endl;
+  cout << "Reflect " << reflect.toString() << endl;
+  cout << "Refract " << refract.toString() << endl;
+  cout << "===========================================================================" << endl;
   return local + reflect + refract;
 }
 
@@ -146,6 +200,11 @@ int visible(Point p, Light light) {
       if((light.coord - p).len() < shadow_ray.t) {
 	return TRUE;
       }
+      #if DEBUG == 1
+      cout << "===============================Visibility==================================" << endl;
+      cout << "Point (" << p.x << ", " << p.y << ", " << p.z << ") is in shadow" << endl;
+      cout << "===========================================================================" << endl;
+      #endif
       return FALSE;
     }
   }
@@ -191,7 +250,7 @@ float plane_intersect(Ray& r, Plane plane) {
   vec3 n = plane_normal(plane);
   float val = (vec3(r.o.x, r.o.y, r.o.z) * n + plane.d) / (r.d * n) * -1.0;
   return val;
-  
+
 }
 
 vec3 plane_normal(Plane plane) {
@@ -278,7 +337,7 @@ int inside_triangle(Point point, Triangle triangle) {
   }
   //cout << "FALSE" << endl;
   return FALSE;
-  
+
 }
 
 int same_side(Point P1, Point P2, Point A, Point B) {

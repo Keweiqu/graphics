@@ -22,5 +22,6 @@
 #define TO_RAD M_PI / 180.0
 #define MAX_DEPTH 3
 #define EPSILON 0.001
+#define DEBUG 1
 
 #endif
