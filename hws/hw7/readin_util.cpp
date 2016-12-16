@@ -210,6 +210,7 @@ void readoff(TriangleMesh& mesh, string filename) {
     Triangle* triangle = calc_cof(vertices[index1], vertices[index2], vertices[index3]);
     triangles.push_back(triangle);
   }
+  source.close();
 }
 
 

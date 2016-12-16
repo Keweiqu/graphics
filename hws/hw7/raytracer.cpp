@@ -189,7 +189,9 @@ vec3 sphere_normal(Sphere sphere, Point p, Ray& r) {
 
 float plane_intersect(Ray& r, Plane plane) {
   vec3 n = plane_normal(plane);
-  return (vec3(r.o.x, r.o.y, r.o.z) * n + plane.d) / (r.d * n) * -1;
+  float val = (vec3(r.o.x, r.o.y, r.o.z) * n + plane.d) / (r.d * n) * -1.0;
+  return val;
+  
 }
 
 vec3 plane_normal(Plane plane) {
@@ -274,15 +276,20 @@ int inside_triangle(Point point, Triangle triangle) {
   if(same_side(point, a, b, c) && same_side(point, b, a, c) && same_side(point, c, a, b)) {
     return TRUE;
   }
-
+  //cout << "FALSE" << endl;
   return FALSE;
   
 }
 
-int same_side(Point point, Point a1, Point a2, Point a3) {
-  vec3 cp1 = vec3::cross(a2 - a1, point -a3);
-  vec3 cp2 = vec3::cross(a2 - a1, a3 - a1);
-  if((cp1 * cp2) >= EPSILON) {
+int same_side(Point P1, Point P2, Point A, Point B) {
+  glm::vec3 a = glm::vec3(A.x, A.y, A.z);
+  glm::vec3 b = glm::vec3(B.x, B.y, B.z);
+  glm::vec3 p1 = glm::vec3(P1.x, P1.y, P1.z);
+  glm::vec3 p2 = glm::vec3(P2.x, P2.y, P2.z);
+  glm::vec3 cp1 = glm::normalize(glm::cross(b - a, p1 - a));
+  glm::vec3 cp2 = glm::normalize(glm::cross(b - a, p2 - a));
+  float dotproduct = glm::dot(cp1, cp2);
+  if(dotproduct >= 0) {
     return TRUE;
   }
   return FALSE;
