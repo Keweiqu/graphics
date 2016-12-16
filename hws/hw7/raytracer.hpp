@@ -15,6 +15,7 @@ void print_ray(Ray r);
 float sphere_intersect(Ray& r, Sphere sphere);
 float plane_intersect(Ray& r, Plane plane);
 float polyhedron_intersect(Ray& r, Polyhedron poly, int& plane_index);
+float trianglemesh_intersect(Ray& r, TriangleMesh mesh, &int triangle_index);
 Status intersect(Ray& r);
 vec3 sphere_normal(Sphere sphere, Point p, Ray& r);
 vec3 plane_normal(Plane plane);
@@ -24,6 +25,7 @@ Color trace(Ray r, int depth);
 int inside_poly(Point point, Polyhedron poly);
 int inside_sphere(Point point, Sphere sphere);
 int inside_plane(Point point, Plane plane);
+int inside_triangle(Point point, Triangle triangle);
 int inside_obj(Point point, Object* obj);
-
+int same_side(Point point, Point a1, Point a2, Point a3);
 #endif

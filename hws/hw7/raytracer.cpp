@@ -69,6 +69,20 @@ Status intersect(Ray& r) {
         }
         break;
       }
+    case MESH:
+      {
+	TriangleMesh mesh = obj->mesh;
+	int triangle_index = -1;
+	float t_t = trianglemesh_intersect(r, mesh, triangle_index);
+	if(triangle_index != -1 && t_t > EPSILON && r.t > t_t) {
+	  r.t = t_t;
+	  r.intersect_obj_index = i;
+	  r.intersect_point = r.o + r.d * r.t;
+	  Triangle tri = triangles[triangle_index];
+	  r.intersect_normal = vec3::normalize(vec3(tri.a, tri.b, tri.c));
+	  intersect = INTERSECT;
+	}
+      }
     default:
       break;
     }
@@ -196,17 +210,24 @@ float polyhedron_intersect(Ray& r, Polyhedron poly, int& plane_index) {
   return t;
 }
 
-/*
-float trianglemesn_intersect(Ray& r, TriangleMesh mesh, int& triangle_index) {
+
+float trianglemesh_intersect(Ray& r, TriangleMesh mesh, int& triangle_index) {
   float t = FLT_MAX;
   for(unsigned int i = mesh.start_index; i < mesh.start_index + mesh.num_faces; i++) {
     Triangle triangle = *(triangles[i]);
     Plane plane = Plane(triangle.a, triangle.b, triangle.c, triangle.d);
-    float cur = plane_intersect(r, )
+    float cur = plane_intersect(r, plane);
+    if(cur > EPSILON && cur < t) {
+      Point p = r.o + r.d * cur;
+      if(inside_triangle(p, triangle)) {
+	t = cur;
+	triangle_index = i;
+      }
+    }
   }
-  
+  return t;
 }
-*/
+
 int inside_poly(Point point, Polyhedron poly) {
   for(unsigned int i = poly.start_index; i < poly.start_index + poly.num_faces; i++) {
     Plane plane = *(planes[i]);
@@ -242,4 +263,26 @@ int inside_obj(Point point, Object* obj) {
   default:
     return FALSE;
   }
+}
+
+int inside_triangle(Point point, Triangle triangle) {
+  Point a = triangle.a1;
+  Point b = triangle.a2;
+  Point c = triangle.a3;
+
+  if(same_side(point, a, b, c) && same_side(point, b, a, c) && same_side(p, c, a, b)) {
+    return TRUE;
+  }
+
+  return FALSE;
+  
+}
+
+int same_side(Point point, Point a1, Point a2, Point a3) {
+  vec3 cp1 = vec3::cross(a2 - a1, p -a3);
+  vec3 cp2 = vec3::cross(a2 - a1, a3 - a1);
+  if((cp1 * cp2) >= 0) {
+    return TRUE;
+  }
+  return FALSE;
 }
