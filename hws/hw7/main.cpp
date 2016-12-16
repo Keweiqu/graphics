@@ -34,7 +34,6 @@ int main(int argc, char* argv[]) {
   int i = atoi(argv[2]);
   int j = atoi(argv[3]);
   cout << "Tracing ray from row " << i << " and column " << j << endl;
-  compute_ray(i, j);
   if(antialias) {
     Ray A = compute_ray(i, j);
   	Ray B = compute_ray(i, j + 1);

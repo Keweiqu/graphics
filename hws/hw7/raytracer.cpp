@@ -185,11 +185,13 @@ Color lit(Ray r, int depth) {
     cout << "===========================================================================" << endl;
     #endif
   }
+  #if DEBUG == 1
   cout << "==================================Color====================================" << endl;
   cout << "Local " << local.toString() << endl;
   cout << "Reflect " << reflect.toString() << endl;
   cout << "Refract " << refract.toString() << endl;
   cout << "===========================================================================" << endl;
+  #endif
   return local + reflect + refract;
 }
 
